@@ -1,0 +1,64 @@
+{% extends 'emails/base_email_template.html.twig' %}
+{% if state == 'need-approve' %}
+    {% set title = 'requests approval' %}
+{% elseif state == 'need-purchasing-manager' %}
+    {% set title = 'approved purchase request' %}
+{% elseif state == 'assign-manager' %}
+    {% set title = 'assigned manager' %}
+{% elseif state == 'start-work' %}
+    {% set title = 'handed work on request' %}
+{% elseif state == 'need-fixing' %}
+    {% set title = 'returned request to fixing' %}
+{% elseif state == 'reject' %}
+    {% set title = 'rejected request' %}
+{% elseif state == 'fixing-prices-items' %}
+    {% set title = 'returned request on preliminary estimate' %}
+{% else %}
+    {% set title = 'updated purchase request' %}
+{% endif %}
+
+{% block template_title %}
+    {% if app.user %}
+        {{ app.user.fullName }} <strong>{{ title | trans() }}</strong>
+    {% else %}
+        {{ user.fullName }} <strong>{{ title | trans() }}</strong>
+    {% endif %}
+    <a href="{{ base_url ~ path('request_details', {'id': purchaseRequest.project.id, 'requestId': purchaseRequest.id}) }}" style="color:#3b73af;text-decoration:none;" target="_blank" rel="noopener noreferrer"> {{ purchaseRequest.code }} </a>
+    <strong>{{ 'in project' | trans() }}</strong>
+    <a href="{{ base_url ~ path('project_details', {'id': purchaseRequest.project.id}) }}" style="color:#3b73af;text-decoration:none;" target="_blank" rel="noopener noreferrer"> {{ purchaseRequest.project.name }} </a>
+{% endblock %}
+{% block template_description %}
+{% endblock %}
+{% block template_table %}
+    {% if purchaseRequest.items | length %}
+    <h3>{{ 'Items' | trans() }}
+    <table style="border-collapse:collapse;">
+        <tbody>
+        {% for item in purchaseRequest.items %}
+            <tr>
+                <th style="color:#707070;font:normal 14px/20px Arial,sans-serif;text-align:left;vertical-align:top;padding:2px 10px;">#{{ loop.index }}</th>
+                <th style="color:#707070;font:normal 14px/20px Arial,sans-serif;text-align:left;vertical-align:top;padding:2px 10px;">{{ item.title }}</th>
+                <th style="color:#707070;font:normal 14px/20px Arial,sans-serif;text-align:left;vertical-align:top;padding:2px 10px;">{{ item.sku }}</th>
+                <th style="color:#707070;font:normal 14px/20px Arial,sans-serif;text-align:left;vertical-align:top;padding:2px 10px;">{{ item.quantity }}</th>
+                <th style="color:#707070;font:normal 14px/20px Arial,sans-serif;text-align:left;vertical-align:top;padding:2px 10px;">{{ item.unit.title }}</th>
+                <th style="color:#707070;font:normal 14px/20px Arial,sans-serif;text-align:left;vertical-align:top;padding:2px 10px;">{{ item.suppliesCategory ? item.suppliesCategory.title : '' }}</th>
+                <th style="color:#707070;font:normal 14px/20px Arial,sans-serif;text-align:left;vertical-align:top;padding:2px 10px;">{{ item.notice | raw }}</th>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+    <h3>{{ 'Changes' | trans() }}
+    <table style="border-collapse:collapse;">
+        <tbody>
+        {% for changes in purchaseRequestChanges %}
+            <tr>
+                <th style="color:#707070;font:normal 14px/20px Arial,sans-serif;text-align:left;vertical-align:top;padding:2px 0;">{{ (changes.field | capitalize) | trans() }}:</th>
+                <td style="padding:0;border-collapse:collapse;font:normal 14px/20px Arial,sans-serif;padding:2px 0 2px 5px;vertical-align:top;">
+                    <span style="background-color:#ffe7e7;text-decoration:line-through;">{{ changes.oldValue | trans() }}</span> <span style="background-color:#ddfade;">{{ changes.newValue | trans() }}</span>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

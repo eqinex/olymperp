@@ -1,0 +1,85 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'Vacancies' | trans() }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ breadcrumb( 'Vacancies' | trans(), path('vacancies_list') ) }}
+{% endblock %}
+
+{% block body %}
+    <div class="panel panel-default no-bg  b-gray-dark">
+        <div class="panel-body">
+            {% if app.user.canEditVacancy() or app.user.getSubmissionTeam() %}
+                <form class="form-inline filter-form" method="get" action="">
+                    {% if app.user.canEditApplicant() %}
+                        <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target=".addVacancyModal"><i class="fa fa-plus"></i> {{ 'Add vacancy' | trans() }}</button>
+                    {% endif %}
+                </form>
+            {% endif %}
+        </div>
+    </div>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th class="small text-muted text-uppercase"><strong>{{ "Employee Role" | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ "Team" | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ "Description" | trans() }}</strong></th>
+            {% if app.user.canEditVacancy() or app.user.getSubmissionTeam() %}
+                <th class="small text-muted text-uppercase text-right"><strong>{{ 'Actions' | trans() }}</strong></th>
+            {% endif %}
+        </tr>
+        </thead>
+        <tbody>
+        {% for vacancy in vacancies %}
+            <tr>
+                <td class="v-a-m">
+                    {{ vacancy.employeeRole }}
+                </td>
+                <td class="v-a-m">
+                    {{ vacancy.team }}
+                </td>
+                <td class="v-a-m">
+                    {{ vacancy.description }}
+                </td>
+                {% if app.user.canEditVacancy() or app.user.getSubmissionTeam() %}
+                    <td class="text-right v-a-m">
+                        <div class="dropdown">
+                            <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                <i class="fa fa-fw fa-gear"></i> <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-right">
+                                {% include 'vacancy/partial/vacancy_actions.html.twig' %}
+                            </ul>
+                        </div>
+                    </td>
+                {% endif %}
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% import 'vacancy/partial/form.html.twig' as form %}
+
+    {% set addVacancyFormVars = {
+        'class': 'addVacancyModal',
+        'formId': 'addVacancyForm',
+        'title': 'Add vacancy',
+        'size': 'large',
+        'content': form.inputs(employeeRoles, teams),
+        'formAction': path('vacancies_add'),
+        'submitTitle': 'Add'
+    } %}
+
+    {% set editVacancyFormVars = {
+        'class': 'editVacancyModal',
+        'formId': 'editVacancyForm',
+        'title': 'Edit vacancy',
+        'size': 'large',
+        'content': form.inputs(employeeRoles, teams),
+        'submitTitle': 'Save'
+    } %}
+
+
+    {% include 'partial/modal.html.twig' with addVacancyFormVars %}
+    {% include 'partial/modal.html.twig' with editVacancyFormVars %}
+
+{% endblock %}

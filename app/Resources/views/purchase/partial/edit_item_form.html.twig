@@ -1,0 +1,49 @@
+{% macro inputs(categories, units) %}
+    <div class="form-group item" id="item-1">
+        <div class="col-sm-3">
+            <input type="text" class="item-sku form-control" placeholder="{{ 'item.sku' }} | trans()" value="" name="item[sku]" required="required">
+        </div>
+        <div class="col-sm-3 p-l-0">
+            <input type="text" class="item-title form-control" placeholder="{{ 'item.title' | trans() }}" value="" name="item[title]" required="required">
+        </div>
+        <div class="col-sm-2 p-l-0">
+            <input type="number" class="item-quantity form-control" placeholder="{{ 'item.quantity' | trans() }}" value="" name="item[quantity]" required="required">
+        </div>
+        <div class="col-sm-2 p-l-0">
+            <select class="item-units form-control" name="item[unit]">
+                {% for unit in units %}
+                    <option value="{{ unit.id }}">{{ unit.title }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-sm-2 p-l-0">
+            <select class="item-category form-control" name="item[category]">
+                <option value="">{{ 'Select supplies category' | trans() }}</option>
+                {% for parent, suppliesCategories in categories %}
+                    <optgroup label="{{ parent | trans()  }} ">
+                        {% for suppliesCategory in suppliesCategories %}
+                            <option value="{{ suppliesCategory.id }}"
+                                    {% if purchaseRequest.suppliesCategory.id is defined and purchaseRequest.suppliesCategory.id == suppliesCategory.id %}
+                                        {{ "selected" }}
+                                    {% endif %}>{{ suppliesCategory.title }}</option>
+                        {% endfor %}
+                    </optgroup>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function(){
+            $('.edit-item').click(function(){
+                $('.item-title').val($(this).data('title'));
+                $('.item-sku').val($(this).data('sku'));
+                $('.item-quantity').val($(this).data('quantity'));
+                $('.item-units').val($(this).data('unit'));
+                $('.item-category').val($(this).data('category'));
+
+                $('#editItemForm').attr('action', $(this).data('form-action'));
+            })
+        });
+    </script>
+{% endmacro %}

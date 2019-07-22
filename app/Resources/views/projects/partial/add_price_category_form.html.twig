@@ -1,0 +1,15 @@
+{% macro inputs(purchaseCategories) %}
+    <div class="form-group">
+        <label class="col-sm-4 control-label">{{ 'Select category' | trans() }}</label>
+        <div class="col-sm-7">
+            <select class="form-control select2-modal" name="category[categoryId]" required>
+                <option value="">{{ 'Select category' | trans() }}</option>
+                {% for category in purchaseCategories %}
+                    <option value="{{ category.id }}">
+                        {{ category.title }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+{% endmacro %}

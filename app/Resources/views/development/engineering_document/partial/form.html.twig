@@ -1,0 +1,352 @@
+{% macro inputs(classifierClasses) %}
+    <input type="hidden" class="engineering-document-execution" name="engineering_document[documentExecution]" value="">
+    <div class="form-group">
+        <label class="col-sm-2 control-label" title="{{ 'Inventory number indicates the order of assignment of the document' | trans() }}">{{ 'Inventory number' | trans() }}</label>
+        <div class="col-sm-3">
+            <input type="text" class="engineering-document-inventory-number form-control" title="{{ "Development" | trans() }}" name="engineering_document[inventoryNumber]" placeholder="{{ 'Inventory number' | trans() }}" value="" required>
+        </div>
+        <label class="col-sm-3 control-label" title="{{ 'The date of registration of the code' | trans() }}">{{ 'Registration Date' | trans() }}</label>
+        <div class="col-sm-3">
+            <input type="text" required class="form-control engineering-document-created-at daterange-single-date-picker"
+                   name="engineering_document[createdAt]" value="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label" title="{{ 'The number of pages in the document' | trans() }}">{{ 'Number of pages' | trans() }}</label>
+        <div class="col-sm-3">
+            <input type="number" class="engineering-document-number-of-pages form-control" name="engineering_document[numberOfPages]" placeholder="{{ 'Number of pages' | trans() }}" value="">
+        </div>
+        <label class="col-sm-3 control-label" title="{{ 'Document format' | trans() }}">{{ 'Format' | trans() }}</label>
+        <div class="col-sm-3">
+            <input type="text" class="engineering-document-format form-control" name="engineering_document[format]" placeholder="{{ 'Format' | trans() }}" value="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label" title="{{ 'OKPO code assigned to the organization (by default - BHAP)' | trans() }}">{{ 'Engineering code' | trans() }}</label>
+        <div class="col-sm-3">
+            <input type="text" class="engineering-document-code form-control" name="engineering_document[code]" placeholder="{{ 'Engineering code' | trans() }}" value="" required>
+        </div>
+        <label class="col-sm-3 control-label" title="{{ 'Index number' | trans() }}">{{ 'Index number' | trans() }}</label>
+        <div class="col-sm-3">
+            <input type="text" class="engineering-document-index-number form-control" name="engineering_document[indexNumber]" placeholder="{{ 'Index number' | trans() }}" value="" required>
+        </div>
+    </div>
+    <div class="form-group">
+
+        <label class="col-sm-2 control-label" title="{{ 'Document type' | trans() }}">{{ 'Document type' | trans() }}</label>
+        <div class="col-sm-3">
+            <input type="text" class="engineering-document-document-type form-control" name="engineering_document[typeOfDocument]" placeholder="{{ 'Document type' | trans() }}" value="">
+        </div>
+        <label class="col-sm-3 control-label" title="{{ 'Product title' | trans() }}">{{ 'item.title' | trans() | capitalize }}</label>
+        <div class="col-sm-3">
+            <input type="text" class="engineering-document-title form-control" name="engineering_document[title]" placeholder="{{ 'item.title' | trans() | capitalize }}" value="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label" style="margin-top: -14px" title="{{ 'Engineering document code' | trans() }}">{{ 'Engineering document code' | trans() }}</label>
+        <div class="col-sm-9">
+            <input type="text" class="engineering-document-classifier-code form-control" name="engineering_document[classifierCode]" placeholder="{{ 'Engineering document code' | trans() }}" value="" required>
+            <a class="btn btn-gray-light btn-sm add-classifier-btn">
+                <i class="fa fa-book"></i>
+            </a>
+        </div>
+    </div>
+    <div id="classifier">
+        <div class="form-group">
+            <label class="col-sm-2 control-label" title="{{ 'Сlass according to the classifier ESKD' | trans() }}">{{ 'Class' | trans() }}</label>
+            <div class="col-sm-9">
+                <select class="form-control engineering-document-class select2-modal" name="engineering_document[class]" id="engineering-document-class">
+                    <option value="">{{ 'Select class' | trans() }}</option>
+                    {% for classifierClass in classifierClasses %}
+                        <option value="{{ classifierClass.class }}"
+                                {% if engineeringDocument.class is defined and engineeringDocument.class == classifierClass.class %}
+                                    {{ "selected" }}
+                                {% endif %}>{{ classifierClass.class ~ ' - ' ~ classifierClass.description }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label" title="{{ 'Subclass' | trans() }}">{{ 'Subclass' | trans() }}</label>
+            <div class="col-lg-9">
+                <select class="form-control engineering-document-subclass select2-modal" name="engineering_document[value]">
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label" title="{{ 'Group' | trans() }}">{{ 'Group' | trans() }}</label>
+            <div class="col-lg-9">
+                <select class="form-control engineering-document-group select2-modal" name="engineering_document[value]">
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label" title="{{ 'Subgroup' | trans() }}">{{ 'Subgroup' | trans() }}</label>
+            <div class="col-lg-9">
+                <select class="form-control engineering-document-subgroup select2-modal" name="engineering_document[value]">
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label" title="{{ 'Species according to the classifier ESKD' | trans() }}">{{ 'Species according to the classifier ESKD' | trans() }}</label>
+            <div class="col-lg-9">
+                <select class="form-control engineering-document-species select2-modal" name="engineering_document[value]">
+                </select>
+            </div> <a class="btn btn-gray-light btn-sm add-classifier-btn">
+                <i class="fa fa-book"></i>
+            </a>
+            <a class="btn btn-gray-light btn-sm not-classifier-btn" id="not-classifier">
+                <i class="fa fa-arrow-up"></i>
+            </a>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label"  title="{{ 'Decryption code' | trans() }}">{{ "Decryption code" | trans() }}</label>
+        <div class="col-lg-9">
+            <textarea class="form-control engineering-document-decryption-code" style="height: 100px;" placeholder="{{ "Decryption code" | trans() }}" name="engineering_document[decryptionCode]"></textarea>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label"  title="{{ 'Owner' | trans() }}">{{ 'Owner' | trans() }}</label>
+        <div class="col-sm-3">
+            <select class="form-control engineering-document-owner select2-modal" name="engineering_document[owner]" required>
+                {% for team, members in employee_service.getUsersGroupedByTeams() %}
+                    <optgroup label="{{ team | trans() }}">{{ engineeringDocument.owner.id is defined ? engineeringDocument.owner.id }}
+                        {% for member in members %}
+                            <option value="{{ member.id }}"
+                                    {% if engineeringDocument.owner.id is defined and engineeringDocument.owner.id == member.id %}
+                                        {{ "selected" }}
+                                    {% elseif engineeringDocument.owner.id is not defined and app.user.id == member.id %}
+                                        {{ "selected" }}
+                                    {% endif %}
+                            >{{ member.fullName }} ({{ member.employeeRole }})</option>
+                        {% endfor %}
+                    </optgroup>
+                {% endfor %}
+            </select>
+        </div>
+        <label class="col-sm-3 control-label" title="{{ 'The name of the code of the project adopted in the organization' | trans() }}">{{ 'Project' | trans() }}</label>
+        <div class="col-sm-3">
+            <select class="form-control engineering-document-project select2-modal" name="engineering_document[project]" required>
+                {% for project in project_service.getAvailableProjects(app.user) %}
+                    <option value="{{ project.id }}"
+                            {% if engineeringDocument.project.id is defined %}
+                                {{ "selected" }}
+                            {% endif %}>{{ project.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label"  title="{{ 'Notice' | trans() }}">{{ "Notice" | trans() }}</label>
+        <div class="col-lg-9">
+            <textarea class="form-control engineering-document-notice" style="height: 100px;" placeholder="{{ "Notice" | trans() }}" name="engineering_document[notice]"></textarea>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            moment.locale('ru');
+
+            $('.engineering-document-group').attr('disabled', true);
+            $('.engineering-document-subgroup').attr('disabled', true);
+            $('.engineering-document-species').attr('disabled', true);
+
+            function contentForm(formId, valueDoc){
+                $(formId).find('.engineering-document-inventory-number').val($(valueDoc).data('inventoryNumber'));
+                $(formId).find('.engineering-document-created-at').val($(valueDoc).data('createdAt'));
+                $(formId).find('.engineering-document-number-of-pages').val($(valueDoc).data('numberOfPages'));
+                $(formId).find('.engineering-document-format').val($(valueDoc).data('format'));
+                $(formId).find('.engineering-document-title').val($(valueDoc).data('title'));
+                $(formId).find('.engineering-document-code').val($(valueDoc).data('code'));
+                $(formId).find('.engineering-document-execution').val($(valueDoc).data('documentExecution'));
+                $(formId).find('.engineering-document-classifier-code').val($(valueDoc).data('classifierCode'));
+                $(formId).find('.engineering-document-index-number').val($(valueDoc).data('indexNumber'));
+                $(formId).find('.engineering-document-document-type').val($(valueDoc).data('typeOfDocument'));
+                $(formId).find('.engineering-document-decryption-code').val($(valueDoc).data('decryptionCode'));
+                $(formId).find('.engineering-document-owner').val($(valueDoc).data('owner'));
+                $(formId).find('.engineering-document-project').val($(valueDoc).data('project'));
+                $(formId).find('.engineering-document-notice').val($(valueDoc).data('notice'));
+
+                $(formId).find('#classifier').attr('hidden', true);
+                $(formId).find('.add-classifier-btn').bind('click', function() {
+                    $(formId).find('#classifier').show();
+                    $(formId).find('.add-classifier-btn').hide();
+                });
+
+                $(formId).find('.not-classifier-btn').bind('click', function() {
+                    $(formId).find('#classifier').hide();
+                    $(formId).find('.add-classifier-btn').show();
+                });
+
+                let value = $(formId).find('.engineering-document-class').val($(valueDoc).data('class'));
+                let selectClass = '.engineering-document-subclass';
+                sendAjax(value, selectClass);
+
+                $('.select2-modal').select2({ width: '100%' });
+            }
+
+            $('.edit-engineering-document').bind('click', function () {
+                let formId = $('#editEngineeringDocumentForm');
+
+                $(formId).attr('action', $(this).data('href'));
+
+                contentForm(formId, $(this));
+            });
+
+            $('.info-engineering-document').bind('click', function () {
+                let formId = $('#infoEngineeringDocumentForm');
+
+                $(formId).find('.add-classifier-btn').hide();
+                $(formId).find('input').attr('disabled', true);
+                $(formId).find('textarea').attr('disabled', true);
+                $(formId).find('select').attr('disabled', true);
+
+                contentForm(formId, $(this));
+            });
+
+            $('.daterange-single-date-picker').daterangepicker({
+                singleDatePicker: true,
+                showDropdowns: true,
+                timePicker24Hour: true,
+                timePickerIncrement: 30,
+                opens: "left",
+                drops: "down",
+                locale: {
+                    format: 'DD.MM.YYYY', applyLabel: "Выбрать", cancelLabel: "Отменить"
+                }
+            });
+
+            var decryptionCodes = {
+                0 : {field : 'subgroupValue', text : ''},
+                1 : {field : '', text : 'Код классификатора ЕСКД: '},
+                2 : {field : 'class', text : ''},
+                3 : {field : 'subclass', text : ''},
+                4 : {field : 'group', text : ''},
+                5 : {field : 'subgroup', text : ''},
+                6 : {field : 'species', text : ''}
+            };
+
+            let decryptionClass = $('.engineering-document-decryption-code');
+
+            $('#classifier').attr('hidden', true);
+            $('.add-classifier-btn').bind('click', function() {
+                $('#classifier').show();
+                $('.add-classifier-btn').hide();
+            });
+
+            $('.not-classifier-btn').bind('click', function() {
+                $('#classifier').hide();
+                $('.add-classifier-btn').show();
+            });
+
+            $(".engineering-document-class").on('change', function() {
+                let value = $(".engineering-document-class").val($(this).val());
+                let selectClass = '.engineering-document-subclass';
+                $(selectClass).attr('disabled', false);
+                refreshDecryption('class', $(this).find('option:selected'), decryptionClass);
+                sendAjax(value, selectClass);
+            });
+
+            $(".engineering-document-subclass").on('change', function() {
+                let value = $(".engineering-document-subclass").val($(this).val());
+                let selectClass = '.engineering-document-group';
+                $(selectClass).attr('disabled', false);
+                refreshDecryption('subclass', $(this).find('option:selected'), decryptionClass);
+                sendAjax(value, selectClass);
+            });
+
+            $(".engineering-document-group").on('change', function() {
+                let value = $(".engineering-document-group").val($(this).val());
+                let selectClass = '.engineering-document-subgroup';
+                $(selectClass).attr('disabled', false);
+                refreshDecryption('group', $(this).find('option:selected'), decryptionClass);
+                sendAjax(value, selectClass);
+            });
+
+            $(".engineering-document-subgroup").on('change', function() {
+                let value = $(".engineering-document-subgroup").val($(this).val());
+                let selectClass = '.engineering-document-species';
+                $(selectClass).attr('disabled', false);
+                refreshDecryption('subgroup', $(this).find('option:selected'), decryptionClass);
+                sendAjax(value, selectClass);
+            });
+
+            $(".engineering-document-species").on('change', function() {
+                $(".engineering-document-classifier-code").val($(this).val());
+                refreshDecryption('species', $(this).find('option:selected'), decryptionClass);
+            });
+
+            function sendAjax(value, selectClass) {
+                $.ajax({
+                    url: "{{ path('engineering_document_classifier') }}",
+                    type: "POST",
+                    data: value,
+                    dataType: "json",
+                    success: function(data) {
+                        refreshSelect(selectClass);
+                        data.forEach((item) => {
+                            $(selectClass).append('<option value="' + item.class + item.subgroup + '">' + item.class + ' - ' + item.subgroup + ' – '  + item.description + '</option>');
+                        });
+                    },
+                });
+            }
+
+            function refreshSelect(selectClass) {
+                if (selectClass == '.engineering-document-subclass') {
+                    $('.engineering-document-group')
+                        .attr('disabled', true)
+                        .empty();
+                    $('.engineering-document-subgroup')
+                        .attr('disabled', true)
+                        .empty();
+                    $('.engineering-document-species')
+                        .attr('disabled', true)
+                        .empty();
+                    $('.engineering-document-subclass').empty();
+                    $(selectClass).prepend('<option value=""> {{ 'Select subclass' | trans() }} </option>');
+                } else if (selectClass == '.engineering-document-group') {
+                    $('.engineering-document-subgroup')
+                        .attr('disabled', true)
+                        .empty();
+                    $('.engineering-document-species')
+                        .attr('disabled', true)
+                        .empty();
+                    $('.engineering-document-group').empty();
+                    $(selectClass).prepend('<option value=""> {{ 'Select group' | trans() }} </option>');
+                } else if (selectClass == '.engineering-document-subgroup') {
+                    $('.engineering-document-species')
+                        .attr('disabled', true)
+                        .empty();
+                    $('.engineering-document-subgroup').empty();
+                    $(selectClass).prepend('<option value=""> {{ 'Select subgroup' | trans() }} </option>');
+                } else if (selectClass == '.engineering-document-species') {
+                    $('.engineering-document-species').empty();
+                    $(selectClass).prepend('<option value=""> {{ 'Select species' | trans() }} </option>');
+                }
+            }
+
+            function refreshDecryption(selectClass, selectDecryption, classDecryptionCode) {
+                let lastKey = Object.keys(decryptionCodes).length - 1;
+
+                for (let key in decryptionCodes) {
+                    let delimiter = selectClass == 'class' ? ' - ' : ' – ';
+
+                    if (decryptionCodes[key].field == selectClass) {
+                        lastKey = key;
+                        decryptionCodes[lastKey].text = decryptionCodes[selectClass == 'class' ? lastKey : (lastKey - 1)].text + selectDecryption.text().split(delimiter).pop() + ' / ';
+                        decryptionCodes[0].text = selectDecryption.val();
+                        updateDecryptionCode(decryptionCodes[lastKey].text, classDecryptionCode);
+                    } else if (lastKey < key) {
+                        decryptionCodes[key].text = '';
+                    }
+                }
+            }
+
+            function updateDecryptionCode(decryptionCode, classDecryptionCode) {
+                let classifierDecryptionCode = decryptionCodes[1].text + decryptionCodes[0].text + '\n';
+                classDecryptionCode.val(classifierDecryptionCode + decryptionCode);
+            }
+        });
+    </script>
+{% endmacro %}

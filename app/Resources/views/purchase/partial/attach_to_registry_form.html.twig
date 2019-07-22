@@ -1,0 +1,23 @@
+{% macro inputs(registryList) %}
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ 'Registry' | trans() }}</label>
+        <div class="col-lg-4">
+            <select class="form-control invoice-registry" name="invoiceDetails[registry]" required>
+                {% for registry in registryList %}
+                    <option value="{{ registry.id }}">
+                        {{ 'Registry' | trans() }} #{{ registry.id }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <script>
+        $('.attach-to-registry').bind('click', function () {
+            var attachToRegistryForm = $('#attachToRegistryForm');
+            attachToRegistryForm.attr('action', $(this).data('action'));
+            attachToRegistryForm.find('.invoice-id').val($(this).data('id'));
+        });
+    </script>
+
+{% endmacro %}

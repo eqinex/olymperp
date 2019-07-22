@@ -1,0 +1,1640 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ purchaseRequest.code }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ breadcrumb( 'Projects' | trans(), path('projects_list') ) }}
+    {{ breadcrumb( project.name, path('project_details', {'id': project.id}) ) }}
+    {{ breadcrumb( 'Requests' | trans(), path('project_requests_list', {'id': project.id}) ) }}
+    {{ breadcrumb( purchaseRequest.code, path('request_details', {'id': project.id, 'requestId': purchaseRequest.id}) ) }}
+{% endblock %}
+
+{% block body %}
+    {% set itemsCount = purchaseRequest.items | length %}
+    {% set filesCount = requestFiles | length %}
+    {% set financialFilesCount = purchaseRequest.invoices | length %}
+    {% set commentsCount = comments | length %}
+
+    {% set canRequestApprove = purchaseRequest.canRequestApprove(app.user) %}
+    {% set canLeaderApprove = purchaseRequest.canLeaderApprove(app.user) %}
+    {% set canProjectLeaderApprove = purchaseRequest.canProjectLeaderApprove(app.user) %}
+    {% set canApprovePreliminaryEstimate = purchaseRequest.canApprovePreliminaryEstimate(app.user) %}
+    {% set needApprovePreliminaryEstimate = purchaseRequest.needApprovePreliminaryEstimate(app.user) %}
+    {% set canProductionLeaderApprove = purchaseRequest.canProductionLeaderApprove(app.user) %}
+    {% set canPurchasingLeaderApprove = purchaseRequest.canPurchasingLeaderApprove(app.user) %}
+    {% set canReturnFixing = purchaseRequest.canReturnFixing(app.user) or app.user.hasFullRequestPrivileges() %}
+    {% set canReject = purchaseRequest.canReject(app.user) or app.user.hasFullRequestPrivileges() %}
+    {% set canStartProgress = purchaseRequest.canStartProgress(app.user) %}
+    {% set canAttachInvoice = purchaseRequest.canAttachInvoice(app.user) %}
+    {% set canAttachPaymentDocuments = purchaseRequest.canAttachPaymentDocuments(app.user) %}
+    {% set canExportItems = purchaseRequest.canExportItems(app.user) and itemsCount %}
+    {% set canEditItems = purchaseRequest.canEditItems(app.user) %}
+    {% set canManagerFinishWork = purchaseRequest.canManagerFinishWork(app.user) %}
+    {% set canManagerPreliminaryEstimate = purchaseRequest.canManagerPreliminaryEstimate(app.user) %}
+    {% set canStartDelivery = purchaseRequest.canStartDelivery(app.user) %}
+    {% set canFinishDelivery = purchaseRequest.canFinishDelivery(app.user) %}
+    {% set canMoveToPayment = purchaseRequest.canMoveToPayment(app.user) %}
+    {% set canMarkAsPaid = purchaseRequest.canMarkAsPaid(app.user) %}
+    {% set canProductionLeaderMarkAsProduced = purchaseRequest.canProductionLeaderMarkAsProduced(app.user) %}
+    {% set canChangeRequestOwner = purchaseRequest.canChangeRequestOwner(app.user) %}
+    {% set canEditRegistry = app.user.canEditRegistry() %}
+        <!-- START Navigation Tree & Search -->
+        <div class="col-lg-2">
+
+            <div class="hr-text hr-text-left m-t-0 m-b-1">
+                <h6 class="text-inverse">
+                    <strong>{{ "Details" | trans() }}</strong>
+                </h6>
+
+            </div>
+
+            <table class="table table-condensed">
+                <tbody>
+                <tr>
+                    <td class="v-a-m">
+                        {{ 'Request type' | trans() }}
+                    </td>
+                    <td class="v-a-m text-right">
+                        <span class="text-inverse">{{ (purchaseRequest.type | capitalize) | trans() }}</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="v-a-m">
+                        {{ 'Status' | trans() }}
+                    </td>
+                    <td class="v-a-m text-right">
+                        <span class="text-inverse">{{ purchaseRequest.status | trans() }}</span>
+                    </td>
+                </tr>
+                {% if purchaseRequest.warehouse %}
+                <tr>
+                    <td class="v-a-m">
+                        {{ 'Warehouse' | trans() }}
+                    </td>
+                    <td class="v-a-m text-right">
+                        <span class="text-inverse">{{ purchaseRequest.warehouse.shortTitle | trans() }}</span>
+                    </td>
+                </tr>
+                {% endif %}
+                {% if purchaseRequest.paymentStatus %}
+                <tr>
+                    <td class="v-a-m">
+                        {{ 'Payment status' | trans() }}
+                    </td>
+                    <td class="v-a-m text-right">
+                        <span class="text-inverse">{{ purchaseRequest.paymentStatus | trans() }}</span>
+                    </td>
+                </tr>
+                {% endif %}
+                {% if purchaseRequest.deliveryStatus %}
+                <tr>
+                    <td class="v-a-m">
+                        {{ 'Delivery status' | trans() }}
+                    </td>
+                    <td class="v-a-m text-right">
+                        <span class="text-inverse">{{ purchaseRequest.deliveryStatus | trans() }}</span>
+                    </td>
+                </tr>
+                {% endif %}
+                {% if purchaseRequest.productionStatus %}
+                <tr>
+                    <td class="v-a-m">
+                        {{ 'Production status' | trans() }}
+                    </td>
+                    <td class="v-a-m text-right">
+                        <span class="text-inverse">{{ purchaseRequest.productionStatus | trans() }}</span>
+                    </td>
+                </tr>
+                {% endif %}
+                <tr>
+                    <td class="v-a-m">
+                        {{ 'Priority' | trans() }}
+                    </td>
+                    {% if app.user.hasFullRequestPrivileges() %}
+                    <td class="v-a-m text-right">
+                        <div class="dropdown">
+                            <button class="btn btn-default btn-xs dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                {% set color = 'success' %}
+                                {% set title = 'C' %}
+
+                                {% if purchaseRequest.priority == 2 %}
+                                    {% set color = 'primary' %}
+                                    {% set title = 'B' %}
+                                {% elseif purchaseRequest.priority == 3 %}
+                                    {% set color = 'warning' %}
+                                    {% set title = 'A' %}
+                                {% elseif purchaseRequest.priority == 4 %}
+                                    {% set color = 'danger' %}
+                                    {% set title = 'A+' %}
+                                {% endif %}
+
+                                <i class="fa fa-fw fa fa-circle text-{{ color }}"></i> {{ title }} <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu" style="min-width: initial !important;" aria-labelledby="dropdownMenu1">
+                                <li><a href="{{ path('request_set_priority', {id: project.id, requestId: purchaseRequest.id, 'priority': 4}) }}"><i class="fa fa-fw fa-circle text-danger m-r-1"></i> A+</a></li>
+                                <li><a href="{{ path('request_set_priority', {id: project.id, requestId: purchaseRequest.id, 'priority': 3}) }}"><i class="fa fa-fw fa-circle text-warning  m-r-1"></i> A</a></li>
+                                <li><a href="{{ path('request_set_priority', {id: project.id, requestId: purchaseRequest.id, 'priority': 2}) }}"><i class="fa fa-fw fa-circle text-primary  m-r-1"></i>  B</a></li>
+                                <li><a href="{{ path('request_set_priority', {id: project.id, requestId: purchaseRequest.id, 'priority': 1}) }}"><i class="fa fa-fw fa-circle text-success  m-r-1"></i> C</a></li>
+                            </ul>
+                        </div>
+
+                    </td>
+                    {% else %}
+                    <td class="v-a-m text-right">
+                        <i class="fa fa-fw fa fa-circle text-{{ purchaseRequest.priorityLabels[purchaseRequest.priority] }}"></i>
+                        {{ ("priority_" ~ purchaseRequest.priorityList[purchaseRequest.priority]) | trans() }}
+                    </td>
+                    {% endif %}
+                </tr>
+                <tr>
+                    <td class="v-a-m">
+                        {{ 'Project' | trans() }}
+                    </td>
+                    <td class="v-a-m text-right">
+                        <a href="{{ path('project_details', {'id': purchaseRequest.project.id}) }}"><span>{{ purchaseRequest.project.name }}</span></a>
+                    </td>
+                </tr>
+                {% if purchaseRequest.ware %}
+                    <tr>
+                        <td class="v-a-m">
+                            {{ 'Product' | trans() }}
+                        </td>
+                        <td class="v-a-m text-right">
+                            <span>{{ purchaseRequest.numberOfProducts > 1 ? purchaseRequest.ware.name ~ ', ' ~ purchaseRequest.numberOfProducts ~ ' шт': purchaseRequest.ware.name }}</span>
+                        </td>
+                    </tr>
+                {% endif %}
+                {% if purchaseRequest.invoicePayment %}
+                    <tr>
+                        <td class="v-a-m">
+                            {{ 'Invoice payment' | trans() }}
+                        </td>
+                        <td class="v-a-m text-right">
+                            <span>{{ purchaseRequest.invoicePayment | trans() }}</span>
+                        </td>
+                    </tr>
+                {% endif %}
+                {% if purchaseRequest.acceptanceType %}
+                    <tr>
+                        <td class="v-a-m">
+                            {{ 'Type acceptance' | trans() }}
+                        </td>
+                        <td class="v-a-m text-right">
+                            <span>{{ purchaseRequest.acceptanceType | trans() }}</span>
+                        </td>
+                    </tr>
+                {% endif %}
+                {% if purchaseRequest.expensesType %}
+                    <tr>
+                        <td class="v-a-m">
+                            {{ 'Expenses type' | trans() }}
+                        </td>
+                        <td class="v-a-m text-right">
+                            <span>{{ purchaseRequest.expensesType | trans() }}</span>
+                        </td>
+                    </tr>
+                {% endif %}
+                <tr>
+                    <td class="v-a-m">
+                        {{ 'Created At' | trans() }}
+                    </td>
+                    <td class="v-a-m text-right text-inverse">
+                        {{ purchaseRequest.createdAt|date("d.m.y H:i") }}
+                    </td>
+                </tr>
+                <tr>
+                    <td class="v-a-m">
+                        {{ 'Relevance date' | trans() }}
+                    </td>
+                    <td class="v-a-m text-right text-inverse">
+                        {{ purchaseRequest.relevanceDate ? (purchaseRequest.relevanceDate | date('d.m.Y H:i')) }}
+                    </td>
+                </tr>
+                {% if purchaseRequest.paymentDate %}
+                    <tr>
+                        <td class="v-a-m">
+                            {{ 'Payment date' | trans() }}
+                        </td>
+                        <td class="v-a-m text-right text-inverse">
+                            {{ purchaseRequest.paymentDate | date('d.m.Y H:i') }}
+                        </td>
+                    </tr>
+                {% endif %}
+                </tbody>
+            </table>
+            {% if purchaseRequest.subscribers | length %}
+                <div class="collapsible-panel collapsed">
+                    <!-- END Table Project Details -->
+                    <div class="panel-heading hr-text hr-text-left m-t-0 m-l-0 p-r-0 p-l-0 p-t-0 p-b-0">
+                        {% if purchaseRequest.isUserSubscribed(app.user) %}
+                            {% set icon = 'eye-slash' %}
+                            {% set link = path('request_unsubscribe', {'id': project.id, 'requestId': purchaseRequest.id}) %}
+                        {% else %}
+                            {% set icon = 'eye' %}
+                            {% set link = path('request_subscribe', {'id': project.id, 'requestId': purchaseRequest.id}) %}
+                        {% endif %}
+
+                        <h6 class="text-inverse"><strong>{{ 'Subscribers' | trans() }}</strong> <span class="badge">{{ purchaseRequest.subscribers | length }}</span>
+                            <a class="btn btn-gray-light btn-sm" style="margin-left: 15px;" href="{{ link }}"><i class="fa fa-{{ icon }}"></i></a>
+                        </h6>
+                        <a href="javascript: void(0)" class="action-panel-collapse">
+                            <i class="fa fa-fw fa-chevron-up text-muted panel-collapsed-hidden"></i>
+                            <i class="fa fa-fw fa-chevron-down text-muted panel-collapsed-visible"></i>
+                        </a>
+
+
+                    </div>
+
+                    
+                    <!-- START Widget - Menu Pills Vertical -->
+                    <div class="scroll-300 custom-scrollbar">
+                        <ul class="nav nav-pills nav-stacked">
+
+                            <!-- START User Online (Small) -->
+                            <li>
+                                <table class="table table-hover table-project-team">
+                                    {% for subscriber in purchaseRequest.subscribers %}
+                                        <tr class="team-member">
+                                            <td>
+                                                <a href="{{ path('employee_details', {'userName':subscriber.username}) }}">
+                                                    {#<div class="media">#}
+                                                    <div class="media-left">
+                                                        <div class="avatar avatar-image avatar-sm">
+                                                            <div class="avatar-circle">
+                                                                {% if subscriber.imageUrl is not null %}
+                                                                    <img class="media-object img-circle" src="{{ subscriber.imageUrl }}" />
+                                                                {% else %}
+                                                                    <img class="media-object img-circle" src="/images/noavatar.png" alt="Avatar">
+                                                                {% endif %}
+                                                            </div>
+                                                            <i class="avatar-status avatar-status-bottom bg-{{ employee_service.getOnlineStatus(subscriber).colorBadge }} b-brand-gray-darker"></i>
+                                                        </div>
+                                                    </div>
+                                                    <div class="media-body">
+                                                        <h5 class="m-t-0 m-b-0 text-primary"><span>{{ subscriber.fullname }}</span></h5>
+                                                        <p class="small text-gray-lighter m-b-0"><span>{{ subscriber.employeeRole }}</span></p>
+                                                    </div>
+                                                    {#</div>#}
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </table>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            {% endif %}
+            {% if purchaseRequest.timings is not null %}
+                <div class="collapsible-panel collapsed">
+                    <!-- END Table Project Details -->
+                    <div class="panel-heading hr-text hr-text-left m-t-0 m-l-0 p-r-0 p-l-0 p-t-0 p-b-0">
+                        <h6 class="text-inverse"><strong>{{ 'Timings' | trans() }}</strong></h6>
+                        <a href="javascript: void(0)" class="action-panel-collapse">
+                            <i class="fa fa-fw fa-chevron-up text-muted panel-collapsed-hidden"></i>
+                            <i class="fa fa-fw fa-chevron-down text-muted panel-collapsed-visible"></i>
+                        </a>
+                    </div>
+
+                    <!-- START Widget - Menu Pills Vertical -->
+                    <div class="scroll-600 custom-scrollbar">
+                        <table class="table table-condensed">
+                            <tbody>
+                                <tr>
+                                    <td class="v-a-m">
+                                        {{ 'Created At' | trans() }}
+                                    </td>
+                                    <td class="v-a-m text-right">
+                                        <span class="text-inverse">{{ (purchaseRequest.timings.createdAt | date('d.m.Y H:i:s')) | trans() }}</span>
+                                    </td>
+                                </tr>
+                                {% if purchaseRequest.timings.returnedToFixingAt is not null %}
+                                <tr>
+                                    <td class="v-a-m">
+                                        {{ 'Return to fixing at' | trans() }}
+                                    </td>
+                                    <td class="v-a-m text-right">
+                                        <span class="text-inverse">{{ (purchaseRequest.timings.returnedToFixingAt | date('d.m.Y H:i:s')) | trans() }}</span>
+                                    </td>
+                                </tr>
+                                {% endif %}
+                                {% if purchaseRequest.timings.movedToLeaderApproveAt is not null %}
+                                <tr>
+                                    <td class="v-a-m">
+                                        {{ 'Moved to technical leader approval at' | trans() }}
+                                    </td>
+                                    <td class="v-a-m text-right">
+                                        <span class="text-inverse">{{ (purchaseRequest.timings.movedToLeaderApproveAt | date('d.m.Y H:i:s')) | trans() }}</span>
+                                    </td>
+                                </tr>
+                                {% endif %}
+                                {% if purchaseRequest.timings.leaderApprovedAt is not null %}
+                                <tr>
+                                    <td class="v-a-m">
+                                        {{ 'Technical leader approved at' | trans() }}
+                                    </td>
+                                    <td class="v-a-m text-right">
+                                        <span class="text-inverse">{{ (purchaseRequest.timings.leaderApprovedAt | date('d.m.Y H:i:s')) | trans() }}</span>
+                                    </td>
+                                </tr>
+                                {% endif %}
+                                {% if purchaseRequest.timings.purchasingLeaderApprovedAt is not null %}
+                                <tr>
+                                    <td class="v-a-m">
+                                        {{ 'Purchasing leader approved at' | trans() }}
+                                    </td>
+                                    <td class="v-a-m text-right">
+                                        <span class="text-inverse">{{ (purchaseRequest.timings.purchasingLeaderApprovedAt | date('d.m.Y H:i:s')) | trans() }}</span>
+                                    </td>
+                                </tr>
+                                {% endif %}
+                                {% if purchaseRequest.timings.managerStartedWorkAt is not null %}
+                                <tr>
+                                    <td class="v-a-m">
+                                        {{ 'Manager started work at' | trans() }}
+                                    </td>
+                                    <td class="v-a-m text-right">
+                                        <span class="text-inverse">{{ (purchaseRequest.timings.managerStartedWorkAt | date('d.m.Y H:i:s')) | trans() }}</span>
+                                    </td>
+                                </tr>
+                                {% endif %}
+                                {% if purchaseRequest.timings.managerFinishedWorkAt is not null %}
+                                <tr>
+                                    <td class="v-a-m">
+                                        {{ 'Manager finished work at' | trans() }}
+                                    </td>
+                                    <td class="v-a-m text-right">
+                                        <span class="text-inverse">{{ (purchaseRequest.timings.managerFinishedWorkAt | date('d.m.Y H:i:s')) | trans() }}</span>
+                                    </td>
+                                </tr>
+                                {% endif %}
+                                {% if purchaseRequest.timings.financialLeaderApprovedAt is not null %}
+                                <tr>
+                                    <td class="v-a-m">
+                                        {{ 'Financial leader approved at' | trans() }}
+                                    </td>
+                                    <td class="v-a-m text-right">
+                                        <span class="text-inverse">{{ (purchaseRequest.timings.financialLeaderApprovedAt | date('d.m.Y H:i:s')) | trans() }}</span>
+                                    </td>
+                                </tr>
+                                {% endif %}
+                                {% if purchaseRequest.timings.financialManagerMarkedAsPaidAt is not null %}
+                                <tr>
+                                    <td class="v-a-m">
+                                        {{ 'Financial manager marked as paid at' | trans() }}
+                                    </td>
+                                    <td class="v-a-m text-right">
+                                        <span class="text-inverse">{{ (purchaseRequest.timings.financialManagerMarkedAsPaidAt | date('d.m.Y H:i:s')) | trans() }}</span>
+                                    </td>
+                                </tr>
+                                {% endif %}
+                                {% if purchaseRequest.timings.managerMarkedAsDeliveredAt is not null %}
+                                <tr>
+                                    <td class="v-a-m">
+                                        {{ 'Manager marked as delivered at' | trans() }}
+                                    </td>
+                                    <td class="v-a-m text-right">
+                                        <span class="text-inverse">{{ (purchaseRequest.timings.managerMarkedAsDeliveredAt | date('d.m.Y H:i:s')) | trans() }}</span>
+                                    </td>
+                                </tr>
+                                {% endif %}
+                                {% if purchaseRequest.timings.requestMarkedAsDoneAt is not null %}
+                                <tr>
+                                    <td class="v-a-m">
+                                        {{ 'Request marked as done at' | trans() }}
+                                    </td>
+                                    <td class="v-a-m text-right">
+                                        <span class="text-inverse">{{ (purchaseRequest.timings.requestMarkedAsDoneAt | date('d.m.Y H:i:s')) | trans() }}</span>
+                                    </td>
+                                </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            {% endif %}
+
+            <div class="hr-text hr-text-left m-t-0 m-b-1">
+                <h6 class="text-inverse"><strong>{{ "Responsible users" | trans() }}</strong></h6>
+            </div>
+
+            <table class="table table-condensed">
+                <tbody>
+                    <tr>
+                        <td class="v-a-m" style="width: 75px;">
+                            {{ 'Owner' | trans() }}
+                        </td>
+                        <td class="v-a-m text-right">
+                            <a href="{{ path('employee_details', {'userName': purchaseRequest.owner.username}) }}"><span>{{ purchaseRequest.owner.lastnameWithInitials }}</span></a>
+                        </td>
+                    </tr>
+                {% if purchaseRequest.leader is not null %}
+                    <tr>
+                        <td class="v-a-m">
+                            {{ 'Technical leader' | trans() }}
+                        </td>
+                        <td class="v-a-m text-right">
+                            <a href="{{ path('employee_details', {'userName': purchaseRequest.leader.username}) }}"><span>{{ purchaseRequest.leader.lastnameWithInitials }}</span></a>
+
+                            {% if purchaseRequest.leaderApproved %}
+                                <i class="fa fa-check-square-o text-success"></i>
+                            {% else %}
+                                <i class="fa fa-square-o"></i>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endif %}
+                    {% if purchaseRequest.projectLeader is not null %}
+                        <tr>
+                            <td class="v-a-m">
+                                {{ 'Project leader' | trans() }}
+                            </td>
+                            <td class="v-a-m text-right">
+                                <a href="{{ path('employee_details', {'userName': purchaseRequest.projectLeader.username}) }}"><span>{{ purchaseRequest.projectLeader.lastnameWithInitials }}</span></a>
+
+                                {% if purchaseRequest.projectLeaderApproved %}
+                                    <i class="fa fa-check-square-o text-success"></i>
+                                {% else %}
+                                    <i class="fa fa-square-o"></i>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endif %}
+                {% if purchaseRequest.productionLeader is not null %}
+                    <tr>
+                        <td class="v-a-m">
+                            {{ 'Production leader' | trans() }}
+                        </td>
+                        <td class="v-a-m text-right">
+                            <a href="{{ path('employee_details', {'userName': purchaseRequest.productionLeader.username}) }}"><span>{{ purchaseRequest.productionLeader.lastnameWithInitials }}</span></a>
+                            {% if purchaseRequest.productionLeaderApproved %}
+                                <i class="fa fa-check-square-o text-success"></i>
+                            {% else %}
+                                <i class="fa fa-square-o"></i>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endif %}
+                {% if purchaseRequest.purchasingLeader is not null %}
+                    <tr>
+                        <td class="v-a-m">
+                            {{ 'Purchasing leader' | trans() }}
+                        </td>
+                        <td class="v-a-m text-right">
+                            <a href="{{ path('employee_details', {'userName': purchaseRequest.purchasingLeader.username}) }}"><span>{{ purchaseRequest.purchasingLeader.lastnameWithInitials }}</span></a>
+                            {% if purchaseRequest.purchasingLeaderApproved %}
+                                <i class="fa fa-check-square-o text-success"></i>
+                            {% else %}
+                                <i class="fa fa-square-o"></i>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endif %}
+                {% if purchaseRequest.financialLeader is not null %}
+                    <tr>
+                        <td class="v-a-m">
+                            {{ 'Financial leader' | trans() }}
+                        </td>
+                        <td class="v-a-m text-right">
+                            <a href="{{ path('employee_details', {'userName': purchaseRequest.financialLeader.username}) }}"><span>{{ purchaseRequest.financialLeader.lastnameWithInitials }}</span></a>
+                            {% if purchaseRequest.financialLeaderApproved %}
+                                <i class="fa fa-check-square-o text-success"></i>
+                            {% else %}
+                                <i class="fa fa-square-o"></i>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endif %}
+                {% if purchaseRequest.purchasingManager is not null %}
+                    <tr>
+                        <td class="v-a-m">
+                            {{ 'Purchasing manager' | trans() }}
+                        </td>
+                        <td class="v-a-m text-right">
+                            <a href="{{ path('employee_details', {'userName': purchaseRequest.purchasingManager.username}) }}"><span>{{ purchaseRequest.purchasingManager.lastnameWithInitials }}</span></a>
+                        </td>
+                    </tr>
+                {% endif %}
+                {% if purchaseRequest.financialManager is not null %}
+                    <tr>
+                        <td class="v-a-m">
+                            {{ 'Financial manager' | trans() }}
+                        </td>
+                        <td class="v-a-m text-right">
+                            <a href="{{ path('employee_details', {'userName': purchaseRequest.financialManager.username}) }}"><span>{{ purchaseRequest.financialManager.lastnameWithInitials }}</span></a>
+                        </td>
+                    </tr>
+                {% endif %}
+                </tbody>
+            </table>
+        </div>
+        <div class="col-lg-10">
+
+            <!-- START Header with Option -->
+            <div class="row">
+
+                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                    <h3 class="f-w-300 m-t-1">{{ purchaseRequest.code }}
+                        {% set favorite = request_service.getPurchaseRequestFavorite(app.user.id, purchaseRequest.id) %}
+                        {% set favoriteCol = 'star-o' %}
+                        {% set href = path('purchase_request_make_favorite', { 'id': purchaseRequest.project.id, 'requestId': purchaseRequest.id }) %}
+                        {% if favorite is not null %}
+                            {% set favoriteCol = 'star' %}
+                            {% set href = path('purchase_request_remove_favorite', { 'id': purchaseRequest.project.id, 'requestId': purchaseRequest.id, 'favoriteId': favorite.id }) %}
+                        {% endif %}
+                        <a  href="{{ href }}"><i class="fa fa-fw fa-{{ favoriteCol }}"></i></a>
+                    </h3>
+                </div>
+                <div class="col-lg-6 col-md-5 col-xs-12">
+                    <div class="btn-toolbar pull-right">
+                        <div class="btn-group" role="group" aria-label="...">
+                            {% set vars = {'active_page': 'project_purchases'} %}
+                            {% include 'projects/partial/nav.html.twig' with vars %}
+                        </div>
+                    </div>
+                    <!-- END Toolbar -->
+                </div>
+            </div>
+            <div class="tabbable-line tabs">
+                <ul class="nav nav-tabs nav-btns">
+                    <li role="presentation" data-target="items" class="active"><a class="tab-items" href="#items">{{ 'Items' | trans() }} {% if itemsCount %}<span class="badge">{{ itemsCount }}</span>{% endif %}</a></li>
+                    <li role="presentation" data-target="attachments"><a class="tab-attachments" href="#attachments">{{ 'attachments' | trans() | capitalize }} {% if filesCount %}<span class="badge">{{ filesCount }}</span>{% endif %}</a></li>
+                    <li role="presentation" data-target="financial"><a class="tab-financial" href="#financial">{{ 'payment' | trans() | capitalize }} {% if financialFilesCount %}<span class="badge">{{ financialFilesCount }}</span>{% endif %}</a></li>
+                    <li role="presentation" data-target="comments"><a class="tab-comments" href="#comments">{{ 'Comments' | trans() }} {% if commentsCount %}<span class="badge">{{ commentsCount }}</span>{% endif %}</a></li>
+                    <li role="presentation" data-target="history"><a  class="tab-history" href="#history">{{ 'History' | trans() }}</a></li>
+                    <li role="presentation" data-target="delivery"><a  class="tab-delivery" href="#delivery">{{ 'Deliveries' | trans() }}</a></li>
+                </ul>
+
+                <div class="pull-right" style="margin-top: 3px;">
+                    {% if canEditItems %}
+                        <a href=""
+                           class="pull-right btn btn-success add-items m-l-1"
+                           data-toggle="modal"
+                           data-target=".addItemsModal"
+                        ><i class="fa fa-fw fa-plus"></i></a>
+                    {% endif %}
+                    {% if canRequestApprove or canLeaderApprove or canProjectLeaderApprove or canProductionLeaderApprove or canMoveToPayment  or
+                        canAttachPaymentDocuments or canPurchasingLeaderApprove or canFinishDelivery or canReject or
+                        canStartProgress or canAttachInvoice or canStartDelivery or canReturnFixing or canMarkAsPaid or
+                        canProductionLeaderMarkAsProduced or needApprovePreliminaryEstimate or canApprovePreliminaryEstimate or canChangeRequestOwner
+                    %}
+                    <div class="dropdown pull-right m-l-1">
+                        <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fa fa-fw fa-gear"></i> {{ "Actions" | trans() }} <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-right">
+                            {% if canEditItems %}
+                                <li>
+                                    <a href="" class="text-inverse" data-toggle="modal" data-target=".editRequestModal"><i class="fa fa-fw fa-pencil"></i> {{ 'Edit' | trans() }}</a>
+                                </li>
+                            {% endif %}
+                            {% if app.user.canSendPurchaseToSupplyArea() %}
+                                <li>
+                                    <a href=""
+                                       class="send-to-supply-area"
+                                       data-modal-title="{{ 'Send to supply area' | trans() }}"
+                                       data-form-action="{{ path('purchase_request_send_to_supply_area', {'requestId': purchaseRequest.id}) }}"
+                                       data-target=".sendToSupplyAreaModal"
+                                       data-toggle="modal">
+                                        <i class="fa fa-fw fa-external-link text-primary"></i> {{ 'Send to supply area' | trans() }}
+                                    </a>
+                                </li>
+                            {% endif %}
+                            {% if canChangeRequestOwner %}
+                                <li>
+                                    <a href=""
+                                       class="require-modal-action"
+                                       data-form-action="{{ path('change_request_owner', {id: project.id, requestId: purchaseRequest.id }) }}"
+                                       data-target=".changeOwnerFormModal"
+                                       data-toggle="modal">
+                                        <i class="fa fa-fw fa-refresh text-primary"></i> {{ 'Change owner' | trans() }}
+                                    </a>
+                                </li>
+                            {% endif %}
+                            {% if canStartProgress %}
+                                <li>
+                                    <a href="{{ path('project_purchase_change_state', {id: project.id, requestId: purchaseRequest.id, 'state': 'preliminary-estimate'}) }}"><i class="fa fa-fw fa-play text-success"></i> {{ 'Start progress' | trans() }}</a>
+                                </li>
+                            {% endif %}
+                            {% if canManagerFinishWork %}
+                                <li>
+                                    <a href="{{ path('project_purchase_change_state', {id: project.id, requestId: purchaseRequest.id, 'state': 'finish-work'}) }}"><i class="fa fa-fw fa-play text-success"></i> {{ 'Move to payment' | trans() }}</a>
+                                </li>
+                            {% endif %}
+                            {% if canMoveToPayment %}
+                                <li>
+                                    <a href=""
+                                       class="require-modal-action"
+                                       data-modal-title="{{ 'Move to payment' | trans() }}"
+                                       data-form-action="{{ path('project_purchase_change_state', {id: project.id, requestId: purchaseRequest.id, 'state': 'move-to-payment'}) }}"
+                                       data-target=".actionFormModal"
+                                       data-toggle="modal">
+                                        <i class="fa fa-fw fa-credit-card text-primary"></i> {{ 'Move to payment' | trans() }}
+                                    </a>
+                                </li>
+                            {% endif %}
+                            {% if canRequestApprove %}
+                                <li>
+                                    <a href=""
+                                       class="require-modal-action"
+                                       data-toggle="modal"
+                                       data-modal-title="{{ 'Request technical leader approve' | trans() }}"
+                                       data-form-action="{{ path('project_purchase_change_state', {id: project.id, requestId: purchaseRequest.id, 'state': 'need-approve'}) }}"
+                                       data-target=".actionFormModal"><i class="fa fa-fw fa-play text-success"></i> {{ 'Request approve' | trans() }}</a>
+                                </li>
+                            {% elseif canLeaderApprove and purchaseRequest.status == 'needs_leader_approval' %}
+                                <li>
+                                    <a href="{{ path('project_purchase_change_state', {id: project.id, requestId: purchaseRequest.id, 'state': 'need-project-leader-approve'}) }}"><i class="fa fa-fw fa-play text-success"></i> {{ 'Approve request' | trans() }}</a>
+                                </li>
+                                <li>
+                                    <a href=""
+                                       class="require-modal-action"
+                                       data-modal-title="{{ 'Change technical leader' | trans() }}"
+                                       data-form-action="{{ path('project_purchase_change_state', {id: project.id, requestId: purchaseRequest.id, 'state': 'need-approve'}) }}"
+                                       data-target=".actionFormModal"
+                                       data-toggle="modal">
+                                        <i class="fa fa-fw fa-refresh text-primary"></i> {{ 'Change technical leader' | trans() }}
+                                    </a>
+                                </li>
+                            {% elseif canProjectLeaderApprove and purchaseRequest.status == 'needs_project_leader_approve' %}
+                                {% if purchaseRequest.type == 'production' %}
+                                    <li>
+                                        <a href=""
+                                           class="payment-information"
+                                           data-form-action="{{ path('project_purchase_change_state', {id: project.id, requestId: purchaseRequest.id, 'state': 'need-production-leader-approve'}) }}"
+                                           data-toggle="modal"
+                                           data-target=".paymentInformationFormModal"><i class="fa fa-fw fa-play text-success"></i> {{ 'Approve request' | trans() }}</a>
+                                    </li>
+                                {% else %}
+                                    <li>
+                                        <a href=""
+                                           class="payment-information"
+                                           data-form-action="{{ path('project_purchase_change_state', {id: project.id, requestId: purchaseRequest.id, 'state': 'need-purchasing-manager'}) }}"
+                                           data-toggle="modal"
+                                           data-target=".paymentInformationFormModal"><i class="fa fa-fw fa-play text-success"></i> {{ 'Approve request' | trans() }}</a>
+                                    </li>
+                                {% endif %}
+                            {% elseif canProductionLeaderApprove %}
+                                <li>
+                                    <a href="{{ path('project_purchase_change_state', {id: project.id, requestId: purchaseRequest.id, 'state': 'need-purchasing-manager'}) }}"><i class="fa fa-fw fa-play text-success"></i> {{ 'Approve request' | trans() }}</a>
+                                </li>
+                                <li>
+                                    <a href=""
+                                       class="require-modal-action"
+                                       data-modal-title="{{ 'Replace production specialist' | trans() }}"
+                                       data-form-action="{{ path('project_purchase_change_state', {id: project.id, requestId: purchaseRequest.id, 'state': 'need-production-leader-approve'}) }}"
+                                       data-target=".actionFormModal"
+                                       data-toggle="modal">
+                                        <i class="fa fa-fw fa-refresh text-primary"></i> {{ 'Replace production specialist' | trans() }}
+                                    </a>
+                                </li>
+                            {% elseif canPurchasingLeaderApprove %}
+                                <li>
+                                    <a href=""
+                                       class="require-modal-action"
+                                       data-modal-title="{{ purchaseRequest.purchasingManager is null ? 'Assign manager' | trans() : 'Change manager' | trans() }}"
+                                       data-form-action="{{ path('project_purchase_change_state', {id: project.id, requestId: purchaseRequest.id, 'state': 'assign-manager'}) }}"
+                                       data-target=".actionFormModal"
+                                       data-toggle="modal">
+                                        <i class="fa fa-fw {{ purchaseRequest.purchasingManager is null ? 'fa-play' | trans() : 'fa-refresh' | trans() }} text-primary"></i> {{ purchaseRequest.purchasingManager is null ? 'Assign manager' | trans() : 'Change manager' | trans() }}
+                                    </a>
+                                </li>
+                            {% elseif needApprovePreliminaryEstimate %}
+                                <li>
+                                    <a href="{{ path('project_purchase_change_state', {id: project.id, requestId: purchaseRequest.id, 'state': 'need-preliminary-estimate-approve'}) }}"><i class="fa fa-fw fa-thumbs-o-up text-primary"></i> {{ 'Awaiting approve' | trans() }}</a>
+                                </li>
+                            {% elseif canApprovePreliminaryEstimate %}
+                                <li>
+                                    <a href="{{ path('project_purchase_change_state', {id: project.id, requestId: purchaseRequest.id, 'state': 'start-work'}) }}"><i class="fa fa-fw fa-play text-success"></i> {{ 'On processing' | trans() }}</a>
+                                </li>
+                                <li>
+                                    <a href=""
+                                       data-target=".fixPricesItemsModal"
+                                       data-toggle="modal"><i class="fa fa-fw fa-fast-backward text-warning"></i> {{ 'Fixing prices items' | trans() }}</a>
+                                </li>
+                            {% endif %}
+                            {% if canReturnFixing %}
+                                <li>
+                                    <a href=""
+                                       data-target=".returnFixingModal"
+                                       data-toggle="modal"><i class="fa fa-fw fa-fast-backward text-warning"></i> {{ 'Return to fixing' | trans() }}</a>
+                                </li>
+                            {% endif %}
+                            {% if canReject %}
+                                <li>
+                                    <a href=""
+                                       class="reject-modal-action"
+                                       data-modal-title="{{ 'Reject' | trans() }}"
+                                       data-form-action="{{ path('project_purchase_change_state', {id: project.id, requestId: purchaseRequest.id, 'state': 'reject'}) }}"
+                                       data-target=".rejectFormModal"
+                                       data-toggle="modal">
+                                        <i class="fa fa-fw fa-close text-danger"></i> {{ 'Reject' | trans() }}</a>
+                                </li>
+                            {% endif %}
+                            {% if canAttachInvoice %}
+                                {% if canManagerFinishWork %}
+                                    <li>
+                                        <a href=""
+                                           data-target=".uploadInvoiceModal"
+                                           data-toggle="modal"><i class="fa fa-fw fa-upload text-inverse"></i> {{ 'Attach invoice' | trans() }}</a>
+                                    </li>
+                                {% else %}
+                                    <li>
+                                        <a href=""
+                                           data-target=".fixPricesModal"
+                                           data-toggle="modal"><i class="fa fa-fw fa-fast-backward text-warning"></i> {{ 'Fix invoice/prices' | trans() }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endif %}
+                            {% if canAttachPaymentDocuments %}
+                                <li>
+                                    <a href=""
+                                       data-target=".uploadInvoiceModal"
+                                       data-toggle="modal"><i class="fa fa-fw fa-upload text-inverse"></i> {{ 'Attach payment documents' | trans() }}</a>
+                                </li>
+                            {% endif %}
+                            {% if canStartDelivery %}
+                                <li>
+                                    <a href="{{ path('project_purchase_change_state', {id: project.id, requestId: purchaseRequest.id, 'state': 'in-delivery'}) }}"><i class="fa fa-fw fa-truck text-primary"></i> {{ 'In delivery' | trans() }}</a>
+                                </li>
+                            {% endif %}
+                            {% if canFinishDelivery %}
+                                <li>
+                                    <a href="{{ path('project_purchase_change_state', {id: project.id, requestId: purchaseRequest.id, 'state': 'delivered'}) }}"><i class="fa fa-fw fa-truck text-success"></i> {{ 'Delivered' | trans() }}</a>
+                                </li>
+                            {% endif %}
+                            {% if canMarkAsPaid %}
+                                <li>
+                                    <a href="{{ path('project_purchase_change_state', {id: project.id, requestId: purchaseRequest.id, 'state': 'paid'}) }}"><i class="fa fa-fw fa-rub text-success"></i> {{ 'Paid' | trans() }}</a>
+                                </li>
+                                <li>
+                                    <a href=""
+                                       data-target=".fixPricesModal"
+                                       data-toggle="modal"><i class="fa fa-fw fa-fast-backward text-warning"></i> {{ 'Fix invoice/prices' | trans() }}</a>
+                                </li>
+                            {% endif %}
+                            {% if canProductionLeaderMarkAsProduced %}
+                                <li>
+                                    <a href="{{ path('project_purchase_change_state', {id: project.id, requestId: purchaseRequest.id, 'state': 'produced'}) }}"><i class="fa fa-fw fa-industry text-success"></i> {{ 'Produced' | trans() }}</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                    {% endif %}
+
+                    {% if canExportItems or canEditItems %}
+                    <div class="dropdown pull-right m-l-1">
+                        <button class="btn btn-success dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fa fa-fw fa-file-excel-o"></i> {{ "Import/Export" | trans() }} <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-right">
+                            {% if canExportItems %}
+                                <li>
+                                    <a target="_blank" href="{{ path('purchase_request_export_purchase_items', {purchaseId: purchaseRequest.id}) }}"><i class="fa fa-fw fa-download text-inverse"></i> {{ 'Export items' | trans() }}</a>
+                                </li>
+                            {% endif %}
+                            {% if canEditItems %}
+                                <li>
+                                    <a href=""
+                                       class="import-items"
+                                       data-toggle="modal"
+                                       data-target=".importItemsModal"
+                                    ><i class="fa fa-fw fa-upload"></i> {{ 'Import items' | trans() }}</a>
+                                </li>
+                            {% endif %}
+                            {% if canManagerPreliminaryEstimate or canManagerFinishWork %}
+                                <li>
+                                    <a href=""
+                                       class="import-request-items-info"
+                                       data-toggle="modal"
+                                       data-target=".importRequestItemsInfoModal"
+                                    ><i class="fa fa-fw fa-upload"></i> {{ 'Import items' | trans() }}</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div style="clear: both;"></div>
+            <div class="panel-body tab" id="items">
+                {% if purchaseRequest.description %}
+                    <div class="panel-body">
+                        {{ purchaseRequest.description | raw | nl2br }}
+                    </div>
+                {% endif %}
+
+                {% for movement in purchaseRequest.movements %}
+                    <div class="panel-body">
+                        <div class="row"><label class="col-sm-2 control-label">{{ 'Cargo details' | trans() }}</label> {{ movement.description }}</div>
+                        <div class="row"><label class="col-sm-2 control-label">{{ 'movement.source' | trans() }}</label> {{ movement.source }}</div>
+                        <div class="row"><label class="col-sm-2 control-label">{{ 'movement.destination' | trans() }}</label> {{ movement.destination }}</div>
+                        <div class="row"><label class="col-sm-2 control-label">{{ 'movement.startDate' | trans() }}</label> {{ movement.startDate | date('d.m.Y') }}</div>
+                        <div class="row"><label class="col-sm-2 control-label">{{ 'movement.endDate' | trans() }}</label> {{ movement.endDate | date('d.m.Y') }}</div>
+                        <div class="row"><label class="col-sm-2 control-label">{{ 'movement.send.responsible' | trans() }}</label> {{ movement.sendResponsible }}</div>
+                        <div class="row"><label class="col-sm-2 control-label">{{ 'movement.receive.responsible' | trans() }}</label> {{ movement.receiveResponsible }}</div>
+                        <div class="row"><label class="col-sm-2 control-label">{{ 'movement.needPrr' | trans() }}</label> {{ (movement.needPrr ? 'yes' : 'no') | trans() }}</div>
+                        <div class="row"><label class="col-sm-2 control-label">{{ 'movement.needCargoDescription' | trans() }}</label> {{ (movement.needCargoDescription ? 'yes' : 'no') | trans() }}</div>
+                        <div class="row"><label class="col-sm-2 control-label">{{ 'movement.needCargoInsurance' | trans() }}</label> {{ (movement.needCargoInsurance ? 'yes' : 'no') | trans() }}</div>
+                        <div class="row"><label class="col-sm-2 control-label">{{ 'movement.needAdditionalCargo' | trans() }}</label> {{ (movement.needAdditionalCargo ? 'yes' : 'no') | trans() }}</div>
+                    </div>
+                {% endfor %}
+                {% if purchaseRequest.suppliesCategory %}
+                    <div>
+                        <h5 class="text-inverse">{{ 'Recommended suppliers list for category "%s"' | trans() | format(purchaseRequest.suppliesCategory) }}:</h5>
+                        <ul>
+                            {% for supplier in recommendedSuppliers %}
+                            <li>{{ supplier }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+                {% if purchaseRequest.numberOfProducts %}
+                    <div>
+                        <h5>{{ 'This purchase contains position on %s products' | trans() | format(purchaseRequest.numberOfProducts) }}</h5>
+                    </div>
+                {% endif %}
+
+                {% if itemsCount %}
+                    <div class="panel-body">
+                        <div class="m-b-2">
+                            <div class="col-sm-9"></div>
+                            <div class="col-sm-2">
+                                <select class="form-control bulk-action">
+                                    <option value="">{{ 'Bulk action' | trans() }}</option>
+                                    {% if purchaseRequest.canEditItems(app.user) %}
+                                        <option value="delete">{{ "Delete" | trans() }}</option>
+                                    {% endif %}
+                                    {% if purchaseRequest.canProductionLeaderApprove(app.user) %}
+                                        <option value="production">{{ "Take to production" | trans() }}</option>
+                                    {% endif %}
+                                    {% if purchaseRequest.canProductionLeaderApprove(app.user) %}
+                                        <option value="purchasing">{{ "Move to purchasing" | trans() }}</option>
+                                    {% endif %}
+                                    {% if purchaseRequest.canProductionLeaderMarkItemAsProduced(app.user) %}
+                                        <option value="produced">{{ "Mark as produced" | trans() }}</option>
+                                    {% endif %}
+                                    {% if purchaseRequest.canMarkItemsOnStock(app.user) %}
+                                        <option value="on_stock">{{ "Mark on stock" | trans() }}</option>
+                                        <option value="not_on_stock">{{ "Mark not on stock" | trans() }}</option>
+                                    {% endif %}
+                                </select>
+                            </div>
+                            <div class="col-sm-1">
+                                <a class="btn btn-primary bulk-action-apply" disabled
+                                   data-target=".bulkActionPromptModal">{{ 'Apply' | trans() }}</a>
+                            </div>
+                        </div>
+                    </div>
+                <div class="scrollable">
+                    <table class="table table-hover" id="table-items">
+                        <thead>
+                        <tr>
+                            <th class="small text-muted text-uppercase" style="width:25px;">
+                                <input type="checkbox" class="check-all-items" />
+                            </th>
+                            <th class="small text-muted text-uppercase" style="width:25px;"></th>
+                            {% if purchaseRequest.type == 'production' %}
+                                <th class="small text-muted text-uppercase">
+                                    <strong>{{ "item.productionStatus" | trans() }}</strong>
+                                </th>
+                            {% elseif purchaseRequest.type == 'purchase' %}
+                                <th class="small text-muted text-uppercase">
+                                    <strong>{{ "item.stockStatus" | trans() }}</strong>
+                                </th>
+                            {% endif %}
+                            <th class="small text-muted text-uppercase">
+                                <strong>{{ "item.sku" | trans() }}</strong>
+                            </th>
+                            <th class="small text-muted text-uppercase">
+                                <strong>{{ "item.title" | trans() }}</strong>
+                            </th>
+                            <th class="small text-muted text-uppercase">
+                                <strong>{{ "item.quantity" | trans() }}</strong>
+                            </th>
+                            <th class="small text-muted text-uppercase">
+                                <strong>{{ "item.category" | trans() }}</strong>
+                            </th>
+                            <th class="small text-muted text-uppercase">
+                                <strong>{{ "item.notice" | trans() }}</strong>
+                            </th>
+                            {% if app.user.canViewFinancialInfo %}
+                                <th class="small text-muted text-uppercase">
+                                    <strong>{{ "item.supplier" | trans() }}</strong>
+                                </th>
+                                <th class="small text-muted text-uppercase">
+                                    <strong>{{ "item.invoice_nr" | trans() }}</strong>
+                                </th>
+                                <th class="small text-muted text-uppercase">
+                                    <strong>{{ "item.actual_quantity" | trans() }}</strong>
+                                </th>
+                                <th class="small text-muted text-uppercase">
+                                    <strong>{{ "item.price" | trans() }}</strong>
+                                </th>
+                                <th class="small text-muted text-uppercase">
+                                    <strong>{{ "item.prepaymentAmount" | trans() }}</strong>
+                                </th>
+                            {% endif %}
+                            <th class="small text-muted text-uppercase">
+                                <strong>{{ "item.estimatedShipmentTime" | trans() }}</strong>
+                            </th>
+                            <th class="small text-muted text-uppercase">
+                                <strong>{{ 'Preliminary price' | trans() }}</strong>
+                            </th>
+                            {% if purchaseRequest.isOwner(app.user) or purchaseRequest.canAddDeliveryItem(app.user) %}
+                                <th style="width: 125px;" class="small text-muted text-uppercase">
+                                    <strong>{{ "Actions" | trans() }}</strong>
+                                </th>
+                            {% endif %}
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% set preliminaryEstimateTotal = 0 %}
+                        {% set priceTotal = 0 %}
+                        {% for item in purchaseRequest.items %}
+                            {% if purchasingTeam.isUserPartOfTeam(app.user) and item.productionStatus %}
+                                {#Do nothing#}
+                            {% else %}
+                                {% set color = '' %}
+                                {% if item.productionStatus == 'in_production' %}
+                                    {% set color = 'info' %}
+                                {% elseif item.productionStatus == 'produced' or item.stockStatus == 'on_stock' %}
+                                    {% set color = 'success' %}
+                                {% endif %}
+                            <tr class="{{ color }}">
+                                <td>
+                                    <input type="checkbox" class="check-item" data-id="{{ item.id }}" />
+                                </td>
+                                <td>#{{ loop.index }}</td>
+                                {% if purchaseRequest.type == 'production' %}
+                                    <td class="small text-muted">
+                                        {{ item.productionStatus ? item.productionStatus | trans() : '-' }}
+                                    </td>
+                                {% elseif purchaseRequest.type == 'purchase' %}
+                                    <td class="small text-muted">
+                                        {{ item.stockStatus ? item.stockStatus | trans() : '-' }}
+                                        {{ item.onStockAt ? '\n' ~ item.onStockAt | date('d.m.y') : ''}}
+                                    </td>
+                                {% endif %}
+                                <td>{{ item.sku }}</td>
+                                <td>{{ item.title }}</td>
+                                <td>{{ item.quantity }}{{ item.unit }}</td>
+                                <td>{{ item.category ~ ' ' ~ item.suppliesCategory }}</td>
+                                <td style="max-width: 300px;word-break:break-all;">{{ item.notice }}</td>
+                                {% if app.user.canViewFinancialInfo %}
+                                    {% if item.invoice is not null %}
+                                        <td>
+                                            <span>
+                                                {% if item.invoice.supplier %}
+                                                    <a class="link-comment" href="{{ path('suppliers_details', {'id': item.invoice.supplier.id}) }}">{{ item.invoice.supplier }}</a>
+                                                {% else %}
+                                                    {{ '-' }}
+                                                {% endif %}
+                                            </span>
+                                        </td>
+                                        <td><span>{{ item.invoice.invoiceNumber ? : '-' }}</span></td>
+                                    {% else %}
+                                        <td>
+                                            <span>
+                                                {% if item.supplier %}
+                                                    <a class="link-comment" href="{{ path('suppliers_details', {'id': item.supplier.id}) }}">{{ item.supplier }}</a>
+                                                {% else %}
+                                                    {{ '-' }}
+                                                {% endif %}
+                                            </span>
+                                        </td>
+                                        <td><span>{{ item.invoiceNumber ? : '-' }}</span></td>
+                                    {% endif %}
+                                    <td><span class="edit actual-quantity {{ item.id }}">{{ item.actualQuantity ? : '-' }}</span> <span>{{ item.unit ? : '-' }}</span></td>
+                                    <td><span class="edit price {{ item.id }}">{{ item.price ? (item.price | number_format(2, '.', ',')) : '-' }}</span> <span>р</span></td>
+                                    <td><span class="edit prepayment-amount {{ item.id }}">{{ item.prepaymentAmount ? : '-' }}</span> <span>%</span></td>
+                                {% endif %}
+                                <td>
+                                    <span class="edit estimated-shipment-time {{ item.id }}">{{ purchaseRequest.paymentDate ? purchaseRequest.paymentDate | date_modify('+' ~ ( item.EstimatedShipmentTime ?: '0' ) ~ 'day')|date('d.m.Y') : (item.EstimatedShipmentTime ?: '-') }}</span>
+                                </td>
+                                <td><span class="edit preliminary-estimate {{ item.id }}">{{ item.preliminaryEstimate ? item.preliminaryEstimate | number_format(2, '.', ',') : '-' }}</span> <span>р</span></td>
+                                <td>
+                                    {% if canEditRegistry or purchaseRequest.isOwner(app.user) or purchaseRequest.canAddDeliveryItem(app.user) %}
+                                        {% set vars = {'purchaseRequest': purchaseRequest, 'item': item} %}
+                                        {% include 'purchase/partial/item_actions.html.twig' with vars %}
+                                    {% endif %}
+                                </td>
+                                {% set priceTotal = priceTotal + item.price %}
+                                {% set preliminaryEstimateTotal = preliminaryEstimateTotal + item.preliminaryEstimate %}
+                            </tr>
+                            {% endif %}
+                        {% endfor %}
+                        <tr class="border-top-white">
+                            <td colspan="11"><strong>{{ 'Total' | trans() ~ ' :'}}</strong></td>
+                            <td colspan="3">
+                                <h5 class="m-t-0 m-b-0 f-w-300" style="white-space: nowrap;">
+                                    <strong>{{ priceTotal | number_format(2, '.', ',') }} <i class="fa fa-fw fa-rouble"></i></strong>
+                                </h5>
+                            </td>
+
+                            <td colspan="2">
+                                <h5 class="m-t-0 m-b-0 f-w-300" style="white-space: nowrap;">
+                                    <strong>{{ preliminaryEstimateTotal | number_format(2, '.', ',') }} <i class="fa fa-fw fa-rouble"></i></strong>
+                                </h5>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                {% endif %}
+            </div>
+            <div class="panel panel-default no-bg b-gray-dark hidden tab" id="attachments">
+                <div class="panel-body">
+                    {% if filesCount | length %}
+                    <div class="scrollable">
+                    <table class="table table-hover m-b-0">
+                        <tbody>
+                        {% for file in requestFiles %}
+                            {% set vars = {
+                                'downloadFilePath': path('purchase_request_download_file', {'id': project.id, 'fileId': file.id}),
+                                'deleteFilePath' : path('request_delete_file', {'purchaseId': purchaseRequest.id, 'fileId': file.id})
+                            } %}
+                            {% if file.format == 'jpg' or file.format == 'jpeg' or file.format == 'png' %}
+                                {% set vars = vars | merge({ 'previewImage': path('purchase_request_download_file', {'id': project.id, 'fileId': file.id, 'preview': true }) }) %}
+                            {% endif %}
+                            {% include 'partial/upload_files_list.html.twig' with vars %}
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    </div>
+                    {% else %}
+                        <span class="v-a-m b-t-0 text-muted">{{ "There's no files yet" | trans() }}</span>
+                    {% endif %}
+                </div>
+                    {% set vars = {'uploadFilePath' : path('purchase_request_upload_file', {'purchaseId': purchaseRequest.id})} %}
+                    {% include 'partial/upload_files_form.html.twig' with vars %}
+            </div>
+            <div class="panel panel-default no-bg b-gray-dark hidden tab" id="financial">
+                <div class="panel-body">
+                    {% if purchaseRequest.invoices | length %}
+                        {% set total = 0 %}
+                        {% set totalPaid = 0 %}
+                    <div class="scrollable">
+                        <table class="table table-hover m-b-0">
+                            <thead>
+                                <th>{{ 'Supplier' | trans() }}</th>
+                                <th>{{ 'Invoice Number' | trans() }}</th>
+                                <th>{{ 'Registry' | trans() }}</th>
+                                <th>{{ 'Status' | trans() }}</th>
+                                <th>{{ 'Amount' | trans() }}</th>
+                                <th>{{ 'Paid' | trans() }}</th>
+                                <th>{{ 'Left to pay' | trans() }}</th>
+                                <th>{{ 'Items' | trans() }}</th>
+                                <th>{{ 'Created At' | trans() }}</th>
+                                <th>{{ 'Actions' | trans }}</th>
+                            </thead>
+                            <tbody>
+                            {% for invoice in purchaseRequest.invoices %}
+                                <tr>
+                                    <td>
+                                        <a class="link-comment" href="{{ path('suppliers_details', {'id': invoice.supplier.id}) }}">{{ invoice.supplier }}</a>
+                                    </td>
+                                    <td>
+                                        {{ invoice.invoiceNumber }}
+                                    </td>
+                                    <td>
+                                        {% if invoice.invoiceRegistry is not null%}
+                                            {{ 'Registry' | trans() }} #{{ invoice.invoiceRegistry.id }}
+                                        {% else %}
+                                            {{ '-' }}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {{ (invoice.status ?: '-') | trans() }}
+                                    </td>
+                                    <td>
+                                        {% set total = total + invoice.amount %}
+                                        {{ invoice.amount | number_format(2, '.', ',') ~ 'р' }}
+                                    </td>
+                                    <td>
+                                        {% set totalPaid = totalPaid + invoice.amountPaid %}
+                                        {{ invoice.amountPaid | number_format(2, '.', ',') ~ 'р' }}
+                                    </td>
+                                    <td>
+                                        {{ (invoice.amount - invoice.amountPaid) | number_format(2, '.', ',') ~ 'р' }}
+                                    </td>
+                                    <td>
+                                        {{ invoice.requestItems | length }}
+                                    </td>
+                                    <td>
+                                        {{ invoice.createdAt | date('d.m.y') }}
+                                    </td>
+                                    <td>
+                                        {% if canEditRegistry or purchaseRequest.isOwner(app.user) or purchaseRequest.canAddDeliveryItem(app.user) or invoice.canRemoveInvoice(app.user) or (invoice.invoiceFile is not null) %}
+                                            {% set vars = {'purchaseRequest': purchaseRequest} %}
+                                            {% include 'purchase/partial/invoice_actions.twig' with vars %}
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="3"></td>
+                                    <td><h5>{{ 'Total' | trans() }}</h5></td>
+                                    <td><h5>{{ total | number_format(2, '.', ',') ~ 'р' }}</h5></td>
+                                    <td><h5>{{ totalPaid | number_format(2, '.', ',') ~ 'р' }}</h5></td>
+                                    <td><h5>{{ (total - totalPaid) | number_format(2, '.', ',') ~ 'р' }}</h5></td>
+                                    <td><h5>{{ purchaseRequest.items | length }}</h5></td>
+                                    <td colspan="2"></td>
+                                <tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    {% else %}
+                        <span class="v-a-m b-t-0 text-muted">{{ "There's no files yet" | trans() }}</span>
+                    {% endif %}
+                </div>
+                <div class="panel-body">
+                    {% if financialFiles | length %}
+                        <table class="table table-hover m-b-0">
+                            <tbody>
+                            {% for file in financialFiles %}
+                                {% set vars = {
+                                    'type' : 'financial',
+                                    'downloadFilePath': path('purchase_request_download_file', {'id': project.id, 'fileId': file.id}),
+                                    'deleteFilePath' : path('request_delete_file', {'purchaseId': purchaseRequest.id, 'fileId': file.id})
+                                } %}
+                                {% if file.format == 'jpg' or file.format == 'jpeg' or file.format == 'png' %}
+                                    {% set vars = vars | merge({ 'previewImage': path('purchase_request_download_file', {'id': project.id, 'fileId': file.id, 'preview': true }) }) %}
+                                {% endif %}
+                                {% include 'partial/upload_files_list.html.twig' with vars %}
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <span class="v-a-m b-t-0 text-muted">{{ "There's no files yet" | trans() }}</span>
+                    {% endif %}
+                </div>
+                {% set vars = {
+                    'type' : 'financial',
+                    'uploadFilePath' : path('purchase_request_upload_file', {'purchaseId': purchaseRequest.id})} %}
+            </div>
+            <div class="panel panel-default  no-bg b-gray-dark hidden tab" id="comments">
+                {% set vars = {
+                    'comments': comments,
+                    'action': path('purchase_request_add_comment', {'id': purchaseRequest.id})
+                } %}
+                {% include 'partial/comments.html.twig' with vars %}
+            </div>
+            <div class="panel panel-default  no-bg b-gray-dark hidden tab" id="history">
+                <div class="panel-body">
+                    <div>
+                        {% if purchaseRequestChanges | length %}
+                        <div class="scrollable">
+                        <table class="table table-hover">
+                            <thead>
+                            <tr>
+                                <th class="small text-muted text-uppercase" style="width: 160px;">{{ 'Field' | trans() }}</th>
+                                <th class="small text-muted text-uppercase">{{ 'Old value' | trans() }}</th>
+                                <th class="small text-muted text-uppercase">{{ 'New value' | trans() }}</th>
+                                <th class="small text-muted text-uppercase">{{ 'Changed by' | trans() }}</th>
+                                <th class="small text-muted text-uppercase">{{ 'Changed at' | trans() }}</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% set changeTime = null %}
+                            {% set styleGrey = 'background-color: #e7e7e7;' %}
+                            {% set style = '' %}
+
+                            {% for changes in purchaseRequestChanges %}
+                                {% if changeTime != changes.updatedAt | date('d.m.y H:i') %}
+                                    {% if style == styleGrey %}
+                                        {% set style = '' %}
+                                    {% else %}
+                                        {% set style = styleGrey %}
+                                    {% endif %}
+                                    {% set changeTime = changes.updatedAt | date('d.m.y H:i') %}
+                                {% endif %}
+                                <tr style="{{ style }}">
+                                    <td>{{ (changes.field | capitalize) | trans() }}</td>
+                                    <td><strike>{{ changes.oldValue | trans() }}</strike></td>
+                                    <td class="text-inverse">{{ changes.newValue | trans() }}</td>
+                                    <td>{{ changes.changedBy.fullName }}</td>
+                                    <td>{{ changes.updatedAt | date('d.m.y H:i') }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                        </div>
+                        {% else %}
+                            <span class="v-a-m b-t-0 text-muted">{{ "There's no changes yet" | trans() }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel panel-default  no-bg b-gray-dark hidden tab" id="delivery">
+                <div class="panel-body">
+                    {% if deliveries | length %}
+                    <div class="scrollable">
+                        <table class="table table-hover">
+                            <thead>
+                            <tr>
+                                <th class="small text-muted text-uppercase">{{ 'Title item' | trans() }}</th>
+                                <th class="small text-muted text-uppercase">{{ 'From where' | trans() }}</th>
+                                <th class="small text-muted text-uppercase">{{ 'Where' | trans() }}</th>
+                                <th class="small text-muted text-uppercase">{{ 'Supplier' | trans() }}</th>
+                                <th class="small text-muted text-uppercase">{{ 'Price' | trans() }}</th>
+                                <th class="small text-muted text-uppercase">{{ 'Created At' | trans() }}</th>
+                                <th class="small text-muted text-uppercase">{{ 'Owner' | trans() }}</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                {% for delivery in deliveries %}
+                                    <tr>
+                                        <td class="v-a-m"><span>{{ delivery.item.title }}</span></td>
+                                        <td class="v-a-m"><span>{{ delivery.cityFrom.name }}</span></td>
+                                        <td class="v-a-m"><span>{{ delivery.cityWhere.name }}</span></td>
+                                        <td class="v-a-m"><span>{{ delivery.supplier.title }}</span></td>
+                                        <td class="v-a-m"><span>{{ delivery.price | number_format(2, '.', ',') ~ ' р' }}</span></td>
+                                        <td class="v-a-m"><span>{{ delivery.createdAt | date('d.m.Y H:i') }}</span></td>
+                                        <td class="v-a-m"><span>{{ delivery.owner.lastNameWithInitials }}</span></td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                        <span class="v-a-m b-t-0 text-muted">{{ 'No delivery' | trans() }}</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% import 'purchase/partial/actions_form.html.twig' as actionsForm %}
+            {% import 'purchase/partial/change_owner_form.html.twig' as changeOwnerForm %}
+            {% import 'purchase/partial/payment_information_form.html.twig' as paymentInformationForm %}
+            {% import 'purchase/partial/reject_form.html.twig' as rejectForm %}
+            {% import 'purchase/partial/notice_form.html.twig' as noticeForm %}
+            {% import 'purchase/partial/edit_item_form.html.twig' as editItemForm %}
+            {% import 'purchase/partial/remove_item_form.html.twig' as removeItemForm %}
+            {% import 'purchase/partial/delete_file_form.html.twig' as deleteFileForm %}
+            {% import 'purchase/partial/return_fixing_prompt.html.twig' as returnFixingForm %}
+            {% import 'purchase/partial/return_fixing_prompt.html.twig' as fixPricesForm %}
+            {% import 'purchase/partial/return_fixing_prompt.html.twig' as fixPricesItemsForm %}
+            {% import 'purchase/partial/bulk_action_prompt_form.html.twig' as bulkActionForm %}
+            {% import 'purchase/partial/import_items_form.html.twig' as importItemsForm %}
+            {% import 'purchase/partial/import_request_items_info_form.html.twig' as importRequestItemsInfoForm %}
+            {% import 'purchase/partial/upload_invoice_form.html.twig' as uploadInvoiceForm %}
+            {% import 'purchase/partial/add_items_form.html.twig' as addItemsForm %}
+            {% import 'purchase/partial/form.html.twig' as editRequestForm %}
+            {% import 'partial/preview_form.html.twig' as previewForm %}
+            {% import 'purchase/partial/refresh_supplier_form.html.twig' as refreshSupplierForm %}
+            {% import 'purchase/partial/attach_to_registry_form.html.twig' as attachToRegistryForm %}
+            {% import 'purchase/partial/add_delivery_item_form.html.twig' as addDeliveryItemForm %}
+            {% import 'purchase/partial/send_to_supply_area.html.twig' as sendToSupplyAreaForm %}
+            {% import 'purchase/partial/remove_invoice_form.html.twig' as removeInvoiceForm %}
+
+            {% set previewFormVars = {
+                'class': 'previewModal',
+                'formId': 'previewForm',
+                'size': 'large',
+                'title': 'Image preview',
+                'content': previewForm.inputs(),
+            } %}
+
+            {% set actionsFormVars = {
+                    'class': 'actionFormModal',
+                    'formId': 'actionForm',
+                    'title': 'Request leader approve',
+                    'content': actionsForm.inputs(purchaseRequest, purchasingTeam, approvingLeaders, financialTeam, productionSpecialists),
+                    'submitTitle': 'Send'
+            } %}
+
+            {% set changeOwnerFormVars = {
+                'class': 'changeOwnerFormModal',
+                'formId': 'changeOwnerForm',
+                'title': 'Select owner',
+                'content': changeOwnerForm.inputs(purchaseRequest, teamMembers, owner),
+                'submitTitle': 'Send'
+            } %}
+
+            {% set paymentInformationFormVars = {
+                'class': 'paymentInformationFormModal',
+                'formId': 'paymentInformationForm',
+                'title': 'Payment information',
+                'size': 'large',
+                'content': paymentInformationForm.inputs(purchaseRequest),
+                'submitTitle': 'Send'
+            } %}
+
+            {% set noticeFormVars = {
+                    'class': 'noticeFormModal',
+                    'formId': 'noticeForm',
+                    'title': 'Add notice',
+                    'size': 'large',
+                    'content': noticeForm.inputs(),
+                    'submitTitle': 'Send'
+            } %}
+
+            {% set editItemFormVars = {
+                    'class': 'editItemModal',
+                    'formId': 'editItemForm',
+                    'title': 'Edit item',
+                    'size': 'large',
+                    'content': editItemForm.inputs(categories, units),
+                    'submitTitle': 'Save'
+            } %}
+
+            {% set removeItemFormVars = {
+                    'class': 'removeItemModal',
+                    'formId': 'removeItemForm',
+                    'title': 'Remove item',
+                    'content': removeItemForm.inputs(),
+                    'submitTitle': 'Remove'
+            } %}
+
+            {% set deleteFileFormVars = {
+                    'class': 'deleteFileModal',
+                    'formId': 'deleteFileForm',
+                    'title': 'Delete file',
+                    'content': deleteFileForm.inputs(),
+                    'submitTitle': 'Delete'
+            } %}
+
+            {% set importItemsFormVars = {
+                    'class': 'importItemsModal',
+                    'formId': 'importItemsForm',
+                    'title': 'Import items',
+                    'content': importItemsForm.inputs(),
+                    'submitTitle': 'Import',
+                    'formAction': path('purchase_request_import_items', {'purchaseId': purchaseRequest.id})
+            } %}
+
+            {% set importRequestItemsInfoFormVars = {
+                    'class': 'importRequestItemsInfoModal',
+                    'formId': 'importRequestItemsInfoForm',
+                    'title': 'Import items',
+                    'content': importRequestItemsInfoForm.inputs(),
+                    'submitTitle': 'Import',
+                    'formAction': path('purchase_request_import_items_info', {'purchaseId': purchaseRequest.id})
+            } %}
+
+            {% set uploadInvoiceFormVars = {
+                    'class': 'uploadInvoiceModal',
+                    'formId': 'uploadInvoiceForm',
+                    'title': 'Attach invoice',
+                    'content': uploadInvoiceForm.inputs(purchaseRequest),
+                    'submitTitle': 'Attach',
+                    'formAction': path('purchase_request_upload_file', {'purchaseId': purchaseRequest.id})
+            } %}
+
+            {% set returnFixingPromptVars = {
+                    'class': 'returnFixingModal',
+                    'formId': 'returnFixingForm',
+                    'title': 'Return fixing',
+                    'content': returnFixingForm.inputs(),
+                    'submitTitle': 'Return fixing',
+                    'formAction': path('project_purchase_change_state', {id: project.id, requestId: purchaseRequest.id, 'state': 'need-fixing'})
+            } %}
+
+            {% set fixPricesPromptVars = {
+                    'class': 'fixPricesModal',
+                    'formId': 'fixPricesForm',
+                    'title': 'Return fixing',
+                    'content': fixPricesForm.inputs(),
+                    'submitTitle': 'Return fixing',
+                    'formAction': path('project_purchase_change_state', {id: project.id, requestId: purchaseRequest.id, 'state': 'fix-prices'})
+            } %}
+
+            {% set fixPricesItemsVars = {
+                'class': 'fixPricesItemsModal',
+                'formId': 'fixPricesItemsForm',
+                'title': 'Fixing prices items',
+                'content': fixPricesItemsForm.inputs(),
+                'submitTitle': 'Return fixing',
+                'formAction': path('project_purchase_change_state', {id: project.id, requestId: purchaseRequest.id, 'state': 'fixing-prices-items'})
+            } %}
+
+            {% set bulkActionPromptVars = {
+                    'class': 'bulkActionPromptModal',
+                    'formId': 'bulkActionForm',
+                    'title': 'Bulk action',
+                    'content': bulkActionForm.inputs(),
+                    'submitTitle': 'Confirm',
+            } %}
+
+            {% set addItemsFormVars = {
+                    'class': 'addItemsModal',
+                    'size': 'large',
+                    'formId': 'addItemsForm',
+                    'title': 'Add items',
+                    'content': addItemsForm.inputs(categories, units, purchaseRequest),
+                    'submitTitle': 'Add',
+                    'formAction': path('project_purchase_request_add_items', {id: project.id, requestId: purchaseRequest.id})
+            } %}
+
+            {% set editRequestFormVars = {
+                    'class': 'editRequestModal',
+                    'size': 'large',
+                    'formId': 'editRequestForm',
+                    'title': 'Edit request',
+                    'content': editRequestForm.inputs(purchaseRequest, wares, warehouses, suppliesCategoriesGrouped),
+                    'submitTitle': 'Save',
+                    'formAction': path('request_edit', {id: project.id, requestId: purchaseRequest.id})
+            } %}
+
+            {% set rejectFormVars = {
+                'class': 'rejectFormModal',
+                'formId': 'rejectForm',
+                'title': 'Reject',
+                'content': rejectForm.inputs(purchaseRequest),
+                'submitTitle': 'Reject'
+            } %}
+
+            {% set refreshSupplierFormVars = {
+                'class': 'refreshSupplierModal',
+                'formId': 'refreshSupplierForm',
+                'title': 'Refresh supplier',
+                'content': refreshSupplierForm.inputs(suppliers),
+                'submitTitle': 'Save'
+            } %}
+
+            {% set attachToRegistryFormVars = {
+                'class': 'attachToRegistryModal',
+                'formId': 'attachToRegistryForm',
+                'title': 'Attach invoice to registry',
+                'content': attachToRegistryForm.inputs(registryList),
+                'submitTitle': 'Save'
+            } %}
+
+            {% set addDeliveryItemFormVars = {
+                'class': 'addDeliveryItemModal',
+                'formId': 'addDeliveryItemForm',
+                'title': 'Add delivery',
+                'size': 'large',
+                'content': addDeliveryItemForm.inputs(suppliers, countries),
+                'submitTitle': 'Add'
+            } %}
+
+            {% set sendToSupplyAreaFormVars = {
+                'class': 'sendToSupplyAreaModal',
+                'formId': 'sendToSupplyAreaForm',
+                'title': 'Send to supply area',
+                'content': sendToSupplyAreaForm.inputs(),
+                'submitTitle': 'Send'
+            } %}
+
+            {% set removeInvoiceFormVars = {
+                'class': 'removeInvoiceModal',
+                'formId': 'removeInvoiceForm',
+                'title': 'Remove invoice',
+                'content': removeInvoiceForm.inputs(),
+                'submitTitle': 'Remove'
+            } %}
+
+            {% include 'partial/modal.html.twig' with previewFormVars %}
+            {% include 'partial/modal.html.twig' with actionsFormVars %}
+            {% include 'partial/modal.html.twig' with changeOwnerFormVars %}
+            {% include 'partial/modal.html.twig' with paymentInformationFormVars %}
+            {% include 'partial/modal.html.twig' with rejectFormVars %}
+            {% include 'partial/modal.html.twig' with noticeFormVars %}
+            {% include 'partial/modal.html.twig' with editItemFormVars %}
+            {% include 'partial/modal.html.twig' with removeItemFormVars %}
+            {% include 'partial/modal.html.twig' with deleteFileFormVars %}
+            {% include 'partial/modal.html.twig' with importItemsFormVars %}
+            {% include 'partial/modal.html.twig' with importRequestItemsInfoFormVars %}
+            {% include 'partial/modal.html.twig' with uploadInvoiceFormVars %}
+            {% include 'partial/modal.html.twig' with returnFixingPromptVars %}
+            {% include 'partial/modal.html.twig' with fixPricesPromptVars %}
+            {% include 'partial/modal.html.twig' with fixPricesItemsVars %}
+            {% include 'partial/modal.html.twig' with bulkActionPromptVars %}
+            {% include 'partial/modal.html.twig' with addItemsFormVars %}
+            {% include 'partial/modal.html.twig' with editRequestFormVars %}
+            {% include 'partial/modal.html.twig' with refreshSupplierFormVars %}
+            {% include 'partial/modal.html.twig' with attachToRegistryFormVars %}
+            {% include 'partial/modal.html.twig' with addDeliveryItemFormVars %}
+            {% include 'partial/modal.html.twig' with removeInvoiceFormVars %}
+            {% include 'partial/modal.html.twig' with sendToSupplyAreaFormVars %}
+
+        </div>
+        <script>
+            $(document).ready(function () {
+                $('.tabs .nav a').bind('click', function ()  {
+                    $('.tabs .nav li').removeClass('active');
+                    $('.tab').addClass('hidden');
+
+                    $('#' + $(this).parent().data('target')).removeClass('hidden');
+                    $(this).parent().addClass('active')
+                });
+
+                var url = window.location.href;
+                var hash = url.substring(url.indexOf('#') + 1);
+
+                if (hash == 'items' || hash == 'attachments' || hash == 'financial' || hash == 'comments' || hash == 'history' || hash == 'delivery') {
+                    $('.tab-' + hash).click();
+                }
+
+                let itemsCount = $("input.check-item").length, itemsCountC = 0;
+
+                $('.check-all-items').click(function () {
+                   if ($(this).prop('checked')) {
+                       $('.check-item').prop('checked', true);
+                       itemsCountC = itemsCount;
+                   } else {
+                       $('.check-item').prop('checked', false);
+                       itemsCountC = 0;
+                   }
+                });
+
+                $('.check-item').click(function() {
+                    if ($(this).prop('checked')) {
+                        itemsCountC++;
+                        if (itemsCount == itemsCountC) {
+                            $('.check-all-items').prop('checked', true);
+                        }
+                    } else {
+                        itemsCountC--;
+                        $('.check-all-items').prop('checked', false);
+                    }
+                });
+
+                $('.bulk-action-apply').click(function () {
+                    var message = '{{ "Select bulk action" | trans() }}';
+                    var action = '';
+                    if (!$('#table-items').find('.check-item:checked').size()){
+                        message = '{{ 'There are no marked items!' | trans() }}';
+                    } else if ($('.bulk-action').val() == 'delete') {
+                        message = '{{ "Are you sure want to delete these items?" | trans() }}';
+                        action = '{{ path('purchase_request_remove_items', {'id': purchaseRequest.id}) }}';
+                    } else if ($('.bulk-action').val() == 'production') {
+                        message = '{{ "Are you sure want to take these items to production?" | trans() }}';
+                        action = '{{ path('purchase_request_move_items_to_production', {'id': purchaseRequest.id}) }}';
+                    } else if ($('.bulk-action').val() == 'produced') {
+                        message = '{{ "Are you sure want to mark these items as produced?" | trans() }}';
+                        action = '{{ path('purchase_request_mark_items_as_produced', {'id': purchaseRequest.id}) }}';
+                    } else if ($('.bulk-action').val() == 'purchasing') {
+                        message = '{{ "Are you sure want to move these items to purchasing?" | trans() }}';
+                        action = '{{ path('purchase_request_move_items_to_purchasing', {'id': purchaseRequest.id}) }}';
+                    } else if ($('.bulk-action').val() == 'on_stock') {
+                        message = '{{ "Are you sure want to mark these items on stock?" | trans() }}';
+                        action = '{{ path('purchase_request_mark_items_on_stock', {'id': purchaseRequest.id, 'status': 'on_stock'}) }}';
+                    } else if ($('.bulk-action').val() == 'not_on_stock') {
+                        message = '{{ "Are you sure want to mark these items not on stock?" | trans() }}';
+                        action = '{{ path('purchase_request_mark_items_on_stock', {'id': purchaseRequest.id, 'status': 'not_on_stock'}) }}';
+                    }
+
+                    $('.bulk-items').html('');
+                    $('.check-item:checked').each(function () {
+                        $('.bulk-items').append("<input type='hidden' value='" + $(this).data('id') +"' name='items[]'>");
+                    });
+                    $('#bulkActionForm').attr('action', action);
+                    $('.bulk-action-prompt-text').text(message)
+                });
+
+                $('.bulk-action').on('change', function () {
+                    if ($(this).val()) {
+                        $('.bulk-action-apply').removeAttr('disabled');
+                        $('.bulk-action-apply').attr('data-toggle', 'modal');
+                    } else {
+                        $('.bulk-action-apply').attr('disabled', true);
+                        $('.bulk-action-apply').attr('data-toggle', null);
+                    }
+                });
+
+                {% if canManagerPreliminaryEstimate or canManagerFinishWork %}
+
+                    $('span.edit').on('click', function () {
+                        console.log($(this).attr('class'));
+                        $('.ajax').html($('.ajax input').val());
+                        $('.ajax').removeClass('ajax');
+                        $(this).addClass('ajax');
+                        $(this).html('<input id="editbox" size="' + $(this).text().length + '" type="text" value="' + $(this).text() + '" />');
+                        $('#editbox').focus();
+                    });
+
+                    $('span.edit').on('keydown', function (event) {
+                        let arr = $(this).attr('class').split(" ");
+                        arr.push({{ purchaseRequest.id }});
+                        if (event.which == 13) {
+                            $.ajax({
+                                type: "POST",
+                                url: "{{ path('edit_item_financial_info') }}",
+                                dataType: 'json',
+                                data: "itemId=" + arr[2] + '&purchaseRequestId=' + arr[4] + "&field=" + arr[1] + "&value=" + $('.ajax input').val(),
+                                success: function (data) {
+                                    $('.ajax').html($('.ajax input').val());
+                                    $('.ajax').removeClass('ajax');
+                                }
+                            });
+                        }
+                    });
+                {% endif %}
+            });
+
+            $(document).on('blur', '#editbox', function () {
+                $('.ajax').html($('.ajax input').val());
+                $('.ajax').removeClass('ajax');
+
+            });
+
+            $(document).submit(function () {
+                $('.send-comment-button').attr("disabled", "disabled");
+            });
+        </script>
+{% endblock %}

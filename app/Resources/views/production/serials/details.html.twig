@@ -1,0 +1,168 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ serial.ware.name }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ breadcrumb( 'Serial' | trans(), path('production_serials_list') ) }}
+    {{ breadcrumb( serial.ware.name, path('production_serial_details', {'id': serial.id}) ) }}
+{% endblock %}
+
+{% block body %}
+    <div class="col-lg-3 task-sidebar" >
+
+        <div class="hr-text hr-text-left m-t-0 m-b-1">
+            <h6 class="text-inverse"><strong>{{ "Details" | trans() }}</strong></h6>
+        </div>
+
+        <table class="table table-condensed">
+            <tbody>
+            <tr>
+                <td class="v-a-m">
+                    {{ 'Category' | trans() }}
+                </td>
+                <td class="v-a-m text-right">
+                    <span>{{ serial.category.name }}</span>
+                </td>
+            </tr>
+            <tr>
+                <td class="v-a-m">
+                    {{ 'Product' | trans() }}
+                </td>
+                <td class="v-a-m text-right">
+                    <span>{{ serial.ware.name }}</span>
+                </td>
+            </tr>
+            <tr>
+                <td class="v-a-m">
+                    {{ 'Project' | trans() }}
+                </td>
+                <td class="v-a-m text-right">
+                    <a href="{{ path('project_tasks', {'id': serial.ware.project.id}) }}"><span>{{ serial.ware.project.name }}</span></a>
+                </td>
+            </tr>
+            <tr>
+                <td class="v-a-m">
+                    {{ 'Created At' | trans() }}
+                </td>
+                <td class="v-a-m text-right">
+                    <span>{{ serial.createdAt | date("d.m.Y") }}</span>
+                </td>
+            </tr>
+
+            </tbody>
+        </table>
+    </div>
+
+    <div class="col-lg-9">
+        <div class="row">
+            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                <h3 class="f-w-300 m-t-1">{{ serial.ware.name }}</h3>
+            </div>
+            <div class="dropdown pull-right m-t-1 m-r-1">
+                <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i class="fa fa-fw fa-gear"></i> {{ "Actions" | trans() }} <span class="caret"></span>
+                </button>
+                {% include 'production/serials/partial/actions.html.twig' %}
+            </div>
+        </div>
+
+        <div class="tab" id="activities">
+            <div class="hr-text hr-text-left m-t-0 m-b-1">
+                <h6 class="text-inverse"><strong>{{ 'Recipe' | trans() }}</strong></h6>
+                <a class="btn btn-gray-light btn-sm add-plus add-items"
+                   data-id="{{ serial.id }}"
+                   data-items="{{ serial.getSerialItemsIds() | json_encode }}"
+                   data-requests="{{ requestsIds | json_encode }}"
+                   data-toggle="modal"
+                   data-target=".selectSerialItemsModal">
+                    <i class="fa fa-plus"></i>
+                </a>
+            </div>
+            <table class="table table-condensed">
+                <thead>
+                <tr>
+                    <th class="small text-muted text-uppercase"><strong>ID</strong></th>
+                    <th class="small text-muted text-uppercase"><strong>{{ 'Purchase request' | trans() }}</strong></th>
+                    <th class="small text-muted text-uppercase"><strong>{{ 'item.sku' | trans() }}</strong></th>
+                    <th class="small text-muted text-uppercase"><strong>{{ 'Name' | trans() }}</strong></th>
+                    <th class="small text-muted text-uppercase"><strong>{{ 'item.quantity' | trans() }}</strong></th>
+                    <th class="small text-muted text-uppercase"><strong>{{ 'item.category' | trans() }}</strong></th>
+                    <th class="small text-muted text-uppercase"><strong>{{ 'Amount' | trans() }}</strong></th>
+                </tr>
+                </thead>
+                <tbody>
+                {% set id = 1 %}
+                {% for item in serial.serialItems %}
+                    <tr>
+                        <td class="v-a-m" style="width: 50px;">
+                            <span>{{ '#' ~ id }}</span>
+                        </td>
+                        <td class="v-a-m">
+                            <a href="{{ path('request_details', {'id': item.purchaseRequest.project.id, 'requestId': item.purchaseRequest.id}) }}">
+                                <span>{{ item.purchaseRequest.code }}</span>
+                            </a>
+                        </td>
+                        <td class="v-a-m"><span>{{ item.sku }}</span></td>
+                        <td class="v-a-m"><span>{{ item.title }}</span></td>
+                        <td class="v-a-m"><span>{{ item.quantity }}{{ item.unit }}</span></td>
+                        <td class="v-a-m"><span>{{ item.category }}</span></td>
+                        <td class="v-a-m"><span>{{ item.preferredShipmentDate ? item.preferredShipmentDate | date('d.m.y') : '-' }}</span></td>
+                        <td class="v-a-m" style="max-width: 300px;word-break:break-all;"><span>{{ item.notice }}</span></td>
+                        {% if app.user.canViewFinancialInfo %}
+                            {% if item.invoice is not null %}
+                                <td class="v-a-m">
+                                    {% if item.invoice.supplier %}
+                                        <a class="link-comment" href="{{ path('suppliers_details', {'id': item.invoice.supplier.id}) }}"><span>{{ item.invoice.supplier }}</span></a>
+                                    {% else %}
+                                        {{ '-' }}
+                                    {% endif %}
+                                </td>
+                                <td class="v-a-m"><span>{{ item.invoice.invoiceNumber ? : '-' }}</span></td>
+                            {% else %}
+                                <td class="v-a-m">
+                                    {% if item.supplier %}
+                                        <a class="link-comment" href="{{ path('suppliers_details', {'id': item.supplier.id}) }}">{{ item.supplier }}</a>
+                                    {% else %}
+                                        {{ '-' }}
+                                    {% endif %}
+                                </td>
+                                <td class="v-a-m"><span>{{ item.invoiceNumber ? : '-' }}</span></td>
+                            {% endif %}
+                            <td class="v-a-m"><span>{{ item.actualQuantity ? item.actualQuantity ~ item.unit : '-' }}</span></td>
+                            <td class="v-a-m"><span>{{ item.price ? (item.price | number_format(2, '.', ',') ~ 'р'): '-' }}</span></td>
+                            <td class="v-a-m"><span>{{ item.prepaymentAmount ? item.prepaymentAmount ~ '%' : '-' }}</span></td>
+                        {% endif %}
+                        <td class="v-a-m"><span>{{ item.estimatedShipmentTime ?: '-' }}</span></td>
+                    </tr>
+                    {% set id = id + 1 %}
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% import 'production/serials/partial/form.html.twig' as form %}
+    {% import 'production/serials/partial/select_serial_items_form.html.twig' as selectSerialItemsForm %}
+
+    {% set editSerialFormVars = {
+        'class': 'editSerialModal',
+        'formId': 'editSerialForm',
+        'title': 'Edit serial production' | trans(),
+        'content': form.inputs(categories, wares),
+        'submitTitle': 'Save'
+    } %}
+
+    {% set selectSerialItemsVars = {
+        'class': 'selectSerialItemsModal',
+        'formId': 'selectSerialItemsForm',
+        'formAction': path('add_serial_items', {'id': serial.id}),
+        'title': 'New recipe',
+        'size': 'large',
+        'content': selectSerialItemsForm.inputs(purchaseRequests),
+        'submitTitle': 'Save'
+    } %}
+
+    {% include 'partial/modal.html.twig' with editSerialFormVars %}
+    {% include 'partial/modal.html.twig' with selectSerialItemsVars %}
+
+{% endblock %}

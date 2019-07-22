@@ -1,0 +1,68 @@
+<div class="dropdown pull-right m-l-1">
+    <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <i class="fa fa-fw fa-gear"></i> {{ "Actions" | trans() }} <span class="caret"></span>
+    </button>
+    <ul class="dropdown-menu dropdown-menu-right">
+        {% if technicalMap.owner == app.user or technicalMap.project.leader == app.user or technicalMap.owner.team.leader == app.user %}
+            <li>
+                <a href=""
+                   class="edit-technical-map"
+                   data-href="{{ path('edit_technical_map', {'id': technicalMap.id}) }}"
+                   data-project="{{ technicalMap.project.id }}"
+                   data-code="{{ technicalMap.code }}"
+                   data-task="{{ technicalMap.task }}"
+                   data-goal="{{ technicalMap.goal }}"
+                   data-criterion1="{{ technicalMap.criterionTitle1 }}"
+                   data-criterion2="{{ technicalMap.criterionTitle2 }}"
+                   data-criterion3="{{ technicalMap.criterionTitle3 }}"
+                   data-criterion4="{{ technicalMap.criterionTitle4 }}"
+                   data-max-points1="{{ technicalMap.maxPoints1 }}"
+                   data-max-points2="{{ technicalMap.maxPoints2 }}"
+                   data-max-points3="{{ technicalMap.maxPoints3 }}"
+                   data-max-points4="{{ technicalMap.maxPoints4 }}"
+                   data-toggle="modal"
+                   data-target=".editTechnicalMapModal"
+                ><i class="fa fa-fw fa-pencil m-r-1"></i> {{ 'Edit' | trans() }}</a>
+            </li>
+        {% endif %}
+        {% if technicalMap.canAddSolution() %}
+            <li>
+                <a href=""
+                   class="add-solution"
+                   data-toggle="modal"
+                   data-target=".addSolutionModal">
+                    <i class="fa fa-fw fa-plus text-success"></i> {{ 'Add solution' | trans() }}</a>
+            </li>
+        {% endif %}
+        {% if technicalMap.canRequestApprove(app.user) %}
+            <li>
+                <a href=""
+                   class="techical-map-approval"
+                   data-toggle="modal"
+                   data-target=".technicalMapApprovalModal"
+                ><i class="fa fa-fw fa-thumbs-o-up text-primary"></i> {{ 'Send for approval' | trans() }}</a>
+            </li>
+        {% endif %}
+        {% if technicalMap.canApprove(app.user) %}
+            <li>
+                <a href="{{ path('change_approval_technical_map', {'id':technicalMap.id, 'approval': 'true'}) }}"
+                ><i class="fa fa-fw fa-thumbs-up text-success"></i> {{ 'Approved' | trans() }}</a>
+            </li>
+        {% endif %}
+        {% if technicalMap.canDisapprove(app.user) %}
+            <li>
+                <a href="{{ path('change_approval_technical_map', {'id':technicalMap.id, 'approval': 'false'}) }}"
+                ><i class="fa fa-fw fa-thumbs-up text-danger"></i> {{ 'Not approved' | trans() }}</a>
+            </li>
+        {% endif %}
+        {% if technicalMap.canReturnFixing(app.user) %}
+            <li>
+                <a href=""
+                   class="technical-map-fixing"
+                   data-toggle="modal"
+                   data-target=".returnFixingModal"
+                ><i class="fa fa-fw fa-fast-backward text-warning"></i> {{ 'Return to fixing' | trans() }}</a>
+            </li>
+        {% endif %}
+    </ul>
+</div>

@@ -1,0 +1,13 @@
+{% macro inputs(invoices) %}
+
+    <div class="form-group">
+        <label class="col-sm-5 control-label">{{ "Select Invoice" | trans() }}</label>
+        <div class="col-sm-6">
+            <select class="form-control select2-modal" required name="invoices[]" multiple >
+                {% for invoice in invoices %}
+                    <option value="{{ invoice.id }}">{{ invoice.purchaseRequest.code ~ ': ' ~ invoice.invoiceNumber ~ ' (' ~ invoice.supplier ~ ')'}}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+{% endmacro %}

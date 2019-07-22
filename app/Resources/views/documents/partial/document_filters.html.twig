@@ -1,0 +1,104 @@
+<div class="form-group filter">
+    {% if routeParams is defined %}
+        <input type="hidden" name="order" value="{{ order ? 'id' }}" />
+        <input type="hidden" name="orderBy" value="{{ orderBy ? 'desc' }}" />
+    {% endif %}
+    <input class="form-control" type="text" name="filters[code]" placeholder="{{ 'Code' | trans() }}"
+           value="{% if filters.code is defined %}{{ filters.code }}{% endif %}"/>
+</div>
+<div class="form-group filter">
+    <select class="form-control" name="filters[supplier]">
+        <option value="">{{ 'Select supplier' | trans() }}</option>
+        {% for supplier in suppliers %}
+            <option {% if filters.supplier is defined and filters.supplier == supplier.id %}selected{% endif %} value="{{ supplier.id }}">
+                {{ supplier.title }}
+            </option>
+        {% endfor %}
+    </select>
+</div>
+<div class="form-group filter">
+    <select class="form-control" name="filters[status]">
+        <option value="">{{ 'Select status' | trans() }}</option>
+        {% for key, status in statuses %}
+            <option {% if filters.status is defined and filters.status == key %}selected{% endif %} value="{{ key }}">
+                {{ status | trans() }}
+            </option>
+        {% endfor %}
+    </select>
+</div>
+<div class="form-group filter">
+    <select class="form-control" name="filters[project]">
+        <option value="">{{ 'Select project' | trans() }}</option>
+        {% for project in projects %}
+            <option {% if filters.project is defined and filters.project == project.id %}selected{% endif %} value="{{ project.id }}">
+                {{ project.name }}
+            </option>
+        {% endfor %}
+    </select>
+</div>
+<div class="form-group filter">
+    <select class="form-control" name="filters[template]">
+        <option value="">{{ 'Select document template' | trans() }}</option>
+        {% for template in documentTemplates %}
+            <option {% if filters.template is defined and filters.template == template.id %}selected{% endif %} value="{{ template.id }}">
+                {{ template.title }}
+            </option>
+        {% endfor %}
+    </select>
+</div>
+<div class="form-group filter">
+    <select class="form-control filter" id="filter-leader" name="filters[initiator]">
+        <option selected value>{{ 'Select initiator' | trans() }}</option>
+        {% for team, members in teamMembers %}
+            <optgroup label="{{ team | trans() }}">
+                {% for member in members %}
+                    {% if filters.initiator is defined and filters.initiator == member.id %}
+                        {% set selected = "selected" %}
+                    {% else %}
+                        {% set selected = "" %}
+                    {% endif %}
+                    <option {{ selected }} value="{{ member.id }}">{{ member.fullName }} ({{ member.employeeRole }})</option>
+                {% endfor %}
+            </optgroup>
+        {% endfor %}
+    </select>
+</div>
+<div class="form-group filter">
+    <input type="text" class="form-control daterange-picker"
+           name="filters[createdAt]" placeholder="{{ 'Created At' | trans() }}"
+           value="{% if filters.createdAt is defined %}{{ filters.createdAt }}{% endif %}">
+</div>
+<div class="form-group filter m-l-1">
+    <div class="checkbox">
+        <label>
+            <input type="checkbox" name="filters[missingContracts]"
+                   {% if filters.missingContracts is defined and filters.status is empty %}checked{% endif %}>
+            {{ 'Missing' | trans() }}
+        </label>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function() {
+        moment.locale('ru');
+        $('.daterange-picker').daterangepicker({
+            timePickerIncrement: 30,
+            timePicker24Hour: true,
+            autoUpdateInput: false,
+            locale: {
+                format: 'DD.MM.YYYY', applyLabel: "Выбрать", cancelLabel: "Отменить"
+            }
+        });
+
+        $('.daterange-picker').on('apply.daterangepicker', function(ev, picker) {
+            $(this).val(picker.startDate.format('DD.MM.YYYY') + ' - ' + picker.endDate.format('DD.MM.YYYY'));
+
+            $(this).trigger('change');
+        });
+
+        $('.daterange-picker').on('cancel.daterangepicker', function(ev, picker) {
+            $(this).val('');
+            $(this).trigger('change');
+        });
+    });
+</script>

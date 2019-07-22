@@ -1,0 +1,226 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'Registry' | trans() }} #{{ registry.id }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ breadcrumb( 'Registry List' | trans(), path('invoices_registry_list') ) }}
+    {{ breadcrumb( ('Registry' | trans()) ~ ' #' ~ registry.id, path('invoice_registry_details', {'id': registry.id}) ) }}
+{% endblock %}
+
+{% block body %}
+
+    <div class="tabbable-line tabs">
+        <ul class="nav nav-tabs">
+            <li class="active tab-registrytab" role="presentation" data-target="registry">
+                <a href="#registrytab">{{ 'Registry' | trans() }}</a>
+            </li>
+            <li class="tab-historytab" role="presentation" data-target="history">
+                <a href="#historytab">{{ 'History' | trans() }}</a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="panel panel-default no-bg b-gray-dark tab" id="registry">
+        <div class="panel-body">
+            {% if registry.invoices | length %}
+                {% set total = 0 %}
+                {% set totalPaid = 0 %}
+                {% set invoicesCnt = 1 %}
+                <table class="table table-hover m-b-0">
+                    <thead>
+                    <th>{{ 'Priority' | trans() }}</th>
+                    <th>{{ 'Project' | trans() }}</th>
+                    <th>{{ 'registry.invoice.cnt' | trans() }}</th>
+                    <th>{{ 'Purchase request' | trans() }}</th>
+                    <th>{{ 'Invoice Number' | trans() }}</th>
+                    <th>{{ 'Description' | trans() }}</th>
+                    <th>{{ 'Amount' | trans() }}</th>
+                    <th>{{ 'Paid' | trans() }}</th>
+                    <th>{{ 'Status' | trans() }}</th>
+                    <th>{{ 'Supplier' | trans() }}</th>
+                    <th>{{ 'Download' | trans() }}</th>
+                    <th>{{ 'Action' | trans() }}</th>
+                    </thead>
+                    <tbody>
+                    {% for projectId, reg in registryInvoices %}
+                        <tr>
+                            <td rowspan="{{ (reg.invoices | length) + 1 }}">
+                                {% if reg.project.priority is not null %}
+                                    <span class="label label-pill label-{{ reg.project.priorityLabels[reg.project.priority] }} label-outline">{{ reg.project.priorityChoices[reg.project.priority] }}</span>
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                            <td rowspan="{{ (reg.invoices | length) + 1 }}">
+                                <a href="{{ path('project_tasks', { 'id': reg.project.id }) }}">{{ reg.project.name }}</a>
+                            </td>
+                        </tr>
+                        {% for invoice in reg.invoices %}
+                            <tr>
+                                <td>
+                                    {{ invoicesCnt }}
+                                    {% set invoicesCnt = invoicesCnt + 1 %}
+                                </td>
+                                <td>
+                                    <a href="{{ path('request_details', {'id': reg.project.id, 'requestId': invoice.purchaseRequest.id}) }}">{{ invoice.purchaseRequest.code }}</a>
+                                </td>
+                                <td>
+                                    {{ invoice.invoiceNumber }}
+                                </td>
+                                <td>
+                                    {{ invoice.purchaseRequest.description }}
+                                </td>
+                                <td>
+                                    {{ invoice.amount | number_format(2, '.', ',') }}
+                                    {% set total = total + invoice.amount %}
+                                </td>
+                                <td>
+                                    {{ invoice.amountPaid | number_format(2, '.', ',') }}
+                                </td>
+                                <td>
+                                    {{ invoice.status | trans() }}
+                                </td>
+                                <td>
+                                    <a href="{{ path('suppliers_details', {'id': invoice.supplier.id}) }}">{{ invoice.supplier }}</a>
+                                </td>
+                                <td>
+                                    {% if invoice.invoiceFile is not null %}
+                                        <a target="_blank" href="{{ path('purchase_request_download_file', {'id': invoice.purchaseRequest.project.id, 'fileId': invoice.invoiceFile.id}) }}">{{ invoice.invoiceFile.fileName }}</a>
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if invoice.canInvoicePaid(app.user) %}
+                                        <div class="dropdown">
+                                            <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                                <i class="fa fa-fw fa-gear"></i> <span class="caret"></span>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-right">
+                                                <li>
+                                                    <a href=""
+                                                       class="invoice-amount-paid"
+                                                       data-action="{{ path('specify_amount_payment', {'id': invoice.id}) }}"
+                                                       data-id="{{ invoice.id }}"
+                                                       data-amount-paid="{{ invoice.amountPaid is defined ? invoice.amountPaid }}"
+                                                       data-toggle="modal"
+                                                       data-target=".invoiceAmountPaidModal"
+                                                    ><i class="fa fa-fw fa-pencil text-gray-lighter m-r-1"></i> {{ 'Specify the amount of payment' | trans() }}</a>
+                                                </li>
+                                                <li>
+                                                    <a href="{{ path('invoice_paid', {'id': invoice.id}) }}">
+                                                        <i class="fa fa-fw fa-dollar text-gray-lighter m-r-1"></i> {{ 'Paid' | trans() }}
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% endfor %}
+                    </tbody>
+                    <tfoot>
+                    <tr>
+                        <td colspan="5"></td>
+                        <td><h5>{{ 'Total' | trans() }}</h5></td>
+                        <td><h5>{{ total | number_format(2, '.', ',') ~ 'р' }}</h5></td>
+                        {#<td><h5>{{ totalPaid | number_format(2, '.', ',') ~ 'р' }}</h5></td>#}
+                        {#<td><h5>{{ (total - totalPaid) | number_format(2, '.', ',') ~ 'р' }}</h5></td>#}
+                        {#<td><h5>{{ purchaseRequest.items | length }}</h5></td>#}
+                        <td colspan="5"></td>
+                    <tr>
+                    </tfoot>
+                </table>
+            {% else %}
+                <span class="v-a-m b-t-0 text-muted">{{ "There's no invoices yet" | trans() }}</span>
+            {% endif %}
+
+            <a href=""
+               class="attach-invoice-to registry"
+               data-toggle="modal"
+               data-target=".attachInvoiceFormModal"
+            ><i class="fa fa-fw fa-plus"></i> {{ 'Attach Invoice' | trans() }}</a>
+        </div>
+    </div>
+
+    <div class="panel panel-default no-bg b-gray-dark hidden tab" id="history">
+        <div class="panel-body">
+            <div>
+                {% if registryChanges | length %}
+                    <table class="table table-sm table-hover">
+                        <thead>
+                        <tr>
+                            <th class="small text-muted text-uppercase">{{ 'Field' | trans() }}</th>
+                            <th class="small text-muted text-uppercase">{{ 'Old value' | trans() }}</th>
+                            <th class="small text-muted text-uppercase">{{ 'New value' | trans() }}</th>
+                            <th class="small text-muted text-uppercase">{{ 'Changed by' | trans() }}</th>
+                            <th class="small text-muted text-uppercase">{{ 'Changed at' | trans() }}</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for changes in registryChanges %}
+                            <tr>
+                                <td>{{ (changes.field | capitalize) | trans() }}</td>
+                                <td><strike>{{ changes.oldValue | trans() }}</strike></td>
+                                <td class="text-inverse">{{ changes.newValue | trans() }}</td>
+                                <td>{{ changes.changedBy.fullName }}</td>
+                                <td>{{ changes.updatedAt | date('d.m.Y H:i') }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <span class="v-a-m b-t-0 text-muted">{{ "There's no changes yet" | trans() }}</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    {% import 'registry/partial/attach_invoice_form.html.twig' as attachInvoiceForm %}
+    {% import 'registry/partial/invoice_paid.html.twig' as invoiceAmountPaidForm %}
+
+    {% set attachInvoiceFormVars = {
+            'class': 'attachInvoiceFormModal',
+            'formId': 'attachInvoiceForm',
+            'title': 'Attach',
+            'content': attachInvoiceForm.inputs(invoices),
+            'submitTitle': 'Attach',
+            'formAction': path('registry_attach_invoice', {id: registry.id})
+        }
+    %}
+
+    {% set invoiceAmountPaidFormVars = {
+        'class': 'invoiceAmountPaidModal',
+        'formId': 'invoiceAmountPaidForm',
+        'title': 'Specify the amount of payment',
+        'content': invoiceAmountPaidForm.inputs(),
+        'submitTitle': 'Save'
+    }
+    %}
+
+    {% include 'partial/modal.html.twig' with attachInvoiceFormVars %}
+    {% include 'partial/modal.html.twig' with invoiceAmountPaidFormVars %}
+
+    <script>
+        $(document).ready(function() {
+            $('.tabs .nav a').bind('click', function(){
+                $('.tabs .nav li').removeClass('active');
+                $('.tab').addClass('hidden');
+
+                $('#' + $(this).parent().data('target')).removeClass('hidden');
+                $(this).parent().addClass('active')
+            });
+
+            var url = window.location.href;
+            var hash = url.substring(url.indexOf('#')+1);
+
+            if (hash == 'registrytab' || hash == 'historytab') {
+                $('.tab-' + hash + ' a').click();
+            }
+        });
+    </script>
+
+{% endblock %}

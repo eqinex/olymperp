@@ -1,0 +1,76 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ project.name }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ breadcrumb( 'Projects' | trans(), path('projects_list') ) }}
+    {{ breadcrumb( project.name, path('project_passport', {'id': project.id}) ) }}
+    {{ breadcrumb( projectPassport.name ) }}
+{% endblock %}
+
+{% block body %}
+
+    {% set vars = {'project': project} %}
+    {% include 'projects/partial/info_sidebar.html.twig' with vars %}
+
+    <div class="col-lg-9">
+        <div class="row m-b-2">
+
+            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                <h3 class="f-w-300 m-t-1">{{ project.name }}</h3>
+            </div>
+            <div class="col-lg-6 col-md-6 col-xs-12">
+                <div class="btn-toolbar pull-right">
+                    <div class="btn-group" role="group" aria-label="...">
+                        {% set vars = {'active_page': 'project_passport'} %}
+                        {% include 'projects/partial/nav.html.twig' with vars %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel panel-default no-bg b-gray-dark">
+            <table class="table table-hover">
+                <tbody>
+                {% set count = 1 %}
+                {% for file in projectPassportFiles %}
+                    {% set vars = {
+                        'downloadFilePath': path ('project_download_file', {'id': project.id, 'fileId': file.id }),
+                        'deleteFilePath' : path('project_remove_file', {'id': project.id, 'fileId': file.id })
+                    } %}
+                    {% if file.format == 'jpg' or file.format == 'jpeg' or file.format == 'png' %}
+                        {% set vars = vars | merge({ 'previewImage': path('project_download_file', {'id': project.id, 'fileId': file.id, 'preview': true }) }) %}
+                    {% endif %}
+                    {% include 'partial/upload_files_list.html.twig' with vars %}
+                {% endfor %}
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+
+    {% import 'partial/preview_form.html.twig' as previewForm %}
+    {% import 'projects/partial/delete_file_form.html.twig' as deleteFileForm %}
+
+    {% set previewFormVars = {
+        'class': 'previewModal',
+        'formId': 'previewForm',
+        'size': 'large',
+        'title': 'Image preview',
+        'content': previewForm.inputs(),
+    }
+    %}
+
+    {% set deleteFileFormVars = {
+        'class': 'deleteFileModal',
+        'formId': 'deleteFileForm',
+        'title': 'Delete file',
+        'content': deleteFileForm.inputs(),
+        'submitTitle': 'Delete'
+    }
+    %}
+
+    {% include 'partial/modal.html.twig' with previewFormVars %}
+    {% include 'partial/modal.html.twig' with deleteFileFormVars %}
+
+{% endblock %}

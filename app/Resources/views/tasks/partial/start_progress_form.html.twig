@@ -1,0 +1,21 @@
+{% macro inputs() %}
+    <div class="form-group">
+        <label class="col-sm-4 control-label">{{ "Original estimate" | trans() }}</label>
+        <div class="col-sm-7">
+            <input type="text" class="form-control start-progress-original-estimate" name="task[originalEstimate]" value=""
+                   required pattern="^[0-9.]+[hmdчдм]">
+            <span class="help-block">{{ '1m/1м - 1 minute, 1h/1ч - 1 hour, 1d/1д - 1 day' | trans() }}</span>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function(){
+            $('.start-progress').click(function(){
+                $('.start-progress-original-estimate').val($(this).data('original-estimate'));
+
+                var startProgressForm = $('#startProgressForm');
+                startProgressForm.attr('action', $(this).data('href'));
+            });
+        });
+    </script>
+{% endmacro %}

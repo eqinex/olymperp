@@ -1,0 +1,28 @@
+{% macro inputs() %}
+    <div class="form-group">
+        <label class="col-sm-4 control-label">{{ "Date" | trans() }}</label>
+        <div class="col-sm-7">
+            <input type="text" required class="form-control worklog-day-picker"
+                   name="workLog[loggedDay]" value="{{ 'now' | date('d.m.Y')}}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-4 control-label">{{ "Time spent" | trans() }}</label>
+        <div class="col-sm-7">
+            <input type="text" class="form-control" name="workLog[timeSpent]" required pattern="^[1-9][0-9]*[hmdчдм](?:\s*[1-9][0-9]*[hmdчдм])*\s*" value="">
+            <span class="help-block">{{ '1m/1м - 1 minute, 1h/1ч - 1 hour, 1d/1д - 1 day' | trans() }}<br>{{ 'Example "1h 10m"' | trans() }}</span>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function(){
+            $('.worklog-day-picker').daterangepicker({
+                singleDatePicker: true,
+                showDropdowns: true,
+                locale: {
+                    format: 'DD.MM.YYYY'
+                }
+            });
+        });
+    </script>
+{% endmacro %}

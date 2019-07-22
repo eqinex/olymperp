@@ -1,0 +1,162 @@
+{% macro inputs(users, companyCodes, statuses, id) %}
+    <div class="form-group">
+        <label class="col-sm-2 control-label" title="{{ 'Designation' | trans() }}">{{ 'Designation' | trans() }}</label>
+        <div class="col-sm-3">
+            <input type="text" class="form-control code col-sm-11"  placeholder="{{ 'Designation' | trans() }}" title="{{ 'Designation' | trans() ~ ' (' ~ 'If you do not fill in this field, it will be filled automatically' | trans() ~ ')'}}" name="project_code[code]" value="" required>
+        </div>
+        <label class="col-sm-3 control-label" title="{{ 'title' | trans() }}">{{ 'title' | trans() }}</label>
+        <div class="col-sm-3">
+            <textarea class="form-control name" name="project_code[name]" placeholder="{{ "title" | trans() }}" rows="1" required></textarea>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label del-padding" title="{{ 'Company code' | trans() }}">{{ 'Company code' | trans() }}</label>
+        <div class="col-sm-3">
+            <select class="form-control enter-data-for-code company-code" name="project_code[companyCode]" required>
+                <option value="">{{ 'Company code' | trans() }}<hr/></option>
+                {% for companyCode in companyCodes %}
+                    <option class="company-code-option" value="{{ companyCode.id }}">{{ companyCode.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <label class="col-sm-3 control-label" title="{{ 'Project number' | trans() }}">{{ 'Project number' | trans() }}</label>
+        <div class="col-sm-3">
+            <input type="text" class="form-control enter-data-for-code project-number" placeholder="{{ 'Project number' | trans() }}" name="project_code[projectNumber]" value="{{ id + 1 }}" required>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label " title="{{ 'Project stages' | trans() }}">{{ 'Project stages' | trans() }}</label>
+        <div class="col-sm-3">
+            <select class="form-control enter-data-for-code project-stage" name="project_code[projectStage]" required>
+                <option value="">{{ 'Select stage' | trans() }}</option>
+                {% for status in statuses %}
+                    <option class="project-stage-option" value="{{ status }}">{{ status }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <label class="col-sm-3 control-label" title="{{ 'Created year project code' | trans() }}">{{ 'Created year project code' | trans() }}</label>
+        <div class="col-sm-3">
+            <input type="text" maxlength="2" minlength="2" class="form-control enter-data-for-code created-year ui-datepicker-calendar" placeholder="{{ 'Created year project code' | trans() }}" name="project_code[createdYear]" title="{{ 'Created year project code' | trans() }}" value="{{ 'now' | date('y') }}" required>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label" title="{{ 'Subassembly' | trans() }}">{{ 'Subassembly' | trans() }}</label>
+        <div class="col-sm-3">
+            <input type="text" placeholder="{{ 'Subassembly' | trans() }}" class="form-control enter-data-for-code subassembly" name="project_code[subassembly]" value="">
+        </div>
+        <label class="col-sm-3 control-label" title="{{ 'Execution' | trans() }}">{{ 'Execution' | trans() }}</label>
+        <div class="col-sm-3">
+            <input type="text" placeholder="{{ 'Execution' | trans() }}" class="form-control enter-data-for-code execution" name="project_code[execution]" value="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label del-padding" title="{{ 'Project structure' | trans() ~ ' %' }}">{{ 'Project structure' | trans() ~ ' %' }}</label>
+        <div class="col-sm-3">
+            <input type="number" class="form-control material-quantity project-structure"  name="project_code[projectStructure]" min="0" max="100" value="0">
+        </div>
+        <label class="col-sm-3 control-label del-padding" title="{{ 'Set Engineering Document' | trans() ~ ' %' }}">{{ 'Set Engineering Document' | trans() ~ ' %' }}</label>
+        <div class="col-sm-3">
+            <input type="number" class="form-control material-quantity kit-engineering-document"  name="project_code[setEngineeringDocument]" min="0" max="100" value="0">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label" title="{{ 'Inside code' | trans() }}">{{ 'Inside code' | trans() }}</label>
+        <div class="col-sm-3">
+            <input type="text" placeholder="{{ 'Inside code' | trans() }}" class="form-control enter-data-for-code inside-code" name="project_code[insideCode]" value="">
+        </div>
+        <label class="col-sm-3 control-label" title="{{ 'Project location' | trans() }}">{{ 'Project location' | trans() }}</label>
+        <div class="col-sm-3">
+            <input type="text" placeholder="{{ 'Project location' | trans() }}" class="form-control enter-data-for-code project-location" name="project_code[projectLocation]" value="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label" title="{{ 'Responsible' | trans() }}">{{ 'Responsible' | trans() }}</label>
+        <div class="col-sm-3">
+            <select class="form-control select2-modal responsible" name="project_code[responsible]" required>
+                {% for user in users %}
+                    <option value="{{ user.id }}"
+                    {% if projectCode.user.id is not defined and app.user.id == user.id %}
+                        {{ "selected" }}
+                    {% endif %}>{{ user.firstname ~ ' ' ~ user.lastname }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <label class="col-sm-3 control-label" title="{{ 'The date of registration of the code' | trans() }}">{{ 'Registration Date' | trans() }}</label>
+        <div class="col-sm-3">
+            <input type="text" required class="form-control date-of-registration daterange-single-date-picker"
+                   name="project_code[dateOfRegistration]" value="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label" title="{{ 'Notice' | trans() }}">{{ 'Notice' | trans() }}</label>
+        <div class="col-sm-9">
+            <textarea class="form-control material-quantity remark"  name="project_code[remark]" placeholder="{{ 'Notice'| trans() }}"></textarea>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            $('.daterange-single-date-picker').daterangepicker({
+                singleDatePicker: true,
+                showDropdowns: true,
+                timePicker24Hour: true,
+                timePickerIncrement: 30,
+                opens: "left",
+                drops: "down",
+                locale: {
+                    format: 'DD.MM.YYYY', applyLabel: "Выбрать", cancelLabel: "Отменить"
+                }
+            });
+
+            $(".enter-data-for-code").on('blur', function() {
+                if ($('.editProjectCodeModal').css('display') == 'none') {
+                    if ($('.company-code').val()) {
+                        let code = $(".company-code-option:selected").text();
+                        if ($('.project-number').val()) {
+                            let num = $('.project-number').val();
+                                code += '.' + num.substring(num.length, num.length - 3);
+                            if ($('.project-stage').val()) {
+                                code += $('.project-stage').val();
+                                if ($('.created-year').val()) {
+                                    num = $('.created-year').val();
+                                    code += num.substring(num.length, num.length - 2);
+                                    if ($('.subassembly').val()) {
+                                        code += '.' + $('.subassembly').val();
+                                        if ($('.execution').val()) {
+                                            code += '-' + $('.execution').val();
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        $('.code').val(code);
+                    }
+                }
+            });
+
+            $('.edit-project-code').bind('click', function () {
+                $(".enter-data-for-code").removeClass("enter-data-for-code");
+                var editSupplierForm = $('#editProjectCodeForm');
+                editSupplierForm.attr('action', $(this).data('href'));
+                editSupplierForm.find('.company-code').val($(this).data('companyCode'));
+                editSupplierForm.find('.name').val($(this).data('name'));
+                editSupplierForm.find('.created-year').val($(this).data('createdYear'));
+                editSupplierForm.find('.project').val($(this).data('project'));
+                editSupplierForm.find('.kit-engineering-document').val($(this).data('kitEngineeringDocument'));
+                editSupplierForm.find('.project-structure').val($(this).data('projectStructure'));
+                editSupplierForm.find('.code').val($(this).data('code'));
+                editSupplierForm.find('.remark').val($(this).data('remark'));
+                editSupplierForm.find('.responsible').val($(this).data('responsible'));
+                editSupplierForm.find('.project-stage').val($(this).data('projectStage'));
+                editSupplierForm.find('.inside-code').val($(this).data('insideCode'));
+                editSupplierForm.find('.project-location').val($(this).data('projectLocation'));
+                editSupplierForm.find('.execution').val($(this).data('execution'));
+                editSupplierForm.find('.subassembly').val($(this).data('subassembly'));
+                editSupplierForm.find('.project-number').val($(this).data('projectNumber'));
+                editSupplierForm.find('.date-of-registration').val($(this).data('dateOfRegistration'));
+
+                $('.select2-modal').select2({width: '100%'});
+            });
+        })
+    </script>
+{% endmacro %}

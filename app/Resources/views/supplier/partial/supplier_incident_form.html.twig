@@ -1,0 +1,49 @@
+{% macro inputs(criticalities) %}
+    <div class="form-group">
+        <label class="col-sm-2 control-label"  title="{{ 'Incident' | trans() }}">{{ 'Incident' | trans() }}</label>
+        <div class="col-sm-9 p-l-2">
+            <textarea class="form-control incident-comment" name="incident[comment]" placeholder="{{ "Incident" | trans() }}" rows="2" maxlength="255" required></textarea>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label" title="{{ 'Criticality' | trans() }}" style="margin-top: -10px">{{ 'Criticality' | trans() }}</label>
+        <div class="col-sm-4 p-l-2">
+            <select class="form-control incident-criticality select2-modal" name="incident[criticality]" required>
+                <option value="">{{ 'Select criticality' | trans() }}</option>
+                {% for key, criticality in criticalities %}
+                    <option value="{{ key }}">{{ criticality | trans() }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <label class="col-sm-2 control-label" title="{{ 'Date' | trans() }}">{{ 'Date' | trans() }}</label>
+        <div class="col-sm-3 p-l-0">
+            <input type="text" class="form-control incident-at daterange-single-date-picker" name="incident[date]" value="" required>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function () {
+            moment.locale('ru');
+            $('.daterange-single-date-picker').daterangepicker({
+                singleDatePicker: true,
+                showDropdowns: true,
+                locale: {
+                    format: 'DD.MM.YYYY', applyLabel: "Выбрать", cancelLabel: "Отменить"
+                }
+            });
+
+            $('.add-blacklist-supplier').bind('click', function () {
+                $('#addBlackListSupplierForm').attr('action', $(this).data('href'));
+            });
+
+            $('.edit-supplier-incident').bind('click', function () {
+                let editSupplierIncidentForm = $('#editSupplierIncidentForm');
+                editSupplierIncidentForm.attr('action', $(this).data('href'));
+                editSupplierIncidentForm.find('.incident-comment').val($(this).data('comment'));
+                editSupplierIncidentForm.find('.incident-criticality').val($(this).data('criticality'));
+                editSupplierIncidentForm.find('.incident-at').val($(this).data('date'));
+
+                $('.select2-modal').select2({width: '100%'});
+            });
+        });
+    </script>
+{% endmacro %}

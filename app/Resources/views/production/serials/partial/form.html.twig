@@ -1,0 +1,43 @@
+{% macro inputs(categories, wares) %}
+    <input type="hidden" class="form-control serial-id" value="" name="id">
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ 'Category' | trans() }}</label>
+        <div class="col-sm-4">
+            <select class="form-control select2-modal serial-category" name="serial[category]" required>
+                <option value="">{{ 'Select category' | trans() }}</option>
+                {% for category in categories %}
+                    <option value="{{ category.id }}"
+                            {% if serial.category is defined and serial.category.id == category.id %}
+                                {{ "selected" }}
+                            {% endif %}>{{ category.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <label class="col-sm-2 control-label">{{ 'Product' | trans() }}</label>
+        <div class="col-sm-4">
+            <select class="form-control select2-modal serial-ware" name="serial[ware]" required>
+                <option value="">{{ 'Select product' | trans() }}</option>
+                {% for ware in wares %}
+                    <option value="{{ ware.id }}"
+                            {% if serial.ware is defined and serial.ware.id == ware.id %}
+                                {{ "selected" }}
+                            {% endif %}>{{ ware.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function(){
+            $('.edit-serial').bind('click', function(){
+                var editSerialForm = $('#editSerialForm');
+                editSerialForm.attr('action', $(this).data('href'));
+                editSerialForm.find('.serial-id').val($(this).data('id'));
+                editSerialForm.find('.serial-category').val($(this).data('category'));
+                editSerialForm.find('.serial-ware').val($(this).data('ware'));
+
+                $('.select2-modal').select2({width: '100%'});
+            });
+        });
+    </script>
+{% endmacro %}

@@ -1,0 +1,202 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ user.getFullName(true) }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ breadcrumb( 'Employees' | trans(), path('employees_list') ) }}
+    {{ breadcrumb( user.getFullName(true), path('employee_details', {'userName': user.username}) ) }}
+{% endblock %}
+
+{% block body %}
+    <div class="col-lg-4 m-b-2">
+
+        <!-- START Avatar with Name -->
+        <div class="media">
+            <div class="media-left p-r-2">
+                <div class="center-block">
+                    <div class="avatar avatar-lg center-block">
+                        <div class="avatar-circle">
+                            {% if user.imageUrl is not null %}
+                                <img class="avatar avatar-image avatar-inline" src="{{ user.imageUrl }}" alt="Avatar">
+                            {% else %}
+                                <img class="avatar avatar-image avatar-inline" src="/images/noavatar.png" alt="Avatar">
+                            {% endif %}
+                        </div>
+                        <i class="avatar-status avatar-status-bottom bg-{{ employee_service.getOnlineStatus(user).colorBadge }} b-brand-gray-darker"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="media-body ">
+                <h4 class="m-b-0"><span>{{ user.getFullName(true) }}</span> </h4>
+                    <span class="label label-{{ employee_service.getOnlineStatus(user).colorBadge }} label-outline text-uppercase m-r-1">{{ employee_service.getOnlineStatus(user).status | trans() }}</span>
+                {% if employee_service.isOnline(user) == false %}
+                    <span id="offline"></span>
+                {% endif %}
+                <p class="m-t-0 m-b-0"><span>{{ user.employeeRole }} - <span class="text-muted">{{ user.team ? : 'Team undefined' | trans() }}</span></span></p>
+                <div class="text-light-gray m-b-1">
+                    <p class="m-t-0 m-b-0">{{ 'Date of birth' | trans() }}: {{ user.dateOfBirth is not null ? user.dateOfBirth | date('d.m.Y') : '-' }}</p>
+                    <p class="m-t-0 m-b-0">{{ 'Employment date' | trans() }}: {{ user.employmentDate is not null ? user.employmentDate | date('d.m.Y') : '-' }}</p>
+                </div>
+
+                <div class="btn-toolbar" role="toolbar" aria-label="...">
+                    <div class="btn-group" role="group" aria-label="...">
+                        <!-- Standard button -->
+                        <a href="mailto:{{ user.email }}" class="btn btn-default"><i class="fa fa-fw fa-envelope-o"></i></a>
+                    </div>
+
+                    {% if user.telegramUsername is not null %}
+                    <div class="btn-group" role="group" aria-label="...">
+                        <!-- Standard button -->
+                        <a href="tg://resolve?domain={{ user.telegramUsername }}" class="btn btn-default"><i class="fa fa-fw fa-telegram"></i></a>
+                    </div>
+                    {% endif %}
+                </div>
+
+            </div>
+        </div>
+        <!-- END Avatar with Name -->
+
+        <div class="hr-text hr-text-left">
+            <h6 class="text-inverse"><strong>{{ 'Profile' | trans() }}</strong></h6>
+        </div>
+        {% if user.biography %}
+            <div>{{ user.biography | raw }}</div>
+        {% else %}
+            <span class="text-muted">{{ 'Biography is not filled yet' | trans() }}</span>
+        {% endif %}
+
+        {% if user.phone is not null %}
+        <div class="hr-text hr-text-left m-t-1">
+            <h6 class="text-inverse"><strong>{{ 'Contacts' | trans() }}</strong></h6>
+        </div>
+        <span class="text-light-gray">{{ 'Phone' | trans() }}:</span> {{ user.phone }}
+        {% endif %}
+
+        {% if basicAchievements | length %}
+            <div class="hr-text hr-text-left m-t-1">
+                <h6 class="text-inverse"><strong>{{ 'Achievements' | trans() }}</strong></h6>
+            </div>
+            <div class="row">
+            {% for userAchievement in basicAchievements %}
+                <div class="col-lg-3 center-block">
+                    <div class="basic-achievement ">
+                        <a href="{{ path('achievements_details', {'id': userAchievement.achievement.id}) }}">
+                            <img src="/images/achievements/{{ userAchievement.achievement.id }}.png"
+                                 alt="{{ userAchievement.achievement.title }}"
+                                 title="{{ userAchievement.achievement.title }}">
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+
+            </div>
+        {% endif %}
+
+        {% if projectAchievements | length %}
+            <div class="hr-text hr-text-left m-t-1">
+                <h6 class="text-inverse"><strong>{{ 'Projects' | trans() }}</strong></h6>
+            </div>
+            <div class="row">
+            {% for userAchievement in projectAchievements %}
+                <div class="col-lg-3 center-block">
+                    <div class="achievement">
+                        <a href="{{ path('achievements_details', {'id': userAchievement.achievement.id}) }}">
+                            <img src="/images/achievements/{{ userAchievement.achievement.id }}.png"
+                                 alt="{{ userAchievement.achievement.title }}"
+                                 title="{{ userAchievement.achievement.title }}">
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="col-lg-4">
+        <div class="hr-text hr-text-left">
+            <h6 class="text-inverse"><strong class="m-r-1">{{ "24h activity" | trans() }} </strong></h6>
+        </div>
+
+        <ul class="list-group">
+            {% for task in latestTasks %}
+                <li class="list-group-item no-bg">
+                    <div class="media">
+                        <div class="media-body">
+                            [{{ task.project.name }}]
+                            {% if task.status == 2 %}
+                                <del>
+                                    <a class="text-muted" href="{{ path('project_task_details', {'id': task.project.id, 'taskId': task.id}) }}">
+                                        <span>{{ task.title }}</span>
+                                    </a>
+                                </del>
+                            {% else %}
+                                <a href="{{ path('project_task_details', {'id': task.project.id, 'taskId': task.id}) }}">
+                                    <span>{{ task.title }}</span>
+                                </a>
+                            {% endif %}
+
+                        </div>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="col-lg-4 m-b-2">
+        <div id="full-calendar"></div>
+    </div>
+
+    <div class="col-lg-4 m-b-2 pull-right">
+        <div class="hr-text hr-text-left">
+            <h6 class="text-inverse"><strong>{{ 'Projects' | trans() }}</strong></h6>
+        </div>
+
+        <div class="list-group">
+            {% for project in projects %}
+                <a class="list-group-item" href="{{ path('project_tasks', {'id': project.id, 'filters': {'responsible': user.id }}) }}">{{ project.name }}</a>
+            {% endfor %}
+        </div>
+    </div>
+    <script>
+        $(document).ready(function(){
+            moment.locale('ru');
+
+            {% if user.lastOnline is not null %}
+                let date = {{ user.lastOnline | date('Y\m\d\H\i') }}
+                $('#offline').text('{{ user.gender == 'f' ? 'She was online' | trans() : 'Was online' | trans() }} ' + moment(date, "YYYYMMDDHHmm").fromNow());
+            {% endif %}
+
+            var Colors = Dashboard.Helpers.Colors;
+            $('#full-calendar').fullCalendar({
+                locale: 'ru',
+                monthNames: ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль',
+                    'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'],
+                dayNamesShort: ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'],
+                buttonText: {
+                    today: 'Cегодня',
+                },
+                events: [
+                    {% for dayOff in dayOffs %}
+                    {{ "{" }}
+                    {{ ("title: '" ~ dayOff.type | trans() ~ "',") | raw  }}
+                    {{ ("start: '" ~ (dayOff.dateStart | date('Y-m-d')) ~ "',") | raw }}
+                    {{ ("end: \'" ~ (dayOff.dateEnd | date_modify("+1 day") | date('Y-m-d')) ~ "\',") | raw }}
+                    {% if dayOff.type == 'vacations' %}
+                    {{ ("color: Colors.brandSuccess") | raw }}
+                    {% elseif dayOff.type == 'overtime' %}
+                    {{ ("color: Colors.brandPrimary") | raw }}
+                    {% elseif dayOff.type == 'businessTrip' %}
+                    {{ ("color: Colors.brandInfo") | raw }}
+                    {% elseif dayOff.type == 'miss' %}
+                    {{ ("color: Colors.brandDanger") | raw }}
+                    {% elseif dayOff.type == 'illness' %}
+                    {{ ("color: Colors.brandWarning") | raw }}
+                    {% endif %}
+                    {{ "}," }}
+                    {% endfor %}
+                ],
+            });
+        })
+    </script>
+
+{% endblock %}

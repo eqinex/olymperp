@@ -1,0 +1,312 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ "Requests list" | trans() }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ breadcrumb( 'Requests' | trans() ) }}
+    {{ breadcrumb( project.name, path('project_details', {'id': project.id}) ) }}
+{% endblock %}
+
+{% block body %}
+
+    {% for manager in purchasingTeam.getAllTeamMembers %}
+        <span class="label m-r-1 label-{{ manager.badgeColor ? : 'default' }}">
+            {{ manager.lastNameWithInitials }}
+        </span>
+    {% endfor %}
+<div class="scrollable">
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                {% set filters = {'project': project.id, 'status': ['new', 'needs_leader_approval', 'needs_project_leader_approve', 'needs_production_leader_approval', 'needs_fixing']} %}
+                <th style="width: 100px;"><a href="{{ path('requests_list', {'type': 'all-request', 'filters': filters}) }}">{{ 'board.preparing_requests' | trans() }} ({{ prePurchaseRequests | length }})</a></th>
+
+                {% set filters = {'project': project.id, 'status': ['needs_purchasing_manager', 'manager_assigned']} %}
+                <th style="width: 100px;"><a href="{{ path('requests_list', {'type': 'all-request', 'filters': filters}) }}">{{ 'board.queued' | trans() }} ({{ queuedRequests | length }})</a></th>
+
+                {% set filters = {'project': project.id, 'status': ['manager_started_work', 'on_preliminary_estimate', 'needs_preliminary_estimate_approve']} %}
+                <th style="width: 100px;"><a href="{{ path('requests_list', {'type': 'all-request', 'filters': filters}) }}">{{ 'board.checking_prices' | trans() }} ({{ checkingPricesRequests | length }})</a></th>
+
+                {% set filters = {'project': project.id, 'status': ['manager_finished_work'], 'paymentStatus': 'needs_payment', 'deliveryStatus': 'awaiting_delivery', 'invoicePayment': ['account_ufk', 'account_special'], 'expensesType': ['expenses.materials', 'expenses.other_direct']} %}
+                <th style="width: 100px;"><a href="{{ path('requests_list', {'type': 'all-request', 'filters': filters}) }}">{{ 'board.signing_contract' | trans() }} ({{ signingContractRequests | length }})</a></th>
+
+                {% set filters = {'project': project.id, 'status': ['manager_finished_work'], 'paymentStatus': 'needs_payment', 'deliveryStatus': 'awaiting_delivery', 'invoicePayment': ['account_ufk', 'account_special'], 'expensesType': ['expenses.additional']} %}
+                <th style="width: 100px;"><a href="{{ path('requests_list', {'type': 'all-request', 'filters': filters}) }}">{{ 'board.additional_needs_payment' | trans() }} ({{ additionalCostRequests | length }})</a></th>
+
+                {% set filters = {'project': project.id, 'status': ['manager_finished_work'], 'deliveryStatus': 'in_delivery'} %}
+                <th style="width: 100px;"><a href="{{ path('requests_list', {'type': 'all-request', 'filters': filters}) }}">{{ 'board.in_delivery' | trans() }} ({{ inDeliveryRequests | length }})</a></th>
+
+                {% set filters = {'project': project.id, 'status': ['manager_finished_work'], 'deliveryStatus': 'delivered'} %}
+                <th style="width: 100px;"><a href="{{ path('requests_list', {'type': 'all-request', 'filters': filters}) }}">{{ 'board.awaiting_payment' | trans() }} ({{ needsPaymentRequests | length }}</a>)</th>
+
+                {% set filters = {'project': project.id, 'status': ['done']} %}
+                <th style="width: 100px;"><a href="{{ path('requests_list', {'type': 'all-request', 'filters': filters}) }}">{{ 'board.finished' | trans() }} ({{ doneRequests | length }})</a></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>
+                    {% set prePurchaseAmount = 0 %}
+                    {% for request in prePurchaseRequests %}
+                        <a title="{{ request.description }}" class="label m-r-1 label-{{ request.purchasingManager ? request.purchasingManager.badgeColor : 'default' }}"
+                           href="{{ path('request_details', {'id': request.project.id, 'requestId': request.id}) }}">
+                            <span>{{ request.code }}</span>
+                        </a>
+
+                        {% for item in request.items %}
+                            {% set prePurchaseAmount = prePurchaseAmount + item.price %}
+                        {% endfor %}
+                    {% endfor %}
+                </td>
+                <td>
+                    {% set queuedRequestsAmount = 0 %}
+                    {% for request in queuedRequests %}
+                        <a title="{{ request.description }}" class="label m-r-1 label-{{ request.purchasingManager ? request.purchasingManager.badgeColor : 'default' }}"
+                           href="{{ path('request_details', {'id': request.project.id, 'requestId': request.id}) }}">
+                            <span>{{ request.code }}</span>
+                        </a>
+                        {% for item in request.items %}
+                            {% set queuedRequestsAmount = queuedRequestsAmount + item.price %}
+                        {% endfor %}
+                    {% endfor %}
+                </td>
+                <td>
+                    {% set checkingPricesRequestsAmount = 0 %}
+                    {% for request in checkingPricesRequests %}
+                        <a title="{{ request.description }}" class="label m-r-1 label-{{ request.purchasingManager ? request.purchasingManager.badgeColor : 'default' }}"
+                           href="{{ path('request_details', {'id': request.project.id, 'requestId': request.id}) }}">
+                            <span>{{ request.code }}</span>
+                        </a>
+                        {% for item in request.items %}
+                            {% set checkingPricesRequestsAmount = checkingPricesRequestsAmount + item.price %}
+                        {% endfor %}
+                    {% endfor %}
+                </td>
+                <td>
+                    {% set signingContractRequestsAmount = 0 %}
+                    {% for request in signingContractRequests %}
+                        <a title="{{ request.description }}" class="label m-r-1 label-{{ request.purchasingManager ? request.purchasingManager.badgeColor : 'default' }}"
+                           href="{{ path('request_details', {'id': request.project.id, 'requestId': request.id}) }}">
+                            <span>{{ request.code }}</span>
+                        </a>
+                        {% for item in request.items %}
+                            {% set signingContractRequestsAmount = signingContractRequestsAmount + item.price %}
+                        {% endfor %}
+                    {% endfor %}
+                </td>
+                <td>
+                    {% set additionalCostRequestsAmount = 0 %}
+                    {% for request in additionalCostRequests %}
+                        <a title="{{ request.description }}" class="label m-r-1 label-{{ request.purchasingManager ? request.purchasingManager.badgeColor : 'default' }}"
+                           href="{{ path('request_details', {'id': request.project.id, 'requestId': request.id}) }}">
+                            <span>{{ request.code }}</span>
+                        </a>
+                        {% for item in request.items %}
+                            {% set additionalCostRequestsAmount = additionalCostRequestsAmount + item.price %}
+                        {% endfor %}
+                    {% endfor %}
+                </td>
+                <td>
+                    {% set inDeliveryRequestsAmount = 0 %}
+                    {% for request in inDeliveryRequests %}
+                        <a title="{{ request.description }}" class="label m-r-1 label-{{ request.purchasingManager ? request.purchasingManager.badgeColor : 'default' }}"
+                           href="{{ path('request_details', {'id': request.project.id, 'requestId': request.id}) }}">
+                            <span>{{ request.code }}</span>
+                        </a>
+                        {% for item in request.items %}
+                            {% set inDeliveryRequestsAmount = inDeliveryRequestsAmount + item.price %}
+                        {% endfor %}
+                    {% endfor %}
+                </td>
+                <td>
+                    {% set needsPaymentRequestsAmount = 0 %}
+                    {% for request in needsPaymentRequests %}
+                        <a title="{{ request.description }}" class="label m-r-1 label-{{ request.purchasingManager ? request.purchasingManager.badgeColor : 'default' }}"
+                           href="{{ path('request_details', {'id': request.project.id, 'requestId': request.id}) }}">
+                            <span>{{ request.code }}</span>
+                        </a>
+                        {% for item in request.items %}
+                            {% set needsPaymentRequestsAmount = needsPaymentRequestsAmount + item.price %}
+                        {% endfor %}
+                    {% endfor %}
+                </td>
+                <td>
+                    {% set doneRequestsAmount = 0 %}
+                    {% for request in doneRequests %}
+                        <a title="{{ request.description }}" class="label m-r-1 label-{{ request.purchasingManager ? request.purchasingManager.badgeColor : 'default' }}"
+                           href="{{ path('request_details', {'id': request.project.id, 'requestId': request.id}) }}">
+                            <span>{{ request.code }}</span>
+                        </a>
+                        {% for item in request.items %}
+                            {% set doneRequestsAmount = doneRequestsAmount + item.price %}
+                        {% endfor %}
+                    {% endfor %}
+                </td>
+            </tr>
+        </tbody>
+        {% if app.user.canViewFinancialInfo() %}
+        <tfoot>
+            <tr>
+                <td>
+                    <h5 class="m-t-0 m-b-0 f-w-300" style="white-space: nowrap;">
+                        <span>{{ prePurchaseAmount | number_format(2, '.', ',') }} <i class="fa fa-fw fa-rouble"></i> </span>
+                    </h5>
+                </td>
+                <td>
+                    <h5 class="m-t-0 m-b-0 f-w-300" style="white-space: nowrap;">
+                        <span>{{ queuedRequestsAmount | number_format(2, '.', ',') }} <i class="fa fa-fw fa-rouble"></i> </span>
+                    </h5>
+                </td>
+                <td>
+                    <h5 class="m-t-0 m-b-0 f-w-300" style="white-space: nowrap;">
+                        <span>{{ checkingPricesRequestsAmount | number_format(2, '.', ',') }} <i class="fa fa-fw fa-rouble"></i> </span>
+                    </h5>
+                </td>
+                <td>
+                    <h5 class="m-t-0 m-b-0 f-w-300" style="white-space: nowrap;">
+                        <span>{{ signingContractRequestsAmount | number_format(2, '.', ',') }} <i class="fa fa-fw fa-rouble"></i> </span>
+                    </h5>
+                </td>
+                <td>
+                    <h5 class="m-t-0 m-b-0 f-w-300" style="white-space: nowrap;">
+                        <span>{{ additionalCostRequestsAmount | number_format(2, '.', ',') }} <i class="fa fa-fw fa-rouble"></i> </span>
+                    </h5>
+                </td>
+                <td>
+                    <h5 class="m-t-0 m-b-0 f-w-300" style="white-space: nowrap;">
+                        <span>{{ inDeliveryRequestsAmount | number_format(2, '.', ',') }} <i class="fa fa-fw fa-rouble"></i> </span>
+                    </h5>
+                </td>
+                <td>
+                    <h5 class="m-t-0 m-b-0 f-w-300" style="white-space: nowrap;">
+                        <span>{{ needsPaymentRequestsAmount | number_format(2, '.', ',') }} <i class="fa fa-fw fa-rouble"></i> </span>
+                    </h5>
+                </td>
+                <td>
+                    <h5 class="m-t-0 m-b-0 f-w-300" style="white-space: nowrap;">
+                        <span>{{ doneRequestsAmount | number_format(2, '.', ',') }} <i class="fa fa-fw fa-rouble"></i> </span>
+                    </h5>
+                </td>
+            </tr>
+            <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td>
+                    {% set total = prePurchaseAmount + queuedRequestsAmount + checkingPricesRequestsAmount + signingContractRequestsAmount + additionalCostRequestsAmount + inDeliveryRequestsAmount + needsPaymentRequestsAmount + doneRequestsAmount %}
+                    <h5 class="m-t-0 m-b-0 f-w-300" style="white-space: nowrap;">
+
+                        <span>{{ "Total" | trans() ~ ": " ~ total | number_format(2, '.', ',') }} <i class="fa fa-fw fa-rouble"></i> </span>
+                    </h5>
+                </td>
+            </tr>
+        </tfoot>
+        {% endif %}
+    </table>
+</div>
+
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th style="width: 200px;"></th>
+            <th>{{ 'Needs payment' | trans() }}</th>
+            <th>{{ 'paid' | trans() }}</th>
+            <th><h5 class="m-t-0 m-b-0 f-w-300" style="white-space: nowrap;"><span>{{ 'Total' | trans() }}</span></h5></th>
+        </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>{{ 'Materials' | trans() }}</td>
+                {% set materialsNeedsPaymentRequestsAmount = 0 %}
+                {% set materialsPaidRequestsAmount = 0 %}
+                {% for request in materialsNeedsPaymentRequests %}
+                    {% for item in request.items %}
+                        {% set materialsNeedsPaymentRequestsAmount = materialsNeedsPaymentRequestsAmount + item.price %}
+                    {% endfor %}
+                {% endfor %}
+                {% for request in materialsPaidRequests %}
+                    {% for item in request.items %}
+                        {% set materialsPaidRequestsAmount = materialsPaidRequestsAmount + item.price %}
+                    {% endfor %}
+                {% endfor %}
+                {% set materialsTotalRequestsAmount = materialsNeedsPaymentRequestsAmount + materialsPaidRequestsAmount %}
+                <td>{{ materialsNeedsPaymentRequestsAmount | number_format(2, '.', ',') }}</td>
+                <td>{{ materialsPaidRequestsAmount | number_format(2, '.', ',') }}</td>
+                <td><h5 class="m-t-0 m-b-0 f-w-300" style="white-space: nowrap;"><span>{{ materialsTotalRequestsAmount | number_format(2, '.', ',') }}</span></h5></td>
+            </tr>
+            <tr>
+                <td>{{ 'expenses.additional' | trans() }}</td>
+                {% set additionalNeedsPaymentRequestsAmount = 0 %}
+                {% set additionalPaidRequestsAmount = 0 %}
+                {% for request in additionalNeedsPaymentRequests %}
+                    {% for item in request.items %}
+                        {% set additionalNeedsPaymentRequestsAmount = additionalNeedsPaymentRequestsAmount + item.price %}
+                    {% endfor %}
+                {% endfor %}
+                {% for request in additionalPaidRequests %}
+                    {% for item in request.items %}
+                        {% set additionalPaidRequestsAmount = additionalPaidRequestsAmount + item.price %}
+                    {% endfor %}
+                {% endfor %}
+                {% set additionalTotalRequestsAmount = additionalNeedsPaymentRequestsAmount + additionalPaidRequestsAmount %}
+                <td>{{ additionalNeedsPaymentRequestsAmount | number_format(2, '.', ',') }}</td>
+                <td>{{ additionalPaidRequestsAmount | number_format(2, '.', ',') }}</td>
+                <td><h5 class="m-t-0 m-b-0 f-w-300" style="white-space: nowrap;"><span>{{ additionalTotalRequestsAmount | number_format(2, '.', ',') }}</span></h5></td>
+            </tr>
+            <tr>
+                <td>{{ 'expenses.other_direct' | trans() }}</td>
+                {% set otherDirectNeedsPaymentRequestsAmount = 0 %}
+                {% set otherDirectPaidRequestsAmount = 0 %}
+                {% for request in otherDirectNeedsPaymentRequests %}
+                    {% for item in request.items %}
+                        {% set otherDirectNeedsPaymentRequestsAmount = otherDirectNeedsPaymentRequestsAmount + item.price %}
+                    {% endfor %}
+                {% endfor %}
+                {% for request in otherDirectPaidRequests %}
+                    {% for item in request.items %}
+                        {% set otherDirectPaidRequestsAmount = otherDirectPaidRequestsAmount + item.price %}
+                    {% endfor %}
+                {% endfor %}
+                {% set otherDirectTotalRequestsAmount = otherDirectNeedsPaymentRequestsAmount + otherDirectPaidRequestsAmount %}
+                <td>{{ otherDirectNeedsPaymentRequestsAmount | number_format(2, '.', ',') }}</td>
+                <td>{{ otherDirectPaidRequestsAmount | number_format(2, '.', ',') }}</td>
+                <td><h5 class="m-t-0 m-b-0 f-w-300" style="white-space: nowrap;"><span>{{ otherDirectTotalRequestsAmount | number_format(2, '.', ',') }}</span></h5></td>
+            </tr>
+            <tr>
+                <td>{{ 'expenses.not_categorized' | trans() }}</td>
+                {% set notCategorizedNeedsPaymentRequestsAmount = 0 %}
+                {% set notCategorizedPaidRequestsAmount = 0 %}
+                {% for request in notCategorizedNeedsPaymentRequests %}
+                    {% for item in request.items %}
+                        {% set notCategorizedNeedsPaymentRequestsAmount = notCategorizedNeedsPaymentRequestsAmount + item.price %}
+                    {% endfor %}
+                {% endfor %}
+                {% for request in notCategorizedPaidRequests %}
+                    {% for item in request.items %}
+                        {% set notCategorizedPaidRequestsAmount = notCategorizedPaidRequestsAmount + item.price %}
+                    {% endfor %}
+                {% endfor %}
+                {% set notCategorizedTotalRequestsAmount = notCategorizedNeedsPaymentRequestsAmount + notCategorizedPaidRequestsAmount %}
+                <td>{{ notCategorizedNeedsPaymentRequestsAmount | number_format(2, '.', ',') }}</td>
+                <td>{{ notCategorizedPaidRequestsAmount | number_format(2, '.', ',') }}</td>
+                <td><h5 class="m-t-0 m-b-0 f-w-300" style="white-space: nowrap;"><span>{{ notCategorizedTotalRequestsAmount | number_format(2, '.', ',') }}</span></h5></td>
+            </tr>
+        </tbody>
+        <tfoot>
+            <tr>
+                <td><h5 class="m-t-0 m-b-0 f-w-300" style="white-space: nowrap;"><span>{{ 'Total' | trans() }}</span></h5></td>
+                {% set needsPaymentTotalRequestsAmount = notCategorizedNeedsPaymentRequestsAmount + otherDirectNeedsPaymentRequestsAmount + additionalNeedsPaymentRequestsAmount + materialsNeedsPaymentRequestsAmount %}
+                {% set paidTotalRequestsAmount = notCategorizedPaidRequestsAmount + otherDirectPaidRequestsAmount + additionalPaidRequestsAmount + materialsPaidRequestsAmount %}
+                {% set total = needsPaymentTotalRequestsAmount + paidTotalRequestsAmount %}
+                <td><h5 class="m-t-0 m-b-0 f-w-300" style="white-space: nowrap;"><span>{{ needsPaymentTotalRequestsAmount | number_format(2, '.', ',') }}</span></h5></td>
+                <td><h5 class="m-t-0 m-b-0 f-w-300" style="white-space: nowrap;"><span>{{ paidTotalRequestsAmount | number_format(2, '.', ',') }}</span></h5></td>
+                <td><h5 class="m-t-0 m-b-0 f-w-300" style="white-space: nowrap;"><span>{{ total | number_format(2, '.', ',') }}</span></h5></td>
+            </tr>
+        </tfoot>
+    </table>
+
+{% endblock %}

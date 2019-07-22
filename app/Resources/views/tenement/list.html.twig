@@ -1,0 +1,123 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ "Tenement" | trans() }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ breadcrumb( 'Tenement' | trans(), path('tenement_list') ) }}
+{% endblock %}
+
+{% block body %}
+
+    <div class="panel panel-default no-bg  b-gray-dark">
+        <div class="panel-body">
+            <form class="form-inline filter-form" method="get" action="">
+                {% if app.user.canEditTenement() %}
+                    <div class="btn-toolbar pull-right">
+                        <button type="button" class="btn btn-primary start" data-toggle="modal" data-target=".addTenement"><i class="fa fa-plus"></i> {{ 'Add tenement' | trans() }} </button>
+                    </div>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>{{ 'Supplier' | trans() }}</th>
+            <th>{{ 'title' | trans() }}</th>
+            <th>{{ 'Rent' | trans() ~ ' ' }}<i class="fa fa-rub"></i></th>
+            <th>{{ 'Heating' | trans() ~ ' ' }}<i class="fa fa-rub"></i></th>
+            <th>{{ 'Communal payments' | trans() ~ ' ' }}<i class="fa fa-rub"></i></th>
+            <th>{{ 'Total income' | trans() ~ ' ' }}<i class="fa fa-rub"></i></th>
+            <th>{{ 'Square' | trans() ~ ' м' }}<sup>2</sup></th>
+            {% if app.user.canEditTenement() %}
+                <th class="small text-muted text-uppercase text-right"><strong>{{ 'Actions' | trans() }}</strong></th>
+            {% endif %}
+        </tr>
+        </thead>
+        <tbody>
+        {% set rentTotal = 0 %}
+        {% set heatingTotal = 0 %}
+        {% set communalPaymentsTotal = 0 %}
+        {% set total = 0 %}
+        {% set squareTotal = 0 %}
+        {% for tenement in tenements %}
+            {% set rentTotal = rentTotal + tenement.rent %}
+            {% set heatingTotal = heatingTotal + tenement.heating %}
+            {% set communalPaymentsTotal = communalPaymentsTotal + tenement.communalPayments %}
+            {% set total = total + tenement.total %}
+            {% set squareTotal = squareTotal + tenement.square %}
+            <tr>
+                    <td><a href="{{ path('suppliers_details',{id: tenement.supplier.id}) }}">{{ tenement.supplier }}</a></td>
+                    <td>{{ tenement.title }}</td>
+                    <td>{{ tenement.rent | number_format(2, '.', ',') ~ ' ' }}<i class="fa fa-rub"></i></td>
+                    <td>{{ tenement.heating | number_format(2, '.', ',') ~ ' ' }}<i class="fa fa-rub"></i></td>
+                    <td>{{ tenement.communalPayments | number_format(2, '.', ',') ~ ' ' }}<i class="fa fa-rub"></i></td>
+                    <td>{{ tenement.total | number_format(2, '.', ',') ~ ' ' }}<i class="fa fa-rub"></i></td>
+                    <td>{{ tenement.square | number_format(2, '.', ',') }}</td>
+                    {% if app.user.canEditTenement() %}
+                        <td class="text-right v-a-m">
+                            <div class="dropdown">
+                                <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                    <i class="fa fa-fw fa-gear"></i> <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-right">
+                                    <li>
+                                        <a href=""
+                                           data-href="{{ path('tenement_edit', {'id': tenement.id}) }}"
+                                           class="edit-tenement"
+                                           data-title="{{ tenement.title }}"
+                                           data-rent="{{ tenement.rent }}"
+                                           data-heating="{{ tenement.heating }}"
+                                           data-communal-payments="{{ tenement.communalPayments }}"
+                                           data-total="{{ tenement.total }}"
+                                           data-square="{{ tenement.square }}"
+                                           data-supplier="{{ tenement.supplier.id }}"
+                                           data-toggle="modal"
+                                           data-target=".editTenement">
+                                            <i class="fa fa-fw fa-pencil"></i> {{ 'Edit' | trans() }}</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="2"><strong>{{ 'Total' | trans() ~ ':' }}</strong></td>
+                <td>{{ rentTotal | number_format(2, '.', ',') ~ ' ' }}<i class="fa fa-rub"></i></td>
+                <td>{{ heatingTotal | number_format(2, '.', ',') ~ ' ' }}<i class="fa fa-rub"></i></td>
+                <td>{{ communalPaymentsTotal | number_format(2, '.', ',') ~ ' ' }}<i class="fa fa-rub"></i></td>
+                <td>{{ total | number_format(2, '.', ',') ~ ' ' }}<i class="fa fa-rub"></i></td>
+                <td>{{ squareTotal | number_format(2, '.', ',') ~ ' ' }}</td>
+            </tr>
+        </tfoot>
+    </table>
+
+    {% import 'tenement/partial/form.html.twig' as form %}
+
+    {% set addTenement = {
+        'class': 'addTenement',
+        'formId': 'addTenement',
+        'title': 'Add tenement' | trans(),
+        'size': 'large',
+        'formAction': path('tenement_add'),
+        'content': form.inputs(suppliers),
+        'submitTitle': 'Add'
+    }%}
+
+    {% set editTenement = {
+        'class': 'editTenement',
+        'formId': 'editTenement',
+        'title': 'Edit tenement' | trans(),
+        'size': 'large',
+        'content': form.inputs(suppliers),
+        'submitTitle': 'Save'
+    }%}
+
+    {% include 'partial/modal.html.twig' with addTenement %}
+    {% include 'partial/modal.html.twig' with editTenement %}
+
+{% endblock %}

@@ -1,0 +1,494 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ technicalMap.code }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ breadcrumb( 'TSM' | trans(), path('technical_maps_list') ) }}
+    {{ breadcrumb( technicalMap.code, path('technical_maps_details', {'id': technicalMap.id}) ) }}
+{% endblock %}
+
+{% block body %}
+    {% set filesCount = technicalMapFiles | length %}
+    {% set vars = {'technicalMap': technicalMap} %}
+    {% include 'technical_maps/partial/info_sidebar.html.twig' with vars %}
+
+    <div class="col-lg-9">
+        <div class="row">
+            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                <h3 class="f-w-300 m-t-1">{{ technicalMap.task }}</h3>
+            </div>
+            {% if technicalMap.owner == app.user or technicalMap.signatory(app.user) or technicalMap.project.leader == app.user or technicalMap.owner.team.leader == app.user %}
+                <div class="col-lg-6 col-md-5 col-xs-12">
+                    <div class="btn-toolbar pull-right">
+                        {% include 'technical_maps/partial/actions.html.twig' %}
+                    </div>
+                    <div class="pull-right m-l-1">
+                        <a class="btn btn-success" target="_blank" title="{{ 'Download TSM' | trans() }}" href="{{ path('export_technical_map', {'id': technicalMap.id}) }}">
+                            <i class="fa fa-fw fa-file-word-o text-inverse"></i> {{ 'Download TSM' | trans() }}
+                        </a>
+                    </div>
+                    {% if technicalMap.owner.id != app.user.id %}
+                        <div class="dropdown pull-right m-l-1">
+                            {% if technicalMap.isUserSubscribed(app.user) %}
+                                {% set icon = 'eye-slash' %}
+                                {% set link = path('technical_map_unsubscribe', {'id': technicalMap.id}) %}
+                                {% set titleSubscribe = 'Unsubscribe' %}
+                            {% else %}
+                                {% set icon = 'eye' %}
+                                {% set link = path('technical_map_subscribe', {'id': technicalMap.id}) %}
+                                {% set titleSubscribe = 'Subscribe' %}
+                            {% endif %}
+                            <a class="btn btn-default" href="{{ link }}"><i class="fa fa-{{ icon }}"></i> {{ titleSubscribe | trans() }} </a>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="hr-text hr-text-left m-t-0 m-b-0">
+            <h6 class="text-inverse"><strong>{{ 'Alterernative solutions' | trans() }}</strong></h6>
+        </div>
+
+        <table class="table table-striped table-right">
+            <thead>
+            <tr>
+                <td colspan="2" class="v-a-m text-center"><h5>{{ 'Criteria' | trans() }}</h5></td>
+                <td class="v-a-m text-center">
+                    <h4 class="m-t-0 m-b-0 f-w-300">
+                        <span>{{ technicalMap.criterionTitle1 }}</span>
+                    </h4>
+                </td>
+                <td class="v-a-m text-center">
+                    <h4 class="m-t-0 m-b-0 f-w-300">
+                        <span>{{ technicalMap.criterionTitle2 }}</span>
+                    </h4>
+                </td>
+                {% if technicalMap.criterionTitle3 %}
+                    <td class="v-a-m text-center">
+                        <h4 class="m-t-0 m-b-0 f-w-300">
+                            <span>{{ technicalMap.criterionTitle3 }}</span>
+                        </h4>
+                    </td>
+                {% endif %}
+                {% if technicalMap.criterionTitle4 %}
+                    <td class="v-a-m text-center">
+                        <h4 class="m-t-0 m-b-0 f-w-300">
+                            <span>{{ technicalMap.criterionTitle4 }}</span>
+                        </h4>
+                    </td>
+                {% endif %}
+            </tr>
+            <tr>
+                <td colspan="2"class="v-a-m text-center"><h5>{{ 'Max points' | trans() }}</h5></td>
+                <td class="v-a-m text-center">
+                    <h4 class="m-t-0 m-b-0 f-w-300">
+                        <span>{{ technicalMap.maxPoints1 }}</span>
+                    </h4>
+                </td>
+                <td class="v-a-m text-center">
+                    <h4 class="m-t-0 m-b-0 f-w-300">
+                        <span>{{ technicalMap.maxPoints2 }}</span>
+                    </h4>
+                </td>
+                {% if technicalMap.criterionTitle3 %}
+                    <td class="v-a-m text-center">
+                        <h4 class="m-t-0 m-b-0 f-w-300">
+                            <span>{{ technicalMap.maxPoints3 }}</span>
+                        </h4>
+                    </td>
+                {% endif %}
+                {% if technicalMap.criterionTitle4 %}
+                    <td class="v-a-m text-center">
+                        <h4 class="m-t-0 m-b-0 f-w-300">
+                            <span>{{ technicalMap.maxPoints4 }}</span>
+                        </h4>
+                    </td>
+                {% endif %}
+                <td class="v-a-m text-center">
+                    <h2 class="m-t-0 m-b-0 f-w-300">
+                        <span>100</span>
+                    </h2>
+                </td>
+            </tr>
+            </thead>
+            <tbody>
+            {% set id = 1 %}
+            {% for solution in solutions %}
+                <tr>
+                    <td class="v-a-m text-white {{ solution.selected == 1 ? 'bg-success' }}" rowspan="2">
+                        {{ id }}
+                    </td>
+                    <td class="v-a-m {{ solution.selected == 1 ? 'bg-success' }}" rowspan="2">
+                        <h4>{{ solution.name }}</h4>
+                    </td>
+                    <td class="v-a-m text-center text-white {{ solution.selected == 1 ? 'bg-success' }}" >
+                        {% if solution.criterion1 %}
+                            <span >{{ solution.criterion1 }}</span>
+                        {% endif %}
+                    </td>
+                    <td class="v-a-m text-center text-white {{ solution.selected == 1 ? 'bg-success' }}">
+                        {% if solution.criterion2 %}
+                            <span>{{ solution.criterion2 }}</span>
+                        {% endif %}
+                    </td>
+                    {% if technicalMap.criterionTitle3 %}
+                        <td class="v-a-m text-center text-white {{ solution.selected == 1 ? 'bg-success' }}">
+                            {% if solution.criterion3 %}
+                                <span>{{ solution.criterion3 }}</span> 
+                            {% endif %}
+                        </td>
+                    {% endif %}
+                    {% if technicalMap.criterionTitle4 %}
+                        <td class="v-a-m text-center text-white {{ solution.selected == 1 ? 'bg-success' }}">
+                            {% if solution.criterion4 %}
+                                <span>{{ solution.criterion4 }}</span>
+                            {% endif %}
+                        </td>
+                    {% endif %}
+                    {% if technicalMap.owner == app.user or technicalMap.project.leader == app.user or technicalMap.owner.team.leader == app.user %}
+                        <td class="v-a-m text-center {{ solution.selected == 1 ? 'bg-success' }}">
+                            <div class="dropdown">
+                                <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                    <i class="fa fa-fw fa-gear"></i> <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-right">
+                                    <li>
+                                        <a href=""
+                                           class="edit-solution"
+                                           data-href="{{ path('edit_technical_map_solution', {'id': technicalMap.id, 'solutionId': solution.id}) }}"
+                                           data-name="{{ solution.name }}"
+                                           data-criterion1="{{ solution.criterion1 }}"
+                                           data-criterion2="{{ solution.criterion2 }}"
+                                           data-criterion3="{{ solution.criterion3 }}"
+                                           data-criterion4="{{ solution.criterion4 }}"
+                                           data-points1="{{ solution.points1 }}"
+                                           data-points2="{{ solution.points2 }}"
+                                           data-points3="{{ solution.points3 }}"
+                                           data-points4="{{ solution.points4 }}"
+                                           data-toggle="modal"
+                                           data-target=".editSolutionModal">
+                                            <i class="fa fa-fw fa-pencil m-r-1"></i> {{ 'Edit' | trans() }}
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href=""
+                                           class="delete-solution"
+                                           data-href="{{ path('remove_technical_map_solution', {'id': technicalMap.id, 'solutionId': solution.id}) }}"
+                                           data-target=".deleteSolutionModal"
+                                           data-toggle="modal"
+                                        ><i class="fa fa-fw fa-trash-o text-danger m-r-1"></i> {{ 'Delete' | trans() }}
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </td>
+                    {% else %}
+                        <td class="{{ solution.selected == 1 ? 'bg-success' }}"></td>
+                    {% endif %}
+                </tr>
+                <tr>
+                    <td class="v-a-m text-center {{ solution.selected == 1 ? 'bg-success' }}">
+                        <h4 class="m-t-0 m-b-0 f-w-300">
+                            <span>{{ solution.points1 }}</span>
+                        </h4>
+                    </td>
+                    <td class="v-a-m text-center {{ solution.selected == 1 ? 'bg-success' }}">
+                        <h4 class="m-t-0 m-b-0 f-w-300">
+                            <span>{{ solution.points2 }}</span>
+                        </h4>
+                    </td>
+                    {% if technicalMap.criterionTitle3 %}
+                        <td class="v-a-m text-center {{ solution.selected == 1 ? 'bg-success' }}">
+                            <h4 class="m-t-0 m-b-0 f-w-300">
+                                <span>{{ solution.points3 }}</span>
+                            </h4>
+                        </td>
+                    {% endif %}
+                    {% if technicalMap.criterionTitle4 %}
+                        <td class="v-a-m text-center {{ solution.selected == 1 ? 'bg-success' }}">
+                            <h4 class="m-t-0 m-b-0 f-w-300">
+                                <span>{{ solution.points4 }}</span>
+                            </h4>
+                        </td>
+                    {% endif %}
+                    <td class="v-a-m text-center {{ solution.selected == 1 ? 'bg-success' }}">
+                        <h3 class="m-t-0 m-b-0 f-w-300">
+                            <span>{{ solution.points1 + solution.points2 + solution.points3 + solution.points4 }}</span>
+                        </h3>
+                    </td>
+                </tr>
+                {% set id = id + 1 %}
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="col-lg-12">
+        <div class="tabbable-line tabs">
+            <ul class="nav nav-tabs">
+                <li class="tab-commentstab active" role="presentation" data-target="comments">
+                    <a href="#commentstab">{{ 'Comments' | trans() }}
+                        {% if technicalMapComments | length != 0 %}
+                            <span class="badge">{{ technicalMapComments | length }}</span>
+                        {% endif %}
+                    </a>
+                </li>
+                <li class="tab-signatoriestab" role="presentation" data-target="signatories">
+                    <a href="#signatoriestab">{{ 'Signatories' | trans() }}
+                        <span class="badge">{{ technicalMap.signatories  | length }}</span>
+                    </a>
+                </li>
+                <li class="tab-attachmentstab" role="presentation" data-target="attachments">
+                    <a class="tab-attachments" href="#attachmentstab">{{ 'attachments' | trans() | capitalize }} {% if filesCount %}<span class="badge">{{ filesCount }}</span>{% endif %}</a>
+                </li>
+                <li class="tab-historytab" role="presentation" data-target="history"><a href="#historytab">{{ 'History' | trans() }}
+                    </a>
+                </li>
+                <li class="tab-subscriberstab" role="presentation" data-target="subscribers">
+                    <a href="#subscriberstab">{{ 'Subscribers' | trans() }}
+                        {% if technicalMap.subscribers | length != 0 %}
+                            <span class="badge">{{ technicalMap.subscribers | length }}</span>
+                        {% endif %}
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="panel panel-default no-bg b-gray-dark tab" id="comments">
+            {% set vars = {
+                'comments': technicalMapComments,
+                'action': path('technical_map_add_comment', { 'id': technicalMap.id })
+            } %}
+            {% include 'partial/comments.html.twig' with vars %}
+        </div>
+        <div class="panel-default no-bg b-gray-dark hidden tab" id="signatories">
+            <table class="table table-hover" >
+                <thead>
+                <tr>
+                    <th class="small text-muted text-uppercase"><strong>{{ "Employee Role" | trans() }}</strong></th>
+                    <th class="small text-muted text-uppercase"><strong>{{ "Fullname" | trans() }}</strong></th>
+                    <th class="small text-muted text-uppercase"><strong>{{ "Approved" | trans() }}</strong></th>
+                    <th class="small text-muted text-uppercase"><strong>{{ "Action" | trans() }}</strong></th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for user in technicalMap.signatories %}
+                    <tr>
+                        <td class="v-a-m">
+                            <span>{{ user.signatory.employeeRole ?: '-' }}</span>
+                        </td>
+                        <td class="v-a-m">
+                            <a href="{{ path('employee_details', {'userName': user.signatory.userName}) }}"><span>{{ user.signatory.getFullName(true) }}</span></a>
+                        </td>
+                        <td class="v-a-m">
+                            {% if user.approved %}
+                                <i class="fa fa-check-square-o text-success"></i>
+                            {% else %}
+                                <i class="fa fa-square-o"></i>
+                            {% endif %}
+                        </td>
+                        <td class="v-a-m">
+                            {% if technicalMap.canRemoveSignatories(app.user) %}
+                                <a class="remove-signatory" href="{{ path('technical_map_remove_signatory', {'id': technicalMap.id, 'signatoryId': user.id}) }}">
+                                    <i class="fa fa-fw fa-minus-square-o text-danger"></i> {{ 'Remove signatory' | trans() }}
+                                </a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="panel panel-default no-bg b-gray-dark hidden tab" id="attachments">
+            <div class="panel-body">
+                {% if filesCount %}
+                    <table class="table table-hover m-b-0">
+                        <tbody>
+                        {% for file in technicalMapFiles %}
+                            {% set vars = {
+                                'downloadFilePath': path('technical_map_download_file', {'fileId': file.id}),
+                                'deleteFilePath' : path('technical_map_delete_file', {'id': technicalMap.id, 'fileId': file.id})
+                            } %}
+                            {% if file.format == 'jpg' or file.format == 'jpeg' or file.format == 'png' %}
+                                {% set vars = vars | merge({ 'previewImage': path('technical_map_download_file', {'fileId': file.id, 'preview': true }) }) %}
+                            {% endif %}
+                            {% include 'partial/upload_files_list.html.twig' with vars %}
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <span class="v-a-m b-t-0 text-muted">{{ "There's no files yet" | trans() }}</span>
+                {% endif %}
+            </div>
+            {% set vars = {'uploadFilePath' : path('technical_map_upload_file', {'id': technicalMap.id})} %}
+            {% include 'partial/upload_files_form.html.twig' with vars %}
+        </div>
+
+        <div class="panel panel-default no-bg b-gray-dark hidden tab" id="history">
+            <div class="panel-body">
+                <div>
+                    {% if technicalMapChanges | length %}
+                        <table class="table table-sm table-hover">
+                            <thead>
+                            <tr>
+                                <th class="small text-muted text-uppercase">{{ 'Field' | trans() }}</th>
+                                <th class="small text-muted text-uppercase">{{ 'Old value' | trans() }}</th>
+                                <th class="small text-muted text-uppercase">{{ 'New value' | trans() }}</th>
+                                <th class="small text-muted text-uppercase">{{ 'Changed by' | trans() }}</th>
+                                <th class="small text-muted text-uppercase">{{ 'Changed at' | trans() }}</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for changes in technicalMapChanges %}
+                                <tr>
+                                    <td>{{ (changes.field | capitalize) | trans() }}</td>
+                                    <td><strike>{{ changes.oldValue | trans() }}</strike></td>
+                                    <td class="text-inverse">{{ changes.newValue | trans() }}</td>
+                                    <td>{{ changes.changedBy.fullName }}</td>
+                                    <td>{{ changes.updatedAt | date('d.m.Y H:i') }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <span class="v-a-m b-t-0 text-muted">{{ "There's no changes yet" | trans() }}</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="panel-default no-bg b-gray-dark hidden tab" style="margin-top: -17px;width: 40%;" id="subscribers">
+            <table class="table table-hover" >
+                <thead>
+                <tr>
+                    <th class="small text-muted text-uppercase"><strong>{{ "Fullname" | trans() }}</strong></th>
+                    <th class="small text-muted text-uppercase"><strong>{{ "Employee Role" | trans() }}</strong></th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for subscriber in technicalMap.subscribers %}
+                    <tr>
+                        <td class="v-a-m">
+                            <a href="{{ path('employee_details', {'userName': subscriber.userName}) }}"><span>{{ subscriber.getFullName(true) }}</span></a>
+                        </td>
+                        <td class="v-a-m">
+                            <span>{{ subscriber.employeeRole ?: '-' }}</span>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% import 'technical_maps/partial/form.html.twig' as form %}
+    {% import 'technical_maps/partial/approval_form.html.twig' as technicalMapApprovalForm %}
+    {% import 'technical_maps/partial/return_fixing_prompt.html.twig' as returnFixingForm %}
+    {% import 'technical_maps/partial/solution_form.html.twig' as solutionForm %}
+    {% import 'technical_maps/partial/delete_form.html.twig' as deleteSolutionForm %}
+    {% import 'technical_maps/partial/delete_file_form.html.twig' as deleteFileForm %}
+    {% import 'partial/preview_form.html.twig' as previewForm %}
+
+    {% set previewFormVars = {
+        'class': 'previewModal',
+        'formId': 'previewForm',
+        'size': 'large',
+        'title': 'Image preview',
+        'content': previewForm.inputs(),
+    } %}
+
+    {% set editTechnicalMapVars = {
+        'class': 'editTechnicalMapModal',
+        'formId': 'editTechnicalMapForm',
+        'title': 'Edit technical solution maps',
+        'size': 'large',
+        'content': form.inputs(),
+        'submitTitle': 'Save'
+    } %}
+
+    {% set technicalMapApprovalVars = {
+        'class': 'technicalMapApprovalModal',
+        'formId': 'technicalMapApprovalForm',
+        'formAction': path('technical_map_change_state', {'id': technicalMap.id, 'state': 2}),
+        'title': 'Send for approval',
+        'content': technicalMapApprovalForm.inputs(users, technicalMap.getSignatoryUsers(), solutions),
+        'submitTitle': 'Send'
+    } %}
+
+    {% set technicalMapFixingVars = {
+        'class': 'returnFixingModal',
+        'formId': 'returnFixingForm',
+        'formAction': path('technical_map_change_state', {'id': technicalMap.id, 'state': 4}),
+        'title': 'Return fixing',
+        'content': returnFixingForm.inputs(),
+        'submitTitle': 'Return fixing'
+    } %}
+
+    {% set addSolutionVars = {
+        'class': 'addSolutionModal',
+        'formId': 'addSolutionForm',
+        'title': 'New solution',
+        'size': 'large',
+        'formAction': path('add_technical_map_solution', {'id': technicalMap.id}),
+        'content': solutionForm.inputs(technicalMap),
+        'submitTitle': 'Create'
+    } %}
+
+    {% set editSolutionVars = {
+        'class': 'editSolutionModal',
+        'formId': 'editSolutionForm',
+        'title': 'Edit alternative solution',
+        'size': 'large',
+        'content': solutionForm.inputs(technicalMap),
+        'submitTitle': 'Save'
+    } %}
+
+    {% set deleteSolutionVars = {
+        'class': 'deleteSolutionModal',
+        'formId': 'deleteSolutionForm',
+        'title': 'Delete solution',
+        'content': deleteSolutionForm.inputs(),
+        'submitTitle': 'Delete'
+    }
+    %}
+
+    {% set deleteFileFormVars = {
+        'class': 'deleteFileModal',
+        'formId': 'deleteFileForm',
+        'title': 'Delete file',
+        'content': deleteFileForm.inputs(),
+        'submitTitle': 'Delete'
+    }
+    %}
+
+    {% include 'partial/modal.html.twig' with previewFormVars %}
+    {% include 'partial/modal.html.twig' with editTechnicalMapVars %}
+    {% include 'partial/modal.html.twig' with technicalMapApprovalVars %}
+    {% include 'partial/modal.html.twig' with technicalMapFixingVars %}
+    {% include 'partial/modal.html.twig' with addSolutionVars %}
+    {% include 'partial/modal.html.twig' with editSolutionVars %}
+    {% include 'partial/modal.html.twig' with deleteSolutionVars %}
+    {% include 'partial/modal.html.twig' with deleteFileFormVars %}
+
+    <script>
+        $(document).ready(function() {
+            $('.tabs .nav a').bind('click', function(){
+                $('.tabs .nav li').removeClass('active');
+                $('.tab').addClass('hidden');
+
+                $('#' + $(this).parent().data('target')).removeClass('hidden');
+                $(this).parent().addClass('active')
+            });
+
+            var url = window.location.href;
+            var hash = url.substring(url.indexOf('#')+1);
+
+            if (hash == 'commentstab' || hash == 'signatoriestab' || hash == 'attachmentstab' || hash == 'historytab' || hash == 'subscriberstab') {
+                $('.tab-' + hash + ' a').click();
+            }
+        });
+
+        $(document).submit(function(){
+            $('.send-comment-button').attr("disabled", "disabled");
+        });
+
+    </script>
+{% endblock %}

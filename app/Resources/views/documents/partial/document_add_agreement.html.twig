@@ -1,0 +1,35 @@
+<a href=""
+   class="add-agreement"
+   data-href="{{ path('add-agreement', {'id': document.id}) }}"
+        {% if document.project is not null %}
+            data-project="{{ document.project.id }}"
+        {% endif %}
+        {% if document.curator is not null %}
+            data-curator="{{ document.curator.id }}"
+        {% endif %}
+        {% if document.documentTemplate is defined and document.documentTemplate is not null %}
+            data-template="{{ document.documentTemplate.id }}"
+        {% endif %}
+   data-type="{{ document.type }}"
+        {% if document.category is not null %}
+            data-category="{{ document.category.id }}"
+        {% endif %}
+        {% if document.supplier is not null %}
+            data-supplier="{{ document.supplier.id }}"
+        {% endif %}
+   data-supplier-contract-code="{{ document.supplierContractCode }}"
+   data-start-at="{{ document.startAt | date('d.m.Y') }}"
+   data-end-at="{{ document.endAt | date('d.m.Y') }}"
+   data-period="{{ document.period }}"
+   data-unlimited="{{ document.unlimited ? '1' : '0' }}"
+   data-amount="{{ document.amount }}"
+   data-extension="{{ document.contractExtension ? '1' : '0' }}"
+   data-vat="{{ document.vat }}"
+   data-subject="{{ document.subject }}"
+   data-measure="{{ document.measureOfResponsibility }}"
+   data-security="{{ document.security }}"
+   data-act="{{ document.act }}"
+   data-comment="{{ document.comment }}"
+   data-toggle="modal"
+   data-target=".addAgreementModal"
+><i class="fa fa-fw fa-plus"></i> {{ 'Add supplementary agreement' | trans() }}</a>

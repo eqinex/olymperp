@@ -1,0 +1,192 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ project.name }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ breadcrumb( 'Projects' | trans(), path('projects_list') ) }}
+    {{ breadcrumb( project.name, path('project_details', {'id': project.id}) ) }}
+    {{ breadcrumb( 'RCM' | trans(), path('project_price_management', {'id': project.id}) ) }}
+{% endblock %}
+
+{% block body %}
+
+    {% set vars = {'project': project} %}
+    {% include 'projects/partial/info_sidebar.html.twig' with vars %}
+
+    <div class="col-lg-9">
+
+        <!-- START Header with Option -->
+        <div class="row m-b-2">
+
+            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                <!-- START Header -->
+                <h3 class="f-w-300 m-t-1">{{ project.name }}</h3>
+            </div>
+            <div class="col-lg-6 col-md-6 col-xs-12">
+                <div class="btn-toolbar pull-right">
+                    <div class="btn-group" role="group" aria-label="...">
+                        {% set vars = {'active_page': 'project_cost_management'} %}
+                        {% include 'projects/partial/nav.html.twig' with vars %}
+                    </div>
+                </div>
+                <!-- END Toolbar -->
+            </div>
+
+        </div>
+        {% if app.user.canEditProjectPrice() %}
+            <!-- END Header with Option -->
+            <div class="panel panel-default no-bg  b-gray-dark">
+                <div class="panel-body">
+                    <div class="btn-toolbar pull-right">
+                        {% if projectPrice is empty or (projectPrice is not empty and projectPrice.iterations is empty) %}
+                            <a class="btn btn-success" data-toggle="modal" data-target=".addIterationModal"><i class="fa fa-plus"></i> {{ "Add variant" | trans() }}</a>
+                        {% else %}
+                            <a class="btn btn-success" href="{{ path('project_price_add_iteration', {'id': project.id}) }}"><i class="fa fa-plus"></i> {{ "Add variant" | trans() }}</a>
+                            <a class="btn btn-primary" data-toggle="modal" data-target=".addCategoryModal"><i class="fa fa-plus"></i> {{ "Add category" | trans() }}</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+        <!-- START Panel Sessions -->
+        <div>
+            <table class="table table-hover table-project-price">
+                <thead>
+                    <tr>
+                        <th style="width: 40px;"></th>
+                        <th class="small text-uppercase">
+                            <strong>{{ "Category" | trans() }}</strong>
+                        </th>
+                        {% if projectPrice is not empty %}
+                            {% for iteration in projectPrice.iterations %}
+                                <th class="small text-uppercase iteration {{ iteration.id }}">
+                                    <strong>{{ ("Variant" | trans()) ~ ' ' ~ loop.index }}</strong>
+                                    {% if app.user.canEditProjectPrice() %}
+                                        <a title="{{ 'Delete variant' | trans() }}" class="text text-danger text-sm" href="{{ path('project_price_delete_iteration', {'id': project.id, 'iterationId': iteration.id}) }}"><i class="fa fa-fw fa-minus-square"></i></a>
+                                    {% endif %}
+                                </th>
+                            {% endfor %}
+                        {% endif %}
+                        <th class="small text-uppercase" style="width: 300px;">
+                            <strong>{{ "Fact" | trans() }}</strong>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if projectPrice is not empty %}
+                        {% for categoryTitle, categoryPrices in projectPrice.getPriceCategories() %}
+                            <!-- START ROW Task -->
+                            <tr class="category-price">
+                                <td class="v-a-m">
+                                    {% if app.user.canEditProjectPrice() %}
+                                        <div class="delete-price-category">
+                                            <a title="{{ 'Delete category' | trans() }}" class="btn btn-danger btn-xs" href="{{ path('project_price_delete_category', {'id': project.id, 'categoryTitle': categoryTitle}) }}"><i class="fa fa-minus"></i></a>
+                                        </div>
+                                    {% endif %}
+                                </td>
+                                <td class="v-a-m">
+                                    {{ categoryTitle }}
+                                </td>
+                                    {% for categoryPrice in categoryPrices %}
+                                        <td class="v-a-m">
+                                            <span class="{{ app.user.canEditProjectPrice() ? 'edit' : '' }} {{ categoryPrice.id }}">{{ categoryPrice.price ? (categoryPrice.price | number_format(2, '.', ',')) : '-' }}</span> <span><i class="fa fa-fw fa-rouble"></i></span>
+                                        </td>
+                                    {% endfor %}
+                                <td class="v-a-m">
+                                    {% set categoryPurchaseAmount = 0 %}
+                                    {% for request in project.getCategoryPurchases(categoryTitle) %}
+                                        <a title="{{ request.description }}" class="label m-r-1 label-default"
+                                           href="{{ path('request_details', {'id': request.project.id, 'requestId': request.id}) }}">
+                                            <span>{{ request.code }}</span>
+                                        </a>
+
+                                        {% for item in request.items %}
+                                            {% if item.category is not empty and item.category.title == categoryTitle %}
+                                                {% set categoryPurchaseAmount = categoryPurchaseAmount + item.price %}
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endfor %}
+                                    <h5 class="m-t-0 m-b-0 f-w-300" style="white-space: nowrap;">
+                                        <span>{{ 'Total' | trans() ~ ': ' ~ categoryPurchaseAmount | number_format(2, '.', ',') }} <i class="fa fa-fw fa-rouble"></i> </span>
+                                    </h5>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% import 'projects/partial/add_price_iteration_form.html.twig' as addIterationForm %}
+    {% import 'projects/partial/add_price_category_form.html.twig' as addCategoryForm %}
+    {% import 'projects/partial/delete_price_category_form.html.twig' as deleteCategoryForm %}
+
+    {% set addIterationVars = {
+        'class': 'addIterationModal',
+        'formId': 'addIterationForm',
+        'title': 'Add variant',
+        'content': addIterationForm.inputs(purchaseCategories),
+        'submitTitle': 'Add',
+        'formAction': path('project_price_add_iteration', {'id': project.id}),
+    } %}
+
+    {% set addCategoryVars = {
+        'class': 'addCategoryModal',
+        'formId': 'addCategoryForm',
+        'title': 'Add category',
+        'content': addCategoryForm.inputs(purchaseCategories),
+        'submitTitle': 'Add',
+        'formAction': path('project_price_add_category', {'id': project.id}),
+    } %}
+
+    {% set deleteCategoryFormVars = {
+        'class': 'deleteCategoryModal',
+        'formId': 'deleteCategoryForm',
+        'title': 'Delete category',
+        'content': deleteCategoryForm.inputs(),
+        'submitTitle': 'Delete'
+    } %}
+
+    {% include 'partial/modal.html.twig' with addIterationVars %}
+    {% include 'partial/modal.html.twig' with addCategoryVars %}
+    {% include 'partial/modal.html.twig' with deleteCategoryFormVars %}
+
+    <script>
+        $(document).ready(function () {
+            $('span.edit').on('click', function () {
+                $('.ajax').html($('.ajax input').val());
+                $('.ajax').removeClass('ajax');
+                $(this).addClass('ajax');
+                $(this).html('<input id="editbox" size="' + $(this).text().length + '" type="text" value="' + $(this).text() + '" />');
+                $('#editbox').focus();
+            });
+
+            $('span.edit').on('keydown', function (event) {
+                let arr = $(this).attr('class').split(" ");
+                arr.push({{ project.id }});
+                if (event.which == 13) {
+                    $.ajax({
+                        type: "POST",
+                        url: "{{ path('edit_category_price') }}",
+                        dataType: 'json',
+                        data: "categoryPriceId=" + arr[1] + '&projectId=' + arr[3] + "&value=" + $('.ajax input').val(),
+                        success: function (data) {
+                            $('.ajax').html($('.ajax input').val());
+                            $('.ajax').removeClass('ajax');
+                        }
+                    });
+                }
+            });
+        });
+
+        $(document).on('blur', '#editbox', function () {
+            $('.ajax').html($('.ajax input').val());
+            $('.ajax').removeClass('ajax');
+        });
+
+        $(document).submit(function () {
+            $('.send-comment-button').attr("disabled", "disabled");
+        });
+    </script>
+{% endblock %}

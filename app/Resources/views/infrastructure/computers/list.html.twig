@@ -1,0 +1,306 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'Computers' | trans() }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ breadcrumb( 'Computers' | trans(), path('computer_parts_list') ) }}
+{% endblock %}
+
+{% block body %}
+    <form class="form-inline filter-form" method="get" action="{{ path('computers_list') }}">
+        <input type="hidden" name="order" value="{{ order }}"/>
+        <input type="hidden" name="orderBy" value="{{ orderBy }}"/>
+        <div class="panel panel-default no-bg  b-gray-dark">
+            <div class="panel-body">
+                <div class="form-group">
+                    <select class="form-control select2-modify filter" name="filters[type]">
+                        <option value="">{{ 'Select type' | trans() }}</option>
+                        {% for type in types %}
+                            <option {% if filters.type is defined and filters.type == type %}selected{% endif %} value="{{ type }}">
+                                {{ type | trans() }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group filter">
+                    <select class="form-control select2-modify" name="filters[user]" required>
+                        <option value="">{{ 'Search by employee' | trans() }}</option>
+                        {% for team, members in users %}
+                            <optgroup label="{{ team | trans() }}">
+                                {% for member in members %}
+                                    <option value="{{ member.id }}"
+                                            {% if filters.user is defined and filters.user == member.id %}
+                                                {{ "selected" }}
+                                            {% endif %}
+                                    >{{ member.fullName }} ({{ member.employeeRole }})</option>
+                                {% endfor %}
+                            </optgroup>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <select class="form-control select2-modify filter" name="filters[room]">
+                        <option value="">{{ 'Search by room' | trans() }}</option>
+                        {% for room in rooms %}
+                            <option {% if filters.room is defined and filters.room == room.room %}selected{% endif %} value="{{ room.room }}">
+                                {{ room.room }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group filter">
+                    <input class="form-control" style="width: 175px;" name="filters[ipAddress]" placeholder="{{ 'Search by IP Address' | trans() }}"
+                           value="{% if filters.ipAddress is defined %}{{ filters.ipAddress }}{% endif %}" />
+                </div>
+                <div class="form-group filter">
+                    <input class="form-control" style="width: 175px;" name="filters[macAddress]" placeholder="{{ 'Search by MAC Address' | trans() }}"
+                           value="{% if filters.macAddress is defined %}{{ filters.macAddress }}{% endif %}" />
+                </div>
+                <div class="form-group">
+                    <select class="form-control select2-modify filter" name="filters[processor]">
+                        <option value="">{{ 'Search by processor' | trans() }}</option>
+                        {% for processor in processors %}
+                            <option value="{{ processor.id }}"
+                                    {% if filters.processor is defined and filters.processor == processor.id %}
+                                        {{ "selected" }}
+                                    {% endif %}>{{ processor.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <select class="form-control select2-modify filter" name="filters[videoCard]">
+                        <option value="">{{ 'Search by video card' | trans() }}</option>
+                        {% for videoCard in videoCards %}
+                            <option value="{{ videoCard.id }}"
+                                    {% if filters.videoCard is defined and filters.videoCard == videoCard.id %}
+                                        {{ "selected" }}
+                                    {% endif %}>{{ videoCard.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="button" class="btn btn-primary pull-right add-computer" data-toggle="modal" data-target=".addComputerModal"><i class="fa fa-plus"></i> {{ 'Add computer' | trans() }}</button>
+                <div class="btn-group pull-right m-r-1">
+                    <a class="btn btn-success" target="_blank" title="{{ 'Export' | trans() }}" href="{{ path('export_infrastructure', {'filters': filters, 'exportType' : 'computers'}) }}">
+                        <i class="fa fa-fw fa-file-excel-o text-inverse"></i>{{ 'Export' | trans() }}
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel panel-default no-bg  b-gray-dark">
+            <div class="panel-body">
+                <div class="form-group">
+                    <select class="form-control select2-modify filter" name="filters[ram]">
+                        <option value="">{{ 'Search by RAM' | trans() }}</option>
+                        {% for ram in rams %}
+                            <option value="{{ ram.id }}"
+                                    {% if filters.ram is defined and filters.ram == ram.id %}
+                                        {{ "selected" }}
+                                    {% endif %}>{{ ram.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <select class="form-control select2-modify filter" name="filters[motherboard]">
+                        <option value="">{{ 'Search by motherboard' | trans() }}</option>
+                        {% for motherboard in motherboards %}
+                            <option value="{{ motherboard.id }}"
+                                    {% if filters.motherboard is defined and filters.motherboard == motherboard.id %}
+                                        {{ "selected" }}
+                                    {% endif %}>{{ motherboard.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <select class="form-control select2-modify filter" name="filters[hdd]">
+                        <option value="">{{ 'Search by HDD' | trans() }}</option>
+                        {% for hdd in hdds %}
+                            <option value="{{ hdd.id }}"
+                                    {% if filters.hdd is defined and filters.hdd == hdd.id %}
+                                        {{ "selected" }}
+                                    {% endif %}>{{ hdd.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <select class="form-control select2-modify filter" name="filters[monitor]">
+                        <option value="">{{ 'Search by monitor' | trans() }}</option>
+                        {% for monitor in monitors %}
+                            <option value="{{ monitor.id }}"
+                                    {% if filters.monitor is defined and filters.monitor == monitor.id %}
+                                        {{ "selected" }}
+                                    {% endif %}>{{ monitor.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <select class="form-control select2-modify filter" name="filters[keyboard]">
+                        <option value="">{{ 'Search by keyboard' | trans() }}</option>
+                        {% for keyboard in keyboards %}
+                            <option value="{{ keyboard.id }}"
+                                    {% if filters.keyboard is defined and filters.keyboard == keyboard.id %}
+                                        {{ "selected" }}
+                                    {% endif %}>{{ keyboard.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <select class="form-control select2-modify filter" name="filters[mouse]">
+                        <option value="">{{ 'Search by mouse' | trans() }}</option>
+                        {% for mouse in mouses %}
+                            <option value="{{ mouse.id }}"
+                                    {% if filters.mouse is defined and filters.mouse == mouse.id %}
+                                        {{ "selected" }}
+                                    {% endif %}>{{ mouse.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <select class="form-control select2-modify filter" name="filters[operationSystem]">
+                        <option value="">{{ 'Search by OS' | trans() }}</option>
+                        {% for operationSystem in operationSystems %}
+                            <option value="{{ operationSystem.id }}"
+                                    {% if filters.operationSystem is defined and filters.operationSystem == operationSystem.id %}
+                                        {{ "selected" }}
+                                    {% endif %}>{{ operationSystem.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group filter">
+                    <input class="form-control" style="width: 175px;" name="filters[keyOS]" placeholder="{{ 'Search by key OS' | trans() }}"
+                           value="{% if filters.keyOS is defined %}{{ filters.keyOS }}{% endif %}" />
+                </div>
+                <div class="form-group filter">
+                    <div class="checkbox">
+                            <input type="checkbox" name="filters[legal]"
+                                   {% if filters.legal is defined %}checked{% endif %}>
+                    </div>
+                    <label style="margin-top: 5px;"> {{ 'Legal' | trans() }} </label>
+                </div>
+            </div>
+        </div>
+    </form>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            {% set orderType = order == 'desc' ? 'asc' : 'desc' %}
+            {% set routeParams = { 'filters': filters } %}
+
+            <th class="small text-muted text-uppercase">#<strong></strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ 'PC name' | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase">
+                {% set routeParams = routeParams | merge({'orderBy': 'lastname', 'order': orderBy == 'lastname' ? orderType : 'asc'}) %}
+                <a href="{{ path('computers_list', routeParams) }}">
+                    <strong>{{ "Employee" | trans() ~ ' '}}</strong>
+                    <i class="fa fa-sort{{ orderBy == 'lastname' ? '-' ~ order : '' }}"></i>
+                </a>
+            </th>
+            <th class="small text-muted text-uppercase">
+                {% set routeParams = routeParams | merge({'orderBy': 'ipAddress', 'order': orderBy == 'ipAddress' ? orderType : 'asc'}) %}
+                <a href="{{ path('computers_list', routeParams) }}">
+                    <strong>{{ "IP Address" | trans() ~ ' '}}</strong>
+                    <i class="fa fa-sort{{ orderBy == 'ipAddress' ? '-' ~ order : '' }}"></i>
+                </a>
+            </th>
+            <th class="small text-muted text-uppercase"><strong>{{ 'MAC Address' | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase">
+                {% set routeParams = routeParams | merge({'orderBy': 'room', 'order': orderBy == 'room' ? orderType : 'asc'}) %}
+                <a href="{{ path('computers_list', routeParams) }}">
+                    <strong>{{ "Room" | trans() ~ ' '}}</strong>
+                    <i class="fa fa-sort{{ orderBy == 'room' ? '-' ~ order : '' }}"></i>
+                </a>
+            </th>
+            <th class="small text-muted text-uppercase"><strong>{{ 'Operation system' | trans() }}</strong></th>
+
+            <th class="small text-muted text-uppercase text-right"><strong>{{ 'Actions' | trans() }}</strong></th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for computer in computers %}
+            <tr>
+                <td class="v-a-m">{{ ((currentPage - 1) * perPage) + loop.index }}</td>
+                <td class="v-a-m">
+                  <span>{{ computer.name }}</span>
+                </td>
+                <td class="v-a-m">
+                    {% if computer.employee %}
+                         <a href="{{ path('computer_details', {'id': computer.id}) }}"><span>{{ computer.employee.lastNameWithInitials }}</span></a>
+                    {% endif %}
+                </td>
+                <td class="v-a-m">
+                    {% for ipAddress in computer.ipAddressComputer %}
+                        <div class="list-item">{{ ipAddress }}</div>
+                    {% endfor %}
+                </td>
+                <td class="v-a-m">
+                    {% for macAddress in computer.macAddressComputer %}
+                        <div class="list-item">{{ macAddress }}</div>
+                    {% endfor %}
+                </td>
+                <td class="v-a-m">
+                    <span>{{ computer.employee ? computer.employee.room }}</span>
+                </td>
+                <td class="v-a-m">
+                    <span>{{ computer.operationSystem ? computer.operationSystem.name : '-' }}</span>
+                </td>
+                <td class="text-right v-a-m">
+                    <div class="dropdown">
+                        <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                            <i class="fa fa-fw fa-gear"></i> <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-right">
+                            {% include 'infrastructure/computers/partial/computer_actions.html.twig' %}
+                        </ul>
+                    </div>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    {% set vars = {
+        'route': 'computers_list',
+        'currentPage': currentPage,
+        'maxPages': maxPages,
+        'filters': filters,
+        'perPage': perPage,
+        'routeParams': {
+            'orderBy': orderBy,
+            'order': order
+        }
+    }
+    %}
+    {% include 'partial/paginator.html.twig' with vars %}
+
+    {% import 'infrastructure/computers/partial/form.html.twig' as form %}
+
+    {% set addComputerFormVars = {
+        'class': 'addComputerModal',
+        'formId': 'addComputerForm',
+        'title': 'Add computer',
+        'size': 'large',
+        'content': form.inputs(users, types, ipTypes, operationSystems, processors, videoCards, rams, mouses, motherboards, monitors, keyboards, hdds),
+        'formAction': path('computers_add'),
+        'submitTitle': 'Add'
+    } %}
+
+    {% set editComputerFormVars = {
+        'class': 'editComputerModal',
+        'formId': 'editComputerForm',
+        'title': 'Edit computer',
+        'size': 'large',
+        'content': form.inputs(users, types, ipTypes, operationSystems, processors, videoCards, rams, mouses, motherboards, monitors, keyboards, hdds),
+        'submitTitle': 'Save'
+    } %}
+
+    {% include 'partial/modal.html.twig' with addComputerFormVars %}
+    {% include 'partial/modal.html.twig' with editComputerFormVars %}
+
+    <script>
+        $(document).ready(function () {
+            jQuery(function(){
+                $('.select2-modify').select2({ width: '175px' });
+            });
+        });
+    </script>
+{% endblock %}

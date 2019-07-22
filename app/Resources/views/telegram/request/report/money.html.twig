@@ -1,0 +1,9 @@
+*Оплачено, доставлено*: {{ moneyReport['done'] | number_format(2, '.', ',') }}
+*Обработано, не передано в оплату*: {{ moneyReport['manager_started_work'] | number_format(2, '.', ',') }}
+
+*Передано в оплату*: {{ moneyReport['manager_finished_work'] | number_format(2, '.', ',') }}
+
+*На исправлении*: {{ moneyReport['needs_fixing'] | number_format(2, '.', ',') }}
+*Отклонено*: {{ moneyReport['rejected'] | number_format(2, '.', ',') }}
+
+*Всего*: {{ moneyReport['total'] | number_format(2, '.', ',')  }}

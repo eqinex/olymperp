@@ -1,0 +1,20 @@
+{% macro inputs(users, signatoryUsers) %}
+    <div class="form-group">
+        <label class="col-sm-4 control-label">{{ "Select users" | trans() }}</label>
+        <div class="col-sm-7">
+            <select class="form-control select2-modal" name="signatories[]" multiple required>
+                {% for team, members in users %}
+                    <optgroup label="{{ team | trans() }}">
+                        {% for member in members %}
+                            <option value="{{ member.id }}"
+                                {% if signatoryUsers[member.id] is defined %}
+                                    {{ "selected" }}
+                                {% endif %}
+                            >{{ member.fullName }} ({{ member.employeeRole }})</option>
+                        {% endfor %}
+                    </optgroup>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+{% endmacro %}

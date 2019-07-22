@@ -1,0 +1,48 @@
+{% macro inputs() %}
+    <input type="hidden" class="form-control supplier-person-id" value="" name="id">
+    <input type="hidden" class="form-control supplier-person-supplier" value="" name="supplierPerson[supplier]">
+    <div class="form-group">
+        <label class="col-sm-1 control-label">{{ "First name" | trans() }}</label>
+        <div class="col-sm-3">
+            <input type="text" class=" supplier-person-firstname form-control" placeholder="{{ ('First name' | trans()) }}  " value=""  name="supplierPerson[firstname]" required="required">
+        </div>
+        <label class="col-sm-1 control-label">{{ "Middle name" | trans() }}</label>
+        <div class="col-sm-3">
+            <input type="text" class="form-control  supplier-person-middlename" placeholder="{{ 'Middle name' | trans() }}" value="" name="supplierPerson[middlename]" required="required">
+        </div>
+        <label class="col-sm-1 control-label">{{ "Last name" | trans() }}</label>
+        <div class="col-sm-3">
+            <input type="text" class=" supplier-person-lastname form-control" placeholder="{{ ('Last name' | trans()) }}  " value=""  name="supplierPerson[lastname]" required="required">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-1 control-label">{{ ("Employee Role" | trans()) }}</label>
+        <div class="col-sm-3">
+            <input type="text" class=" supplier-person-role form-control" placeholder="{{ ('Employee Role' | trans()) }}  " value=""  name="supplierPerson[role]" required="required">
+        </div>
+        <label class="col-sm-1 control-label">{{ "Phone" | trans() }}</label>
+        <div class="col-sm-3">
+            <input type="tel" class=" supplier-person-phone form-control" placeholder="{{ ("Phone" | trans()) }}" value="" name="supplierPerson[phone]" required="required">
+        </div>
+        <label class="col-sm-1 control-label">{{ "Email" }}</label>
+        <div class="col-sm-3">
+            <input type="email" class="form-control supplier-person-email" placeholder="{{ 'Email' }}" value="" name="supplierPerson[email]" required="required">
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function(){
+            $('.editSupplierPerson').bind('click', function(){
+                var editSupplierPersonForm = $('#editSupplierPersonForm');
+                editSupplierPersonForm.attr('action', $(this).data('href'));
+                editSupplierPersonForm.find('.supplier-person-id').val($(this).data('id'));
+                editSupplierPersonForm.find('.supplier-person-firstname').val($(this).data('firstname'));
+                editSupplierPersonForm.find('.supplier-person-middlename').val($(this).data('middlename'));
+                editSupplierPersonForm.find('.supplier-person-lastname').val($(this).data('lastname'));
+                editSupplierPersonForm.find('.supplier-person-role').val($(this).data('role'));
+                editSupplierPersonForm.find('.supplier-person-phone').val($(this).data('phone'));
+                editSupplierPersonForm.find('.supplier-person-email').val($(this).data('email'));
+            });
+        });
+    </script>
+{% endmacro %}

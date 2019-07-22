@@ -1,0 +1,90 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ project.name }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ breadcrumb( 'Projects' | trans(), path('projects_list') ) }}
+    {{ breadcrumb( project.name, path('project_details', {'id': project.id}) ) }}
+{% endblock %}
+
+{% block body %}
+
+    {% set vars = {'project': project} %}
+    {% include 'projects/partial/info_sidebar.html.twig' with vars %}
+
+    <div class="col-lg-9">
+        <div class="row m-b-2">
+
+            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                <h3 class="f-w-300 m-t-1">{{ project.name }}</h3>
+            </div>
+            <div class="col-lg-6 col-md-6 col-xs-12">
+                <div class="btn-toolbar pull-right">
+                    <div class="btn-group" role="group" aria-label="...">
+                        {% set vars = {'active_page': 'project_passport'} %}
+                        {% include 'projects/partial/nav.html.twig' with vars %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel panel-default no-bg b-gray-dark">
+            <table class="table table-hover">
+                <tbody>
+                    {% set count = 1 %}
+                    {% for projectPassport in projectPassports %}
+                        <tr>
+                            <td class="v-a-m" style="width: 10px;">
+                                <span>{{ count }}</span>
+                            </td>
+                            <td class="v-a-m">
+                              <span>
+                                  {{ projectPassport.name }}
+                              </span>
+                            </td>
+                            {% if project_service.getProjectPassportFile(project.id, projectPassport.id) %}
+                                <td class="v-a-m">
+                                    <i class="fa fa-check-square-o text-success"></i>
+                                </td>
+                                <td class="v-a-m">
+                                    <a href="{{ path('project_passport_files', {'id': project.id, 'passportId': projectPassport.id}) }}"
+                                       data-href="{{ path('project_passport_upload_file', {'id': project.id, 'passportId': projectPassport.id}) }}"
+                                       class="btn btn-default"
+                                    ><i class="fa fa-fw fa-eye"></i></a>
+                                </td>
+                            {% else %}
+                                <td class="v-a-m">
+                                    <i class="fa fa-square-o"></i>
+                                </td>
+                                <td class="v-a-m">
+                                    <a href=""
+                                       data-href="{{ path('project_passport_upload_file', {'id': project.id, 'passportId': projectPassport.id}) }}"
+                                       class="btn btn-default upload-project-passport-file"
+                                       data-toggle="modal"
+                                       data-target=".uploadProjectPassportFileModal"
+                                    ><i class="fa fa-fw fa-upload"></i></a>
+                                </td>
+                            {% endif %}
+                        </tr>
+                        {% set count = count + 1 %}
+                    {% endfor %}
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+
+    {% import 'projects/partial/project_passport_upload_form.twig' as uploadProjectPassportFileForm %}
+
+    {% set uploadProjectPassportFileVars = {
+        'class': 'uploadProjectPassportFileModal',
+        'formId': 'uploadProjectPassportFileForm',
+        'title': 'Upload File',
+        'content': uploadProjectPassportFileForm.inputs(),
+        'submitTitle': 'Upload File',
+        'formAction': path('programming_document_upload_file')
+    } %}
+
+    {% include 'partial/modal.html.twig' with uploadProjectPassportFileVars %}
+
+{% endblock %}

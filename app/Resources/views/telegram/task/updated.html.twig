@@ -1,0 +1,4 @@
+*{{ app.user.lastNameWithInitials }}* обновил(а) задачу: [{{ task.title | striptags }}]({$taskUrl})
+{% for changes in taskChanges %}
+*{{ (changes.field | capitalize) | trans() }}*: {{ changes.oldValue | trans() }} -> {{ changes.newValue | trans() }}
+{% endfor %}

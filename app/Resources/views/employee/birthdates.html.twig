@@ -1,0 +1,82 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ "Birthdays in the next two weeks" | trans() }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ breadcrumb( 'Birthdays in the next two weeks' | trans(), path('employees_birthdates') ) }}
+{% endblock %}
+
+{% block body %}
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th class="small text-muted text-uppercase"></th>
+            <th class="small text-muted text-uppercase">
+                <strong>{{ "Fullname" | trans() ~ ' '}}</strong>
+            </th>
+            <th class="small text-muted text-uppercase">
+                <strong>{{ "Employee Role" | trans() ~ ' ' }}</strong>
+            </th>
+            <th class="small text-muted text-uppercase">
+                <strong>{{ "Team" | trans() ~ ' ' }}</strong>
+            </th>
+            <th class="small text-muted text-uppercase">
+                <strong>{{ "Date of birth" | trans() }}</strong>
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+
+        {% for employee in employees %}
+            {% if employee_service.getTodayEmployeeBirthdate(employee) %}
+                <tr class="text-success">
+            {% else %}
+                <tr>
+            {% endif %}
+                    <td class="v-a-m" style="width: 35px;">
+                        <div class="avatar avatar-image avatar-sm">
+                            <div class="avatar-circle">
+                                {% if employee.imageUrl is not null %}
+                                    <img src="{{ employee.imageUrl }}" />
+                                {% else %}
+                                    <img src="/images/noavatar.png" alt="Avatar">
+                                {% endif %}
+                            </div>
+                            <i class="avatar-status avatar-status-bottom bg-{{ employee_service.getOnlineStatus(employee).colorBadge }} b-brand-gray-darker"></i>
+                        </div>
+                    </td>
+                    <td class="v-a-m">
+                        <a href="{{ path('employee_details', {'userName': employee.username}) }}">
+                            {{ employee.getFullName(true) }}
+                        </a>
+                    </td>
+                    <td class="v-a-m">
+                        {% if employee.employeeRole is not null %}
+                            {{ employee.employeeRole }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td class="v-a-m">
+                        {% if employee.team is not null %}
+                            {{ employee.team.title }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td class="v-a-m">
+                        {% if employee.dateOfbirth is not null %}
+                            {% set month = ['Января','Февраля','Марта','Апреля','Мая','Июня','Июля','Августа','Сентября','Октября','Ноября','Декабря'] %}
+                            {% set monthBirthDate = employee.dateOfbirth | date('n') %}
+                            {{ employee.dateOfbirth | date('j') }}
+                            {{ month[monthBirthDate - 1] }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                </tr>
+        {% endfor %}
+
+        </tbody>
+    </table>
+{% endblock %}

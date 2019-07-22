@@ -1,0 +1,276 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ "Aggregated Report" | trans() }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ breadcrumb( 'Aggregated Report' | trans(), path('aggregate_report') ) }}
+{% endblock %}
+
+{% block body %}
+
+    {% set routeParams = {'filters': filters, 'customGroupBy': customGroupBy, 'customOrderBy': customOrderBy ?: '', 'order': order ?: '', 'orderBy': orderBy ?: ''  } %}
+
+    <div class="panel panel-default no-bg  b-gray-dark">
+        <div class="panel-body">
+            <form class="form-inline filter-form" method="get" action="{{ path('aggregate_report') }}">
+                <input type="hidden" name="order" value="{{ order }}"/>
+                <input type="hidden" name="orderBy" value="{{ orderBy }}"/>
+                <div class="form-group filter">
+                    <select class="form-control" name="customOrderBy">
+                        <option value="overdueTask" {% if customOrderBy == 'overdueTask' %} selected {% endif %}>↑ {{ 'By the number of overdue tasks' | trans() }}</option>
+                        <option value="percentOverdueTask" {% if customOrderBy == 'percentOverdueTask' %} selected {% endif %}>↑ {{ 'By percentage of overdue tasks' | trans() }}</option>
+                        <option value="executedOnTimeAndPercent" {% if customOrderBy == 'executedOnTimeAndPercent' %} selected {% endif %}>↑ {{ 'Completed on time' | trans() ~ ' / % ' ~ 'completed tasks' | trans() }}</option>
+                    </select>
+                </div>
+                <div class="form-group filter">
+                    <select class="form-control" name="customGroupBy">
+                        <option value="person" {% if customGroupBy == 'person' %} selected {% endif %}>{{ 'Employee' | trans() }}</option>
+                        <option value="team" {% if customGroupBy == 'team' %} selected {% endif %}>{{ 'Team' | trans() }}</option>
+                        <option value="department" {% if customGroupBy == 'department' %} selected {% endif %}>{{ 'Department' | trans() }}</option>
+                    </select>
+                </div>
+                <div class="form-group filter">
+                    <label class="col-sm-3 control-label" style="margin-top: 5px;">{{ "Aggregate period" | trans() }}</label>
+                    <div class="col-sm-4">
+                        <input type="text" required class="form-control daterange-picker"
+                               name="filters[startAt]" value="{% if filters.startAt is defined %}{{ filters.startAt }}{% else %}{{ 'now' | date('01.m.Y') ~ ' - ' ~ 'now' | date('t.m.Y') }}{% endif %}">
+                    </div>
+                </div>
+
+                <div class="btn-group pull-right m-r-2">
+                    <a class="btn btn-success" target="_blank" title="{{ 'download' | trans() }}" href="{{ path('export_report_tasks', routeParams) }}">
+                        <i class="fa fa-fw fa-file-excel-o text-inverse"></i> {{ 'Export aggegate report' | trans() }}
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th class="small text-muted text-uppercase"><strong>#</strong></th>
+            <th class="small text-muted text-uppercase">
+                {% if customGroupBy == 'person' %}
+                    <strong>{{ "Employee" | trans() ~ ' ' }}</strong>
+                {% elseif customGroupBy == 'team' %}
+                    <strong>{{ "Team" | trans() ~ ' ' }}</strong>
+                {% elseif customGroupBy == 'department' %}
+                    <strong>{{ "Department" | trans() ~ ' ' }}</strong>
+                {% endif %}
+            </th>
+            <th class="small text-muted text-uppercase">
+                <strong>{{ "Total for the period" | trans() ~ ' ' }}</strong>
+            </th>
+            <th class="small text-muted text-uppercase">
+                <strong>{{ "Completed" | trans() ~ ' ' }}</strong>
+            </th>
+            <th class="small text-muted text-uppercase">
+                <strong>{{ "Performed" | trans() ~ ' ' }}</strong>
+            </th>
+            <th class="small text-muted text-uppercase">
+                <strong>{{ "Completed on time" | trans() ~ ' ' }}</strong>
+            </th>
+            <th class="small text-muted text-uppercase">
+                <strong>{{ "Overdue" | trans() ~ ' ' }}</strong>
+            </th>
+            <th class="small text-muted text-uppercase">
+                {% if customOrderBy == 'percentOverdueTask' %}
+                    <strong>{{ "Overdue percentage" | trans() ~ ' '}}</strong>
+                {% else %}
+                    <strong>{{ "Executed works %" | trans() ~ ' '}}</strong>
+                {% endif %}
+            </th>
+            <th class="small text-muted text-uppercase">
+                <strong>{{ "Total overdue now" | trans() ~ ' ' }}</strong>
+            </th>
+        </tr>
+        </thead>
+
+        <tbody>
+
+        {% for reportTask in report %}
+            <tr class="text-white">
+                <td class="v-a-m">{{ loop.index }}</td>
+                <td class="v-a-m">
+                    {% if customGroupBy == 'person' %}
+                        <a class="link-comment" href="{{ path('employee_details', {'userName': reportTask.username }) }}">
+                            {{ reportTask.name }}
+                        </a>
+                    {% else %}
+                        <a class="link-comment" href="{{ path('project_tasks', {'id': reportTask.team }) }}">
+                            {{ reportTask.name }}
+                        </a>
+                    {% endif %}
+                </td>
+                <td class="v-a-m">
+                    {% if reportTask.totalTask is not null %}
+                        {% if customGroupBy == 'person' %}
+                            <a class="link-comment" href="{{ path('user_created_tasks', {'filters': {'type': 'in', 'status': [0, 1, 2, 4, 5, 6, 7], 'responsible': reportTask.id, 'period': filters.startAt is defined ? filters.startAt : 'now' | date('01.m.Y') ~ ' - ' ~ 'now' | date('t.m.Y') }}) }}">
+                                {{ reportTask.totalTask }}
+                            </a>
+                        {% elseif customGroupBy == 'team' %}
+                            <a class="link-comment" href="{{ path('user_created_tasks', {'filters': {'type': 'out', 'status': [0, 1, 2, 4, 5, 6, 7], 'show-team-tasks': 1, 'team': reportTask.id, 'period': filters.startAt is defined ? filters.startAt : 'now' | date('01.m.Y') ~ ' - ' ~ 'now' | date('t.m.Y') }}) }}">
+                                {{ reportTask.totalTask }}
+                            </a>
+                        {% elseif customGroupBy == 'department' %}
+                            <a class="link-comment" href="{{ path('user_created_tasks', {'filters': {'status': [0, 1, 2, 4, 5, 6, 7], 'show-team-tasks': 1, 'department': reportTask.id, 'period': filters.startAt is defined ? filters.startAt : 'now' | date('01.m.Y') ~ ' - ' ~ 'now' | date('t.m.Y') }}) }}">
+                                <span>{{ reportTask.totalTask }}</span>
+                            </a>
+                        {% endif %}
+                    {% else %}
+                        <span>0</span>
+                    {% endif %}
+                </td>
+                <td class="v-a-m">
+                    {% if reportTask.completedTask is not null %}
+                        {% if customGroupBy == 'person' %}
+                            <a class="link-comment" href="{{ path('user_created_tasks', {'filters': {'type': 'in', 'status': 2, 'responsible': reportTask.id, 'period': filters.startAt is defined ? filters.startAt : 'now' | date('01.m.Y') ~ ' - ' ~ 'now' | date('t.m.Y') }}) }}">
+                                {{ reportTask.completedTask }}
+                            </a>
+                        {% elseif customGroupBy == 'team' %}
+                            <a class="link-comment" href="{{ path('user_created_tasks', {'filters': {'type': 'out', 'status': 2, 'show-team-tasks': 1, 'team': reportTask.id, 'period': filters.startAt is defined ? filters.startAt : 'now' | date('01.m.Y') ~ ' - ' ~ 'now' | date('t.m.Y') }}) }}">
+                                {{ reportTask.completedTask }}
+                            </a>
+                        {% elseif customGroupBy == 'department' %}
+                            <a class="link-comment" href="{{ path('user_created_tasks', {'filters': {'status': 2, 'show-team-tasks': 1, 'department': reportTask.id, 'period': filters.startAt is defined ? filters.startAt : 'now' | date('01.m.Y') ~ ' - ' ~ 'now' | date('t.m.Y') }}) }}">
+                                <span>{{ reportTask.completedTask }}</span>
+                            </a>
+                        {% endif %}
+                    {% else %}
+                        <span>0</span>
+                    {% endif %}
+                </td>
+                <td class="v-a-m">
+                    {% if reportTask.performedTask is not null %}
+                        {% if customGroupBy == 'person' %}
+                            <a class="link-comment" href="{{ path('user_created_tasks', {'filters': {'type': 'in', 'status': 1, 'responsible': reportTask.id, 'period': filters.startAt is defined ? filters.startAt : 'now' | date('01.m.Y') ~ ' - ' ~ 'now' | date('t.m.Y') }}) }}">
+                                {{ reportTask.performedTask }}
+                            </a>
+                        {% elseif customGroupBy == 'team' %}
+                            <a class="link-comment" href="{{ path('user_created_tasks', {'filters': {'type': 'out', 'status': 1, 'show-team-tasks': 1, 'team': reportTask.id, 'period': filters.startAt is defined ? filters.startAt : 'now' | date('01.m.Y') ~ ' - ' ~ 'now' | date('t.m.Y') }}) }}">
+                                {{ reportTask.performedTask }}
+                            </a>
+                        {% elseif customGroupBy == 'department' %}
+                            <a class="link-comment" href="{{ path('user_created_tasks', {'filters': {'status': 1, 'show-team-tasks': 1, 'department': reportTask.id, 'period': filters.startAt is defined ? filters.startAt : 'now' | date('01.m.Y') ~ ' - ' ~ 'now' | date('t.m.Y') }}) }}">
+                                <span>{{ reportTask.performedTask }}</span>
+                            </a>
+                        {% endif %}
+                    {% else %}
+                        <span>0</span>
+                    {% endif %}
+                </td>
+                <td class="v-a-m">
+                    {% if reportTask.completeOnTimeTask is not null %}
+                        {% if customGroupBy == 'person' %}
+                            <a class="link-comment" href="{{ path('user_created_tasks', {'filters': {'type': 'in', 'status': 2, 'responsible': reportTask.id, 'completeOnTimeTask': 1, 'period': filters.startAt is defined ? filters.startAt : 'now' | date('01.m.Y') ~ ' - ' ~ 'now' | date('t.m.Y') }}) }}">
+                                {{ reportTask.completeOnTimeTask }}
+                            </a>
+                        {% elseif customGroupBy == 'team' %}
+                            <a class="link-comment" href="{{ path('user_created_tasks', {'filters': {'type': 'out', 'status': 2, 'show-team-tasks': 1, 'team': reportTask.id, 'completeOnTimeTask': 1, 'period': filters.startAt is defined ? filters.startAt : 'now' | date('01.m.Y') ~ ' - ' ~ 'now' | date('t.m.Y') }}) }}">
+                                {{ reportTask.completeOnTimeTask }}
+                            </a>
+                        {% elseif customGroupBy == 'department' %}
+                            <a class="link-comment" href="{{ path('user_created_tasks', {'filters': {'status': 2, 'show-team-tasks': 1, 'department': reportTask.id, 'completeOnTimeTask': 1, 'period': filters.startAt is defined ? filters.startAt : 'now' | date('01.m.Y') ~ ' - ' ~ 'now' | date('t.m.Y') }}) }}">
+                                <span>{{ reportTask.completeOnTimeTask }}</span>
+                            </a>
+                        {% endif %}
+                    {% else %}
+                        <span>0</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if reportTask.overdueTask is not null %}
+                        {% if customGroupBy == 'person' %}
+                            <a class="link-comment" href="{{ path('user_created_tasks', {'filters': {'type': 'in', 'status': [0,1,2,4,5,6,7], 'overdueTask': 1, 'responsible': reportTask.id, 'period': filters.startAt is defined ? filters.startAt : 'now' | date('01.m.Y') ~ ' - ' ~ 'now' | date('t.m.Y') }}) }}">
+                                {{ reportTask.overdueTask }}
+                            </a>
+                        {% elseif customGroupBy == 'team' %}
+                            <a class="link-comment" href="{{ path('user_created_tasks', {'filters': {'type': 'out', 'status': [0,1,2,4,5,6,7], 'overdueTask': 1, 'show-team-tasks': 1, 'team': reportTask.id, 'period': filters.startAt is defined ? filters.startAt : 'now' | date('01.m.Y') ~ ' - ' ~ 'now' | date('t.m.Y') }}) }}">
+                                {{ reportTask.overdueTask }}
+                            </a>
+                        {% elseif customGroupBy == 'department' %}
+                            <a class="link-comment" href="{{ path('user_created_tasks', {'filters': {'status': [0,1,2,4,5,6,7], 'overdueTask': 1, 'show-team-tasks': 1, 'department': reportTask.id, 'period': filters.startAt is defined ? filters.startAt : 'now' | date('01.m.Y') ~ ' - ' ~ 'now' | date('t.m.Y') }}) }}">
+                                <span>{{ reportTask.overdueTask }}</span>
+                            </a>
+                        {% endif %}
+                    {% else %}
+                        <span>0</span>
+                    {% endif %}
+                </td>
+                <td class="v-a-m">
+                    {% set color = 'success' %}
+
+                    {% if customOrderBy == 'percentOverdueTask' %}
+                        {% if (reportTask.percentOverdueTask > 30) %}
+                            {% set color = 'danger' %}
+                        {% elseif (reportTask.percentOverdueTask >= 15 and reportTask.percentOverdueTask <= 35) %}
+                            {% set color = 'warning' %}
+                        {% endif %}
+                    {% else %}
+                        {% if (reportTask.percentExecutedWorksTask < 50) %}
+                            {% set color = 'danger' %}
+                        {% elseif (reportTask.percentExecutedWorksTask >= 50 and reportTask.percentExecutedWorksTask <= 75) %}
+                            {% set color = 'warning' %}
+                        {% endif %}
+                    {% endif %}
+                    <span class="text-{{ color }}">{{ ((customOrderBy == 'percentOverdueTask') ? ((reportTask.percentOverdueTask)|number_format(2)) : (reportTask.percentExecutedWorksTask|number_format(2))) ~ '%' ~ ' (' ~ (customOrderBy == 'percentOverdueTask' ? (reportTask.overdueTask ?: '0') : (reportTask.completeOnTimeTask ?: '0')) ~'/' ~ (reportTask.totalTask ?: '0') ~ ')'}}</span>
+                </td>
+                <td class="v-a-m">
+                    {% if reportTask.totalOverdueNowTask is not null %}
+                        {% if customGroupBy == 'person' %}
+                            <a class="link-comment" href="{{ path('user_created_tasks', {'filters': {'type': 'in', 'status': 1, 'responsible': reportTask.id, 'totalOverdueNowTask': 1, 'period': filters.startAt is defined ? filters.startAt : 'now' | date('01.m.Y') ~ ' - ' ~ 'now' | date('d.m.Y') }}) }}">
+                                {{ reportTask.totalOverdueNowTask }}
+                            </a>
+                        {% elseif customGroupBy == 'team' %}
+                            <a class="link-comment" href="{{ path('user_created_tasks', {'filters': {'type': 'out', 'status': 1, 'show-team-tasks': 1, 'team': reportTask.id, 'totalOverdueNowTask': 1, 'period': filters.startAt is defined ? filters.startAt : 'now' | date('01.m.Y') ~ ' - ' ~ 'now' | date('d.m.Y') }}) }}">
+                                {{ reportTask.totalOverdueNowTask }}
+                            </a>
+                        {% elseif customGroupBy == 'department' %}
+                            <a class="link-comment" href="{{ path('user_created_tasks', {'filters': {'status': 1, 'show-team-tasks': 1, 'department': reportTask.id, 'totalOverdueNowTask': 1, 'period': filters.startAt is defined ? filters.startAt : 'now' | date('01.m.Y') ~ ' - ' ~ 'now' | date('t.m.Y') }}) }}">
+                                <span>{{ reportTask.totalOverdueNowTask }}</span>
+                            </a>
+                        {% endif %}
+                    {% else %}
+                        <span>0</span>
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    {% set vars = {
+        'route': 'aggregate_report',
+        'filters': filters,
+        'routeParams': {
+            'orderBy': orderBy,
+            'order': order
+        }
+    }
+    %}
+
+    <script>
+        $(document).ready(function() {
+            moment.locale('ru');
+            $('.daterange-picker').daterangepicker({
+                timePickerIncrement: 30,
+                timePicker24Hour: true,
+                autoUpdateInput: false,
+                locale: {
+                    format: 'DD.MM.YYYY', applyLabel: "Выбрать", cancelLabel: "Отменить"
+                }
+            });
+
+            $('.daterange-picker').on('apply.daterangepicker', function(ev, picker) {
+                $(this).val(picker.startDate.format('DD.MM.YYYY') + ' - ' + picker.endDate.format('DD.MM.YYYY'));
+
+                $(this).trigger('change');
+            });
+
+            $('.daterange-picker').on('cancel.daterangepicker', function(ev, picker) {
+                $(this).val('');
+                $(this).trigger('change');
+            });
+        });
+    </script>
+{% endblock %}

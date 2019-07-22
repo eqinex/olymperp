@@ -1,0 +1,173 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ server.ipAddress }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ breadcrumb( 'Servers' | trans(), path('servers_list') ) }}
+    {{ breadcrumb( server.ipAddress, path('servers_list', {'id': server.id}) ) }}
+{% endblock %}
+
+{% block body %}
+    {% set vars = {'computer': server} %}
+    {% include 'infrastructure/partial/info_sidebar.html.twig' with vars %}
+
+    <div class="col-lg-9">
+        <div class="row">
+            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                <h3 class="f-w-300 m-t-1">{{ server.ipAddress }}</h3>
+            </div>
+            <div class="dropdown pull-right m-t-1 m-r-1">
+                <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                    <i class="fa fa-fw fa-gear"></i>{{ "Actions" | trans() }}<span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-right">
+                    <li>
+                        {% include 'infrastructure/servers/partial/server_actions.html.twig' %}
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="tabbable-line tabs">
+            <ul class="nav nav-tabs">
+                {% if guestServers | length %}
+                    <li class="tab-guestserverstab active" role="presentation" data-target="server">
+                        <a href="#guestserverstab">{{ 'Guest servers' | trans() }}</a>
+                    </li>
+                {% endif %}
+                <li class="tab-historytab {{ guestServers | length ? '' : 'active' }}" role="presentation" data-target="history"><a href="#historytab">{{ 'History' | trans() }}
+                    </a>
+                </li>
+            </ul>
+        </div>
+    {% if guestServers | length %}
+        <div class="tab" id="server">
+            <table class="table table-striped table-right">
+                <thead>
+                <tr>
+                    <th class="small text-muted text-uppercase">{{ 'IP Address' | trans() }}</th>
+                    <th class="small text-muted text-uppercase">{{ 'Server type' | trans() }}</th>
+                    <th class="small text-muted text-uppercase">{{ 'MAC Address' | trans() }}</th>
+                    <th class="small text-muted text-uppercase">{{ 'Domain' | trans() }}</th>
+                    <th class="small text-muted text-uppercase">{{ 'Installed service' | trans() }}</th>
+                    <th class="small text-muted text-uppercase">{{ 'Inventory number' | trans() }}</th>
+                    <th class="small text-muted text-uppercase">{{ 'Serial number' | trans() }}</th>
+                    <th class="small text-muted text-uppercase">{{ 'Operation system' | trans() }}</th>
+                    <th class="small text-muted text-uppercase">{{ 'Legal' | trans() }}</th>
+                    <th class="small text-muted text-uppercase">{{ 'Room' | trans() }}</th>
+                </tr>
+                </thead>
+                <tbody>
+                    {% for guestServer in guestServers %}
+                        <tr>
+                            <td>
+                                <a href="{{ path('server_details', {'id': guestServer.id}) }}">
+                                    <span>{{ guestServer.ipAddress }}</span>
+                                </a>
+                            </td>
+                            <td>
+                                <span>{{ guestServer.ipType }}</span>
+                            </td>
+                            <td>
+                                <span>{{ guestServer.macAddress }}</span>
+                            </td>
+                            <td>
+                                <span>{{ guestServer.domain }}</span>
+                            </td>
+                            <td>
+                                <span>{{ guestServer.installedService is not null ? guestServer.installedService : '-' }}</span>
+                            </td>
+                            <td>
+                                <span>{{ guestServer.inventoryNumber }}</span>
+                            </td>
+                            <td>
+                                <span>{{ guestServer.serialNumber }}</span>
+                            </td>
+                            <td>
+                                <span>{{ guestServer.operationSystem is not null ? guestServer.operationSystem.name }}</span>
+                            </td>
+                            <td>
+                                <span>{{ guestServer.legal == 1 ? 'Yes' | trans() : 'No' | trans() }}</span>
+                            </td>
+                            <td>
+                                <span>{{ guestServer.room }}</span>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+        <div class="{{ guestServers | length ? 'hidden' : '' }} tab" id="history">
+            {% if serverChanges | length %}
+                <table class="table table-striped table-hover">
+                    <thead>
+                    <tr>
+                        <th class="small text-muted text-uppercase">{{ 'Field' | trans() }}</th>
+                        <th class="small text-muted text-uppercase">{{ 'Old value' | trans() }}</th>
+                        <th class="small text-muted text-uppercase">{{ 'New value' | trans() }}</th>
+                        <th class="small text-muted text-uppercase">{{ 'Changed by' | trans() }}</th>
+                        <th class="small text-muted text-uppercase">{{ 'Changed at' | trans() }}</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for changes in serverChanges %}
+                        <tr>
+                            <td>{{ (changes.field | capitalize) | trans() }}</td>
+                            <td><strike>{{ changes.oldValue | trans() }}</strike></td>
+                            <td class="text-inverse">{{ changes.newValue | trans() }}</td>
+                            <td>{{ changes.changedBy.fullName }}</td>
+                            <td>{{ changes.updatedAt | date('d.m.Y H:i') }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <div class="panel-body">
+                    <span class="v-a-m text-muted">{{ "There's no changes yet" | trans() }}</span>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    {% import 'infrastructure/servers/partial/form.html.twig' as form %}
+    {% import 'infrastructure/partial/delete_computer_form.html.twig' as deleteComputerForm %}
+
+    {% set editComputerFormVars = {
+        'class': 'editServerModal',
+        'formId': 'editServerForm',
+        'title': 'Edit server',
+        'size': 'large',
+        'content': form.inputs(serverTypes, ipTypes, operationSystems, hosts),
+        'submitTitle': 'Save'
+    } %}
+
+    {% set deleteComputerFormVars = {
+        'class': 'deleteComputerModal',
+        'formId': 'deleteComputerForm',
+        'title': 'Delete server',
+        'content': deleteComputerForm.inputs('Are you sure you want to delete server?'),
+        'submitTitle': 'Delete'
+    } %}
+
+    {% include 'partial/modal.html.twig' with editComputerFormVars %}
+    {% include 'partial/modal.html.twig' with deleteComputerFormVars %}
+
+    <script>
+        $(document).ready(function() {
+            $('.tabs .nav a').bind('click', function(){
+                $('.tabs .nav li').removeClass('active');
+                $('.tab').addClass('hidden');
+
+                $('#' + $(this).parent().data('target')).removeClass('hidden');
+                $(this).parent().addClass('active')
+            });
+
+            var url = window.location.href;
+            var hash = url.substring(url.indexOf('#')+1);
+
+            if (hash == 'historytab' || hash == 'guestserverstab') {
+                $('.tab-' + hash + ' a').click();
+            }
+        });
+    </script>
+{% endblock %}

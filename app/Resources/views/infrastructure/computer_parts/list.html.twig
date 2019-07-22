@@ -1,0 +1,116 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'Computer parts' | trans() }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ breadcrumb( 'Computer parts' | trans(), path('computer_parts_list') ) }}
+{% endblock %}
+
+{% block body %}
+    <div class="panel panel-default no-bg  b-gray-dark">
+        <div class="panel-body">
+            <form class="form-inline filter-form" method="get" action="{{ path('computer_parts_list') }}">
+                <div class="form-group">
+                    <select class="form-control filter" name="filters[type]">
+                        <option value="">{{ 'Select type' | trans() }}</option>
+                        {% for type in types %}
+                            <option {% if filters.type is defined and filters.type == type %}selected{% endif %} value="{{ type }}">
+                                {{ type | trans() }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target=".addComputerPartModal"><i class="fa fa-plus"></i> {{ 'Add' | trans() }}</button>
+                <div class="btn-group pull-right m-r-1">
+                    <a class="btn btn-success" target="_blank" title="{{ 'Export' | trans() }}" href="{{ path('export_infrastructure', {'filters': filters, 'exportType' : 'computer-parts'}) }}">
+                        <i class="fa fa-fw fa-file-excel-o text-inverse"></i>{{ 'Export' | trans() }}
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <table class="table table-hover">
+    <thead>
+    <tr>
+        <th class="small text-muted text-uppercase">#<strong></strong></th>
+        <th class="small text-muted text-uppercase"><strong>{{ 'Type' | trans() }}</strong></th>
+        <th class="small text-muted text-uppercase"><strong>{{ 'Name' | trans() }}</strong></th>
+        <th class="small text-muted text-uppercase"><strong>{{ 'Inventory number' | trans() }}</strong></th>
+        <th class="small text-muted text-uppercase"><strong>{{ 'Serial number' | trans() }}</strong></th>
+        <th class="small text-muted text-uppercase"><strong>{{ 'Description' | trans() }}</strong></th>
+        <th class="small text-muted text-uppercase text-right"><strong>{{ 'Actions' | trans() }}</strong></th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for part in parts %}
+        <tr>
+            <td class="v-a-m" style="width: 35px;">{{ ((currentPage - 1) * perPage) + loop.index }}</td>
+            <td class="v-a-m">
+                <span>{{ part.type | trans() }}</span>
+            </td>
+            <td class="v-a-m">
+                {% if part.name %}
+                    <a href="{{ path('computer_part_details', {'id': part.id}) }}"><span>{{ part.name }}</span></a>
+                {% endif %}
+            </td>
+            <td class="v-a-m">
+                <span>{{ part.inventoryNumber }}</span>
+            </td>
+            <td class="v-a-m">
+                <span>{{ part.serialNumber }}</span>
+            </td>
+            <td class="v-a-m">
+                <span>{{ part.description }}</span>
+            </td>
+            <td class="text-right v-a-m">
+                <div class="dropdown">
+                    <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                        <i class="fa fa-fw fa-gear"></i> <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-right">
+                        {% include 'infrastructure/computer_parts/partial/computer_part_actions.html.twig' %}
+                    </ul>
+                </div>
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+    </table>
+
+    {% set vars = {'route': 'computer_parts_list', 'currentPage': currentPage, 'maxPages': maxPages, 'filters': filters, 'perPage': perPage} %}
+    {% include 'partial/paginator.html.twig' with vars %}
+
+    {% import 'infrastructure/computer_parts/partial/form.html.twig' as form %}
+    {% import 'infrastructure/partial/delete_computer_form.html.twig' as deleteComputerForm %}
+
+    {% set addComputerPartFormVars = {
+        'class': 'addComputerPartModal',
+        'formId': 'addComputerPartForm',
+        'title': 'Add computer part',
+        'content': form.inputs(types),
+        'formAction': path('computer_parts_add'),
+        'submitTitle': 'Add'
+    } %}
+
+    {% set editComputerPartFormVars = {
+        'class': 'editComputerPartModal',
+        'formId': 'editComputerPartForm',
+        'title': 'Edit computer part',
+        'content': form.inputs(types),
+        'submitTitle': 'Save'
+    } %}
+
+    {% set deleteComputerFormVars = {
+        'class': 'deleteComputerModal',
+        'formId': 'deleteComputerForm',
+        'title': 'Delete computer part',
+        'content': deleteComputerForm.inputs('Are you sure you want to delete computer part?'),
+        'submitTitle': 'Delete'
+    } %}
+
+    {% include 'partial/modal.html.twig' with addComputerPartFormVars %}
+    {% include 'partial/modal.html.twig' with editComputerPartFormVars %}
+    {% include 'partial/modal.html.twig' with deleteComputerFormVars %}
+
+{% endblock %}

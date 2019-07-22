@@ -1,0 +1,300 @@
+{% macro inputs(document, documentTemplates, supplementaryDocumentTemplates, suppliers, documentCategories, users) %}
+    <input type="hidden" class="form-control document-id" value="" name="id">
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ "Supplier" | trans() }}</label>
+        <div class="col-sm-3">
+            <select class="form-control select2-modal document-supplier" name="document[supplier]" required>
+                <option value="">{{ 'Select contract supplier' | trans() }}</option>
+                {% for supplier in suppliers %}
+                    <option value="{{ supplier.id }}"
+                            {% if document.supplier.id is defined and document.supplier.id == supplier.id %}
+                                {{ "selected" }}
+                            {% endif %}>{{ supplier.title }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <label class="col-sm-2 control-label">{{ "Project" | trans() }}</label>
+        <div class="col-sm-3">
+            <select class="form-control select2-modal document-project" name="document[project]" required>
+                <option value="">{{ 'Select project' | trans() }}</option>
+                {% for project in project_service.getAvailableProjects(app.user) %}
+                    <option value="{{ project.id }}"
+                            {% if document.project.id is defined and document.project.id == project.id %}
+                                {{ "selected" }}
+                            {% endif %}>{{ project.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ "Curator" | trans() }}</label>
+        <div class="col-sm-3">
+            <select class="form-control select2-modal document-curator" name="document[curator]" required>
+                <option value="">{{ 'Search by name' | trans() }}</option>
+                {% for team, members in users %}
+                    <optgroup label="{{ team | trans() }}">
+                        {% for member in members %}
+                            <option value="{{ member.id }}"
+                                    {% if document.curator is defined and document.curator.id is defined and document.curator.id == member.id %}
+                                        {{ "selected" }}
+                                    {% endif %}>{{ member.fullName }}</option>
+                        {% endfor %}
+                    </optgroup>
+                {% endfor %}
+            </select>
+        </div>
+        <label class="col-sm-2 control-label">{{ "document.template" | trans() }}</label>
+        <div class="col-sm-3">
+            <select class="form-control select2-modal document-template" name="document[template]" required>
+                <option value="">{{ 'Select type of contract' | trans() }}</option>
+                {% for template in documentTemplates %}
+                    <option value="{{ template.id }}"
+                            {% if document.documentTemplate.id is defined and document.documentTemplate.id == template.id %}
+                                {{ "selected" }}
+                            {% endif %}>{{ template.title }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ "Blank" | trans() }}</label>
+        <div class="col-sm-3">
+            <select class="form-control select2-modal document-type" required name="document[type]">
+                {% for key, type in document.typesList %}
+                    <option value="{{ key }}"
+                            {% if document.type == key %}
+                                {{ "selected" }}
+                            {% endif %}
+                    >{{ type | trans()}}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <label class="col-sm-2 control-label">{{ "Category" | trans() }}</label>
+        <div class="col-sm-3">
+            <select class="form-control select2-modal document-category" name="document[category]" required>
+                <option value="">{{ 'Select contract category' | trans() }}</option>
+                {% for category in documentCategories %}
+                    <option value="{{ category.id }}"
+                            {% if document.category.id is defined and document.category.id == category.id %}
+                                {{ "selected" }}
+                            {% endif %}>{{ category.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    <div class="form-group" id="template-supplementary-agreement">
+        <label class="col-sm-2 control-label" style="margin-top: -10px">{{ "Template supplementary agreement" | trans() }}</label>
+        <div class="col-lg-8">
+            <select class="form-control select2-modal document-supplementary-template" name="document[supplementaryTemplate]">
+                <option value="">{{ 'Select template supplementary agreement' | trans() }}</option>
+                {% for documentTemplateSupplementary in supplementaryDocumentTemplates %}
+                    <option value="{{ documentTemplateSupplementary.id }}"
+                            {% if document.documentTemplateSupplementary.id is defined and document.documentTemplateSupplementary.id == documentTemplateSupplementary.id %}
+                                {{ "selected" }}
+                            {% endif %}>{{ documentTemplateSupplementary.title }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    <div id="hide-content">
+        <hr>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">{{ 'Number supplier' | trans() }}</label>
+            <div class="col-sm-3">
+                <input type="text" class="form-control document-supplier-contract-code"  placeholder="{{ "Number supplier" | trans() }}" value="" name="document[supplierContractCode]">
+            </div>
+            <label class="col-sm-2 control-label">{{ "document.startAt" | trans() }}</label>
+            <div class="col-sm-3">
+                {% if 'Firefox' in app.request.headers.get('User-Agent') %}
+                    <input type="date" class="form-control document-start-at form-control-firefox"
+                           value="{{ document.endAt | date('d.m.Y') }}" name="document[startAt]">
+                {% else %}
+                    <input type="text" required class="form-control document-start-at daterange-single-date-picker"
+                           name="document[startAt]" value="{{ document.startAt | date('d.m.Y') }}">
+                {% endif %}
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">{{ "document.period" | trans() }}</label>
+            <div class="col-sm-3">
+                <input type="number" class="form-control document-period"  placeholder="{{ "document.period" | trans() }}" name="document[period]" value="{{ document.period }}" required>
+            </div>
+            <label class="col-sm-2 control-label">{{ "document.endAt" | trans() }}</label>
+            <div class="col-sm-3">
+                {% if 'Firefox' in app.request.headers.get('User-Agent') %}
+                    <input type="date" class="form-control document-start-at form-control-firefox"
+                           value="{{ document.endAt | date('d.m.Y') }}" name="document[endAt]">
+                {% else %}
+                    <input type="text" required class="form-control document-end-at daterange-single-date-picker"
+                           name="document[endAt]" value="{{ document.endAt | date('d.m.Y') }}">
+                {% endif %}
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">{{ "document.unlimited" | trans() }}</label>
+            <div class="col-sm-3">
+                <select class="form-control select2-modal document-unlimited" name="document[unlimited]" required>
+                    <option value="{{ 0 }}"> {{ 'No' | trans() }} </option>
+                    <option value="{{ 1 }}"> {{ 'Yes' | trans() }} </option>
+                </select>
+            </div>
+            <label class="col-sm-2 control-label">{{ "document.amount" | trans() }}</label>
+            <div class="col-sm-3">
+                <input type="text" pattern="\d+(\.\d{0,10})?" class="form-control document-amount" placeholder="{{ "document.amount" | trans() }}" value="" name="document[amount]" required>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">{{ "document.extension" | trans() }}</label>
+            <div class="col-sm-3">
+                <select class="form-control select2-modal document-extension" name="document[extension]" required>
+                    <option value="{{ 1 }}"> {{ 'Envisaged' | trans() }} </option>
+                    <option value="{{ 0 }}"> {{ 'Unenvisaged' | trans() }} </option>
+                </select>
+            </div>
+            <label class="col-sm-2 control-label">{{ "document.vat" | trans() }}</label>
+            <div class="col-sm-3">
+                <input type="text" pattern="\d+(\.\d{0,10})?" class="form-control document-vat"  placeholder="{{ "document.vat" | trans() }}" value="" name="document[vat]" required>
+            </div>
+        </div>
+        <hr>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">{{ "document.subject" | trans() }}</label>
+            <div class="col-lg-8">
+                <textarea class="form-control document-subject" placeholder="{{ "document.subject" | trans() }}" name="document[subject]" required></textarea>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">{{ "Measure of responsibility" | trans() }}</label>
+            <div class="col-lg-8">
+                <textarea class="form-control document-measure" placeholder="{{ "Measure of responsibility" | trans() }}" name="document[measure]"></textarea>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">{{ "document.security" | trans() }}</label>
+            <div class="col-lg-8">
+                <textarea class="form-control document-security" placeholder="{{ "document.security" | trans() }}" name="document[security]"></textarea>
+            </div>
+        </div>
+        <hr>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">{{ "Act" | trans() }}</label>
+            <div class="col-lg-8">
+                <input type="text" class="form-control document-act" placeholder="{{ "Act" | trans() }}" value="" name="document[act]">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">{{ "Comment" | trans() }}</label>
+            <div class="col-lg-8">
+                <textarea class="form-control document-comment" placeholder="{{ "Comment" | trans() }}" name="document[comment]"></textarea>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            moment.locale('ru');
+
+            {{ document.parentDocument ? 'showTemplateSupplimentaryAgreement();' : 'hideTemplateSupplimentaryAgreement();' }}
+
+            $('.edit-document').bind('click', function () {
+                var editDocumentForm = $('#editDocumentForm');
+                editDocumentForm.attr('action', $(this).data('href'));
+                editDocumentForm.find('.document-id').val($(this).data('id'));
+                editDocumentForm.find('.document-project').val($(this).data('project'));
+                editDocumentForm.find('.document-curator').val($(this).data('curator'));
+                editDocumentForm.find('.document-template').val($(this).data('template'));
+                editDocumentForm.find('.document-supplementary-template').val($(this).data('supplementaryTemplate'));
+                editDocumentForm.find('.document-type').val($(this).data('type'));
+                editDocumentForm.find('.document-category').val($(this).data('category'));
+                editDocumentForm.find('.document-supplier').val($(this).data('supplier'));
+                editDocumentForm.find('.document-supplier-contract-code').val($(this).data('supplierContractCode'));
+                editDocumentForm.find('.document-start-at').val($(this).data('startAt'));
+                editDocumentForm.find('.document-end-at').val($(this).data('endAt'));
+                editDocumentForm.find('.document-period').val($(this).data('period'));
+                editDocumentForm.find('.document-unlimited').val($(this).data('unlimited'));
+                editDocumentForm.find('.document-amount').val($(this).data('amount'));
+                editDocumentForm.find('.document-extension').val($(this).data('extension'));
+                editDocumentForm.find('.document-vat').val($(this).data('vat'));
+                editDocumentForm.find('.document-subject').val($(this).data('subject'));
+                editDocumentForm.find('.document-measure').val($(this).data('measure'));
+                editDocumentForm.find('.document-security').val($(this).data('security'));
+                editDocumentForm.find('.document-act').val($(this).data('act'));
+                editDocumentForm.find('.document-comment').val($(this).data('comment'));
+
+                $('.select2-modal').select2({ width: '100%' });
+            });
+
+            $('.add-agreement').bind('click', function () {
+                var addAgreementForm = $('#addAgreementForm');
+                addAgreementForm.attr('action', $(this).data('href'));
+                addAgreementForm.find('.document-id').val($(this).data('id'));
+                addAgreementForm.find('.document-project').val($(this).data('project'));
+                addAgreementForm.find('.document-curator').val($(this).data('curator'));
+                addAgreementForm.find('.document-template').val($(this).data('template'));
+                addAgreementForm.find('.document-type').val($(this).data('type'));
+                addAgreementForm.find('.document-category').val($(this).data('category'));
+                addAgreementForm.find('.document-supplier').val($(this).data('supplier'));
+                addAgreementForm.find('.document-supplier-contract-code').val($(this).data('supplierContractCode'));
+                addAgreementForm.find('.document-start-at').val($(this).data('startAt'));
+                addAgreementForm.find('.document-end-at').val($(this).data('endAt'));
+                addAgreementForm.find('.document-period').val($(this).data('period'));
+                addAgreementForm.find('.document-unlimited').val($(this).data('unlimited'));
+                addAgreementForm.find('.document-amount').val($(this).data('amount'));
+                addAgreementForm.find('.document-extension').val($(this).data('extension'));
+                addAgreementForm.find('.document-vat').val($(this).data('vat'));
+                addAgreementForm.find('.document-subject').val($(this).data('subject'));
+                addAgreementForm.find('.document-measure').val($(this).data('measure'));
+                addAgreementForm.find('.document-security').val($(this).data('security'));
+                addAgreementForm.find('.document-act').val($(this).data('act'));
+                addAgreementForm.find('.document-comment').val($(this).data('comment'));
+
+                addAgreementForm.find('#template-supplementary-agreement').show();
+
+                $('.select2-modal').select2({ width: '100%' });
+            });
+
+            function showTemplateSupplimentaryAgreement() {
+                $('#template-supplementary-agreement').show();
+            }
+
+            function hideTemplateSupplimentaryAgreement() {
+                $('#template-supplementary-agreement').hide();
+            }
+
+            $('.daterange-single-date-picker').daterangepicker({
+                singleDatePicker: true,
+                showDropdowns: true,
+                timePicker24Hour: true,
+                timePickerIncrement: 30,
+                opens: "left",
+                drops: "down",
+                locale: {
+                    format: 'DD.MM.YYYY', applyLabel: "Выбрать", cancelLabel: "Отменить"
+                }
+            });
+
+            $('.daterange-single-date-picker').bind('apply.daterangepicker', function(){
+
+                var startDate = moment($('.document-start-at').val(), 'DD.MM.YYYY HH:mm');
+                var endDate = moment($('.document-end-at').val(), 'DD.MM.YYYY HH:mm');
+
+                if (startDate > endDate) {
+                    alert('Дата начала не может быть позже даты завершения');
+                    $('.task-start-at').val($('.task-end-at').val())
+                }
+
+                return false;
+            });
+            $('.add-document').bind('click', function () {
+                $('#hide-content').hide();
+                $('.document-supplier').on('change', function() {
+                    if ($(this).val() == '') {
+                        $('#hide-content').hide();
+                    } else {
+                        $('#hide-content').show();
+                    }
+                })
+            });
+        });
+    </script>
+{% endmacro %}

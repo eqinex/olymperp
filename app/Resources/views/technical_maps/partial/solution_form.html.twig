@@ -1,0 +1,78 @@
+{% macro inputs(technicalMap) %}
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ "Name" | trans() }}</label>
+        <div class="col-lg-9">
+            <input type="text" class="form-control solution-name" placeholder="{{ 'Solution name' | trans() }}" name="solution[name]" required>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ technicalMap.criterionTitle1 }}</label>
+        <div class="col-lg-4">
+            <input type="text" class="form-control solution-criterion1" placeholder="{{ "Description" | trans() }}" name="solution[criterion1]">
+        </div>
+        <label class="col-sm-2 control-label">{{ "Points" | trans() }}</label>
+        <div class="col-lg-3">
+            <input type="text" pattern="^[0-9]+$" class="form-control solution-points1" placeholder="{{ "Points" | trans() }}" name="solution[points1]" required>
+        </div>
+    </div>
+    <hr>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ technicalMap.criterionTitle2 }}</label>
+        <div class="col-lg-4">
+            <input type="text" class="form-control solution-criterion2" placeholder="{{ "Description" | trans() }}" name="solution[criterion2]">
+        </div>
+        <label class="col-sm-2 control-label">{{ "Points" | trans() }}</label>
+        <div class="col-lg-3">
+            <input type="text" pattern="^[0-9]+$" class="form-control solution-points2" placeholder="{{ "Points" | trans() }}" name="solution[points2]" required>
+        </div>
+    </div>
+    {% if technicalMap.criterionTitle3 %}
+        <hr>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">{{ technicalMap.criterionTitle3 }}</label>
+            <div class="col-lg-4">
+                <input type="text" class="form-control solution-criterion3" placeholder="{{ "Description" | trans() }}" name="solution[criterion3]">
+            </div>
+            <label class="col-sm-2 control-label">{{ "Points" | trans() }}</label>
+            <div class="col-lg-3">
+                <input type="text" pattern="^[0-9]+$" class="form-control solution-points3" placeholder="{{ "Points" | trans() }}" name="solution[points3]" required>
+            </div>
+        </div>
+    {% endif %}
+    {% if technicalMap.criterionTitle4 %}
+        <hr>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">{{ technicalMap.criterionTitle4 }}</label>
+            <div class="col-lg-4">
+                <input type="text" class="form-control solution-criterion4" placeholder="{{ "Description" | trans() }}" name="solution[criterion4]">
+            </div>
+            <label class="col-sm-2 control-label">{{ "Points" | trans() }}</label>
+            <div class="col-lg-3">
+                <input type="text" pattern="^[0-9]+$" class="form-control solution-points4" placeholder="{{ "Points" | trans() }}" name="solution[points4]" required>
+            </div>
+        </div>
+    {% endif %}
+
+    <script>
+        $(document).ready(function() {
+            moment.locale('ru');
+
+            $('.edit-solution').bind('click', function () {
+                var editSolutionForm = $('#editSolutionForm');
+                editSolutionForm.attr('action', $(this).data('href'));
+                editSolutionForm.find('.solution-id').val($(this).data('id'));
+                editSolutionForm.find('.solution-name').val($(this).data('name'));
+                editSolutionForm.find('.solution-criterion1').val($(this).data('criterion1'));
+                editSolutionForm.find('.solution-criterion2').val($(this).data('criterion2'));
+                editSolutionForm.find('.solution-criterion3').val($(this).data('criterion3'));
+                editSolutionForm.find('.solution-criterion4').val($(this).data('criterion4'));
+                editSolutionForm.find('.solution-points1').val($(this).data('points1'));
+                editSolutionForm.find('.solution-points2').val($(this).data('points2'));
+                editSolutionForm.find('.solution-points3').val($(this).data('points3'));
+                editSolutionForm.find('.solution-points4').val($(this).data('points4'));
+
+                $('.select2-modal').select2({width: '100%'});
+            });
+        });
+    </script>
+{% endmacro %}

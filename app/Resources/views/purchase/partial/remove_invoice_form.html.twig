@@ -1,0 +1,11 @@
+{% macro inputs() %}
+    <div class="text-center">{{ "Are you sure you want to delete invoice?" | trans() }}</div>
+
+    <script>
+        $(document).ready(function(){
+            $('.remove-invoice').bind('click', function() {
+                $('#removeInvoiceForm').attr('action', $(this).data('action'));
+            });
+        });
+    </script>
+{% endmacro %}

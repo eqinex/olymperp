@@ -1,0 +1,23 @@
+{% macro inputs(users) %}
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ "User" | trans() }}</label>
+        <div class="col-sm-4">
+            <select class="form-control select2-modal" name="userId" required>
+                {% for user in users %}
+                    <option value="{{ user.id }}">{{ user.fullName }} ({{ user.employeeRole }})</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function (){
+            $('.issueBook').bind('click', function () {
+                var issueBookForm = $('#issueBookForm');
+                issueBookForm.attr('action', $(this).data('href'));
+
+                $('.select2-modal').select2({width: '100%'});
+            });
+        })
+    </script>
+{% endmacro %}

@@ -1,0 +1,109 @@
+{% macro inputs(users, types, successEvents) %}
+    <input type="hidden" class="form-control activity-event-id" value="" name="id">
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ "Name" | trans() }}</label>
+        <div class="col-sm-9">
+            <input type="text" class="form-control activity-event-name" value="" name="activityEvent[name]" required>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ "Type" | trans() }}</label>
+        <div class="col-sm-9">
+            <select class="form-control select2-modal activity-event-type" name="activityEvent[type]" required>
+                {% if successEvents is not empty %}
+                    {% for type in types %}
+                        <option value="{{ type }}"> {{ (type == 'success' ? 'Success events' : 'Additional events') | trans() }} </option>
+                    {% endfor %}
+                {% else %}
+                    <option value="success">{{ 'Success events' | trans() }}</option>
+                {% endif %}
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ "Responsible" | trans() }}</label>
+        <div class="col-sm-3">
+            <select class="form-control select2-modal activity-event-responsible-user" name="activityEvent[responsibleUser]">
+                <option value="">{{ 'Select responsible' | trans() }}</option>
+                {% for team, members in users %}
+                    <optgroup label="{{ team | trans() }}">
+                        {% for member in members %}
+                            <option value="{{ member.id }}"
+                                    {% if activity.responsibleUser is defined and activity.responsibleUser.id is defined and activity.responsibleUser.id == member.id %}
+                                        {{ "selected" }}
+                                    {% endif %}>{{ member.fullName }}</option>
+                        {% endfor %}
+                    </optgroup>
+                {% endfor %}
+            </select>
+        </div>
+        <label class="col-sm-3 control-label">{{ "End At" | trans() }}</label>
+        <div class="col-sm-3">
+            <input type="text" class="form-control daterange-single-date-picker activity-event-end-at" required
+                   name="activityEvent[endAt]" value="{{ activity.endAt is defined ? activity.endAt | date('d.m.Y H:i') }}">
+        </div>
+    </div>
+    {% if successEvents is not empty %}
+        <div class="form-group success-events-form" style="display: none;">
+            <label class="col-sm-2 control-label">{{ "Activity events" | trans() }}</label>
+            <div class="col-sm-9">
+                <select class="form-control select2-modal activity-event-success" name="activityEvent[event]">
+                    <option value="">{{ 'Select success event' | trans() }}</option>
+                    {% for event in successEvents %}
+                        <option value="{{ event.id }}"> {{ event.name }} </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+    {% endif %}
+
+    <script>
+        $(document).ready(function() {
+            moment.locale('ru');
+
+            $('.daterange-single-date-picker').daterangepicker({
+                singleDatePicker: true,
+                showDropdowns: true,
+                timePicker: true,
+                timePicker24Hour: true,
+                timePickerIncrement: 30,
+                opens: "left",
+                drops: "down",
+                locale: {
+                    format: 'DD.MM.YYYY HH:mm', applyLabel: "Выбрать", cancelLabel: "Отменить"
+                }
+            });
+
+            $('.edit-activity-event').bind('click', function () {
+                var editActivityEventForm = $('#editActivityEventForm');
+                editActivityEventForm.attr('action', $(this).data('href'));
+                editActivityEventForm.find('.activity-event-id').val($(this).data('id'));
+                editActivityEventForm.find('.activity-event-name').val($(this).data('name'));
+                editActivityEventForm.find('.activity-event-type').val($(this).data('type'));
+                editActivityEventForm.find('.activity-event-responsible-user').val($(this).data('responsibleUser'));
+                editActivityEventForm.find('.activity-event-end-at').val($(this).data('end-at'));
+                editActivityEventForm.find('.activity-event-success').val($(this).data('success'));
+
+                if ($(this).data('success') != null) {
+                    $('.success-events-form').removeAttr( 'style' );
+                } else {
+                    $('.success-events-form').attr('style','display:none')
+                }
+
+                $('.select2-modal').select2({width: '100%'});
+            });
+
+            $('.activity-event-type').on('change', function () {
+                if ($(this).val() == 'additional') {
+                    $('.success-events-form').show();
+                } else {
+                    $('.success-events-form').hide();
+                    $('.activity-event-success').prop('value', null);
+                    $('.activity-event-success').prop('required', false);
+                }
+            });
+
+        });
+    </script>
+{% endmacro %}

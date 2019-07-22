@@ -1,0 +1,156 @@
+{% macro inputs(serverTypes, ipTypes, operationSystems, hosts) %}
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ 'Server type' | trans() }}</label>
+        <div class="col-lg-3">
+            <select class="form-control select2-modal server-type" name="server[type]" required>
+                <option value="">{{ 'Select server type' | trans() }}</option>
+                {% for serverType in serverTypes %}
+                    <option {% if server.type is defined and server.type == serverType %}selected{% endif %} value="{{ serverType }}">
+                        {{ serverType | trans() }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div id="host">
+            <label class="col-sm-2 control-label">{{ 'Host' | trans() }}</label>
+            <div class="col-lg-3">
+                <select class="form-control select2-modal server-host" name="server[host]">
+                    <option value="">{{ 'Select host' | trans() }}</option>
+                    {% for host in hosts %}
+                        <option value="{{ host.ipAddress }}"
+                            {% if server.host is defined and server.host == host.ipAddress %}
+                                {{ "selected" }}
+                            {% endif %}>{{ host.ipAddress }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+    </div>
+    {% for host in hosts %}
+    {% endfor %}
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ 'IP Address' | trans() }}</label>
+        <div class="col-lg-3">
+            <input class="server-ip-address form-control" name="server[ipAddress]" value="" placeholder="{{ 'IP Address' | trans() }}">
+        </div>
+
+        <label class="col-sm-3 control-label">{{ 'Way to get the ip-address' | trans() }}</label>
+        <div class="col-lg-2">
+            <select class="form-control select2-modal server-ip-type" name="server[ipType]">
+                <option value="">{{ 'Select type' | trans() }}</option>
+                {% for type in ipTypes %}
+                    <option {% if server.ipType is defined and server.ipType == type %}selected{% endif %} value="{{ type }}">
+                        {{ type | trans() }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ 'MAC Address' | trans() }}</label>
+        <div class="col-lg-3">
+            <input class="server-mac-address form-control" name="server[macAddress]" value="" placeholder="{{ 'MAC Address' | trans() }}">
+        </div>
+
+        <label class="col-sm-2 control-label">{{ 'Domain' | trans() }}</label>
+        <div class="col-lg-3">
+            <input class="server-domain form-control" name="server[domain]" value="" placeholder="{{ 'Domain' | trans() }}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label" style="margin-top:-10px;">{{ 'Inventory number' | trans() }}</label>
+        <div class="col-lg-3">
+            <input class="server-inventory-number form-control" name="server[inventoryNumber]" value="" placeholder="{{ 'Inventory number' | trans() }}">
+        </div>
+
+        <label class="col-sm-2 control-label">{{ 'Serial number' | trans() }}</label>
+        <div class="col-lg-3">
+            <input class="server-serial-number form-control" name="server[serialNumber]" value="" placeholder="{{ 'Serial number' | trans() }}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label" style="margin-top:-10px;">{{ 'Operation system' | trans() }}</label>
+        <div class="col-sm-3">
+            <select class="form-control select2-modal server-operation-system" name="server[operationSystem]">
+                <option value="">{{ 'Select OS' | trans() }}</option>
+                {% for system in operationSystems %}
+                    <option value="{{ system.id }}"
+                            {% if server.operationSystem is defined and server.operationSystem.id == system.id %}
+                                {{ "selected" }}
+                            {% endif %}>{{ system.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <label class="col-sm-2 control-label">{{ 'Legal' | trans() }}</label>
+        <div class="col-sm-3">
+            <select class="form-control select2-modal server-legal" name="server[legal]">
+                <option value="{{ 0 }}"> {{ 'No' | trans() }} </option>
+                <option value="{{ 1 }}"> {{ 'Yes' | trans() }} </option>
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label" style="margin-top:-10px;">{{ 'Installed service' | trans() }}</label>
+        <div class="col-lg-3">
+            <input class="server-installed-service form-control" value="" name="server[installedService]" placeholder="{{ 'Installed service' | trans() }}">
+        </div>
+
+        <label class="col-sm-2 control-label">{{ 'Room' | trans() }}</label>
+        <div class="col-lg-3">
+            <input class="server-room form-control" value="" name="server[room]" placeholder="{{ 'Room' | trans() }}">
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function(){
+            moment.locale('ru');
+
+            $('#host').hide();
+
+            $('.server-type').on('change', function() {
+                if ($(this).val() != 'guest') {
+                    $('#host').hide()
+                } else {
+                    $('#host').show()
+                }
+            });
+
+            $('.edit-server').bind('click', function(){
+
+                var editServerForm = $('#editServerForm');
+                editServerForm.attr('action', $(this).data('href'));
+                editServerForm.find('.server-type').val($(this).data('type'));
+                editServerForm.find('.server-host').val($(this).data('host'));
+                editServerForm.find('.server-ip-address').val($(this).data('ip-address'));
+                editServerForm.find('.server-ip-type').val($(this).data('ip-type'));
+                editServerForm.find('.server-mac-address').val($(this).data('mac-address'));
+                editServerForm.find('.server-domain').val($(this).data('domain'));
+                editServerForm.find('.server-installed-service').val($(this).data('installed-service'));
+                editServerForm.find('.server-inventory-number').val($(this).data('inventory-number'));
+                editServerForm.find('.server-serial-number').val($(this).data('serial-number'));
+                editServerForm.find('.server-operation-system').val($(this).data('operation-system'));
+                editServerForm.find('.server-legal').val($(this).data('legal'));
+                editServerForm.find('.server-room').val($(this).data('room'));
+
+                if (editServerForm.find('.server-type').val() == 'guest') {
+                    editServerForm.find('#host').show();
+                } else {
+                    editServerForm.find('#host').hide();
+                }
+
+                editServerForm.find('.server-type').on('change', function() {
+                    if ($(this).val() != 'guest') {
+                        editServerForm.find('#host').hide()
+                    } else {
+                        editServerForm.find('#host').show()
+                    }
+                });
+
+                $('.select2-modal').select2({ width: '100%' });
+            });
+        });
+    </script>
+
+{% endmacro %}

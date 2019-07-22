@@ -1,0 +1,32 @@
+<div class="dropdown">
+    <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+        <i class="fa fa-fw fa-gear"></i> <span class="caret"></span>
+    </button>
+    <ul class="dropdown-menu dropdown-menu-right">
+        {% if canEditRegistry and invoice is not null %}
+            <li>
+                <a href=""
+                   class="attach-to-registry"
+                   data-action="{{ path('attach_to_registry', {'id': invoice.id}) }}"
+                   data-toggle="modal"
+                   data-target=".attachToRegistryModal"><i class="fa fa-fw fa-thumb-tack m-r-1"></i>{{ 'Attach invoice' | trans() }}</a>
+            </li>
+        {% endif %}
+        {% if invoice.canRemoveInvoice(app.user) and not(invoice.requestItems | length) %}
+            <li>
+                <a href=""
+                   class="remove-invoice"
+                   data-action="{{ path('remove_invoice', {"id": invoice.id}) }}"
+                   data-toggle="modal"
+                   data-target=".removeInvoiceModal"><i class="fa fa-fw fa-close text-danger m-r-1"></i>{{ 'Remove invoice' | trans() }}</a>
+            </li>
+        {% endif %}
+        {% if invoice.invoiceFile is not null %}
+            <li>
+                <a target="_blank" href="{{ path('purchase_request_download_file', {'id': project.id, 'fileId': invoice.invoiceFile.id}) }}">
+                    <i class="fa fa-fw fa-download m-r-1"></i>{{ 'Download' | trans() }}
+                </a>
+            </li>
+        {% endif %}
+    </ul>
+</div>

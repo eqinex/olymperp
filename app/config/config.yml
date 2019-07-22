@@ -1,0 +1,163 @@
+imports:
+    - { resource: parameters.yml }
+    - { resource: security.yml }
+    - { resource: services.yml }
+    - { resource: workflow.yml }
+    - { resource: menu.yml }
+    - { resource: "@PurchaseBundle/Resources/config/services.yml" }
+    - { resource: "@ProductionBundle/Resources/config/services.yml" }
+    - { resource: "@DocumentBundle/Resources/config/services.yml" }
+    - { resource: "@DevelopmentBundle/Resources/config/services.yml" }
+    - { resource: "@InfrastructureBundle/Resources/config/services.yml" }
+    - { resource: "@WarehouseBundle/Resources/config/services.yml" }
+
+# Put parameters here that don't need to change on each machine where the app is deployed
+# http://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
+parameters:
+    locale: ru
+    sonata.user.admin.user.class: AppBundle\Admin\UserAdmin
+
+framework:
+    #esi: ~
+    translator: { fallbacks: ['%locale%'] }
+    secret: '%secret%'
+    router:
+        resource: '%kernel.root_dir%/config/routing.yml'
+        strict_requirements: ~
+    form: ~
+    csrf_protection: ~
+    validation: { enable_annotations: true }
+    #serializer: { enable_annotations: true }
+    templating:
+        engines: ['twig']
+    default_locale: '%locale%'
+    trusted_hosts: ~
+    trusted_proxies: ~
+    session:
+        # http://symfony.com/doc/current/reference/configuration/framework.html#handler-id
+        handler_id:  session.handler.native_file
+        save_path:   "%kernel.root_dir%/../var/sessions/%kernel.environment%"
+    fragments: ~
+    http_method_override: true
+    assets: ~
+    php_errors:
+        log: true
+
+
+# Twig Configuration
+twig:
+    debug: '%kernel.debug%'
+    strict_variables: '%kernel.debug%'
+    globals:
+        base_url: 'https://olymp.npo-at.com'
+        project_service: '@service.project'
+        employee_service: '@service.employee'
+        task_service: '@service.task'
+        request_service: '@service.request'
+        document_service: '@service.documents'
+        activity_service: '@service.activity'
+        notification_service: '@service.notification'
+        monitoring_service: '@service.monitoring'
+
+# Doctrine Configuration
+doctrine:
+    dbal:
+        driver: '%database_driver%'
+        host: '%database_host%'
+        port: '%database_port%'
+        dbname: '%database_name%'
+        user: '%database_user%'
+        password: '%database_password%'
+        charset: UTF8
+        types:
+            json: Sonata\Doctrine\Types\JsonType
+
+    orm:
+        auto_generate_proxy_classes: "%kernel.debug%"
+        entity_managers:
+            default:
+                naming_strategy: doctrine.orm.naming_strategy.underscore
+                auto_mapping: true
+                mappings:
+                    ApplicationSonataUserBundle: ~
+                    SonataUserBundle: ~
+                    FOSUserBundle: ~                                    # If SonataUserBundle extends it
+
+doctrine_migrations:
+    dir_name: "%kernel.root_dir%/DoctrineMigrations"
+    namespace: Application\Migrations
+    table_name: migration_versions
+    name: Application Migrations
+    organize_migrations: false # Version >=1.2 Possible values are: "BY_YEAR", "BY_YEAR_AND_MONTH", false
+
+# Swiftmailer Configuration
+swiftmailer:
+    transport: '%mailer_transport%'
+    host: '%mailer_host%'
+    username: '%mailer_user%'
+    password: '%mailer_password%'
+    spool: { type: memory }
+
+sonata_block:
+    default_contexts: [cms]
+    blocks:
+        # enable the SonataAdminBundle block
+        sonata.admin.block.admin_list:
+            contexts: [admin]
+sonata_user:
+    security_acl: true
+    manager_type: orm # can be orm or mongodb
+    class:
+        user: AppBundle\Entity\User
+        group: AppBundle\Entity\Group
+
+sonata_admin:
+    security:
+         handler: sonata.admin.security.handler.acl
+    persist_filters: true
+
+sonata_block:
+    blocks:
+        #...
+        sonata.user.block.menu:    # used to display the menu in profile pages
+        sonata.user.block.account: # used to display menu option (login option)
+        sonata.block.service.text: # used to if you plan to use Sonata user routes
+
+fos_user:
+    db_driver:      orm # can be orm or odm
+    firewall_name:  main
+    user_class:     AppBundle\Entity\User
+
+    group:
+        group_class:   AppBundle\Entity\Group
+        group_manager: sonata.user.orm.group_manager                    # If you're using doctrine orm (use sonata.user.mongodb.group_manager for mongodb)
+
+    service:
+        user_manager: sonata.user.orm.user_manager                      # If you're using doctrine orm (use sonata.user.mongodb.user_manager for mongodb)
+
+    from_email:
+        address: purchasing@npo-at.com
+        sender_name: Purchasing
+
+old_sound_rabbit_mq:
+    connections:
+        default:
+            host:     %rabbit_mq_host%
+            port:     %rabbit_mq_port%
+            user:     %rabbit_mq_user%
+            password: %rabbit_mq_pswd%
+            vhost:    /
+            lazy:     true
+    producers:
+        notification_create:
+            connection:       default
+            exchange_options: { name: 'notification_create', type: direct }
+            queue_options: {name: 'notification_create'}
+    consumers:
+        notification_create:
+            connection:       default
+            exchange_options: { name: 'notification_create', type: direct }
+            queue_options:    { name: 'notification_create' }
+            callback:         notification_consumer
+
+white_october_breadcrumbs : ~

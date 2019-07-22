@@ -1,0 +1,67 @@
+{% macro inputs(suppliers) %}
+    <div class="form-group">
+        <label class="col-lg-2 control-label">{{ 'title' | trans() ~ ' ' }}</label>
+        <div class="col-lg-3">
+            <input type="text" class="form-control tenement-title" name="tenement[title]" placeholder="{{ 'title' | trans() }}" value="">
+        </div>
+        <label class="col-lg-3 control-label">{{ 'Square' | trans() ~ ' м' }}<sup>2</sup></label>
+        <div class="col-lg-3">
+            <input type="text" pattern="^[. + 0-9]+$" class="form-control tenement-square" name="tenement[square]" placeholder="{{ 'Square' | trans() }}" value="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-lg-2 control-label">{{ 'Rent' | trans() ~ ' ' }}<i class="fa fa-rub"></i></label>
+        <div class="col-lg-3">
+            <input type="text" pattern="^[. + 0-9]+$" class="form-control data-for-total tenement-rent" name="tenement[rent]" placeholder="{{ 'Rent' | trans() }}" value="">
+        </div>
+        <label class="col-lg-3 control-label">{{ 'Heating' | trans() ~ ' ' }}<i class="fa fa-rub"></i></label>
+        <div class="col-lg-3">
+            <input type="text" pattern="^[. + 0-9]+$" class="form-control data-for-total tenement-heating" name="tenement[heating]" placeholder="{{ 'Heating' | trans() }}" value="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-lg-2 control-label del-padding">{{ 'Communal payments' | trans() ~ ' ' }}<i class="fa fa-rub"></i></label>
+        <div class="col-lg-3">
+            <input type="text" pattern="^[. + 0-9]+$" class="form-control data-for-total tenement-communal-payments" name="tenement[communalPayments]" placeholder="{{ 'Communal payments' | trans() }}" value="">
+        </div>
+        <label class="col-lg-3 control-label">{{ 'Total income' | trans() ~ ' ' }}<i class="fa fa-rub"></i></label>
+        <div class="col-lg-3">
+            <input type="text" pattern="^[. + 0-9]+$" class="form-control tenement-total" name="tenement[total]" placeholder="{{ 'Total income' | trans() }}" value="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-lg-2 control-label">{{ 'Supplier' | trans() ~ ' ' }}<i class="fa fa-rub"></i></label>
+        <div class="col-lg-3">
+            <select  class="form-control select2-modal tenement-supplier" name="tenement[supplier]">
+                {% for supplier in suppliers %}
+                    <option value="{{ supplier.id }}">{{ supplier }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            $('.data-for-total').on('blur', function () {
+                if ($('.tenement-rent').val() && $('.tenement-rent').val() && $('.tenement-communal-payments').val()) {
+                    let total = parseFloat($('.tenement-heating').val()) + parseFloat($('.tenement-rent').val()) + parseFloat($('.tenement-communal-payments').val());
+                    $('.tenement-total').val(total);
+                }
+            });
+
+            $('.edit-tenement').bind('click', function () {
+                var editTenement = $('#editTenement');
+                editTenement.attr('action', $(this).data('href'));
+                editTenement.find('.tenement-title').val($(this).data('title'));
+                editTenement.find('.tenement-rent').val($(this).data('rent'));
+                editTenement.find('.tenement-heating').val($(this).data('heating'));
+                editTenement.find('.tenement-communal-payments').val($(this).data('communalPayments'));
+                editTenement.find('.tenement-total').val($(this).data('total'));
+                editTenement.find('.tenement-square').val($(this).data('square'));
+                editTenement.find('.tenement-supplier').val($(this).data('supplier'));
+
+                $('.select2-modal').select2({width: '100%'});
+            });
+        })
+    </script>
+{% endmacro %}

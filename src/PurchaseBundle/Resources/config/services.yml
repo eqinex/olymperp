@@ -1,0 +1,42 @@
+services:
+#    purchase.example:
+#        class: PurchaseBundle\Example
+#        arguments: ["@service_id", "plain_value", "%parameter%"]
+    purchase.admin.purchase_request_category:
+        class: PurchaseBundle\Admin\PurchaseRequestCategoryAdmin
+        arguments: [~, PurchaseBundle\Entity\PurchaseRequestCategory, SonataAdminBundle:CRUD]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: Purchasing, label: Purchasing settings }
+
+    purchase.admin.unit:
+        class: PurchaseBundle\Admin\UnitAdmin
+        arguments: [~, PurchaseBundle\Entity\Unit, SonataAdminBundle:CRUD]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: Purchasing, label: Units }
+
+    purchase.admin.supplier:
+        class: PurchaseBundle\Admin\SupplierAdmin
+        arguments: [~, PurchaseBundle\Entity\Supplier, SonataAdminBundle:CRUD]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: Purchasing, label: Supplier }
+
+    purchase.admin.purchase_request:
+        class: PurchaseBundle\Admin\PurchaseRequestAdmin
+        arguments: [~, PurchaseBundle\Entity\PurchaseRequest, SonataAdminBundle:CRUD]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: admin, label: PurchaseRequest }
+
+    purchase.admin.stock:
+        class: PurchaseBundle\Admin\WarehouseAdmin
+        arguments: [~, PurchaseBundle\Entity\Warehouse, SonataAdminBundle:CRUD]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: Purchasing, label: Warehouse }
+
+    purchase.admin.supplies_category:
+        class: PurchaseBundle\Admin\SuppliesCategoryAdmin
+        arguments: [~, PurchaseBundle\Entity\SuppliesCategory, SonataAdminBundle:CRUD]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: admin, label: SuppliesCategory }
+        public: true
+
+

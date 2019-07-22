@@ -1,0 +1,543 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ supplier.title }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ breadcrumb( 'Suppliers' | trans(), path('suppliers_list') ) }}
+    {{ breadcrumb( supplier.title, path('suppliers_details', {'id': supplier.id}) ) }}
+{% endblock %}
+
+{% block body %}
+
+    {% set vars = {'supplier': supplier} %}
+
+    <div>
+        <div class="tabbable-line tabs">
+            {% if app.user.canEditSupplier() %}
+                <div class="dropdown pull-right m-l-1">
+                    <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fa fa-fw fa-gear"></i> {{ "Actions" | trans() }} <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-right">
+                        {% include 'supplier/partial/supplier_actions.html.twig' %}
+                        <li>
+                            <a href=""
+                               data-toggle="modal"
+                               data-target=".addSupplierPersonFormModal">
+                                <i class="fa fa-fw fa-plus text-success"></i> {{ "Add responsible person" | trans() }}</a>
+                        </li>
+                        {% if app.user.hasAccessToBlackList %}
+                            <li>
+                                <a href=""
+                                   class="add-supplier-incidents"
+                                   data-target=".addSupplierIncidentsModal"
+                                   data-toggle="modal">
+                                    <i class="fa fa-fw fa-plus text-success"></i> {{ 'Add incidents' | trans() }}</a>
+                            </li>
+                            {% if supplier.addedToBlackList %}
+                                <li>
+                                    <a href=""
+                                       class="remove-supplier-blacklist"
+                                       data-target=".removeSupplierBlackListModal"
+                                       data-toggle="modal">
+                                        <i class="fa fa-fw fa-ban text-white"></i> {{ 'Remove from the blacklist' | trans() }}</a>
+                                </li>
+                            {% elseif incidents | length != 0 %}
+                                <li>
+                                    <a href="{{ path('add_blacklist_supplier', {'id': supplier.id}) }}">
+                                        <i class="fa fa-fw fa-ban text-danger"></i> {{ 'Add to blacklist' | trans() }}
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li>
+                                    <a href=""
+                                       class="add-supplier-blacklist"
+                                       data-target=".addSupplierBlackListModal"
+                                       data-toggle="modal">
+                                        <i class="fa fa-fw fa-ban text-danger"></i> {{ 'Add to blacklist' | trans() }}</a>
+                                </li>
+                            {% endif %}
+                        {% endif %}
+                    </ul>
+                </div>
+            {% endif %}
+            {% if app.user.hasAccessToBlackList and (incidents | length != 0) %}
+                <div class="btn-toolbar pull-right m-l-1">
+                    <a class="btn btn-success" target="_blank" href="{{ path('export_supplier_incidents', {'id': supplier.id}) }}" title="{{ 'Export incidents' | trans() }}"><i class="fa fa-fw fa-file-excel-o text-inverse"></i> {{ 'Export' | trans() }}</a>
+                </div>
+            {% endif %}
+            <ul class="nav nav-tabs">
+                <li class="tab-cardstab active" role="presentation" data-target="cards">
+                    <a href="#cardstab">{{ 'Supplier card' | trans() }}</a>
+                </li>
+                {% if documents | length != 0 %}
+                    <li class="tab-contractstab" role="presentation" data-target="contracts">
+                        <a href="#contractstab">{{ 'Contracts' | trans() }}
+                            <span class="badge">{{ documents | length }}</span>
+                        </a>
+                    </li>
+                {% endif %}
+                {% if supplierPersons | length != 0 %}
+                    <li class="tab-supplierpersonstab" role="presentation" data-target="supplier-persons">
+                        <a href="#supplierpersonstab">{{ 'Responsible persons' | trans() }}
+                            <span class="badge">{{ supplierPersons | length }}</span>
+                        </a>
+                    </li>
+                {% endif %}
+                {% if invoices | length != 0 %}
+                    <li class="tab-invoicestab" role="presentation" data-target="invoices">
+                        <a href="#invoicestab">{{ 'Invoices' | trans() }}
+                            <span class="badge">{{ invoices | length }}</span>
+                        </a>
+                    </li>
+                {% endif %}
+                <li class="tab-commentstab" role="presentation" data-target="comments">
+                    <a href="#commentstab">{{ 'Comments' | trans() }}
+                        {% if supplierComments | length != 0 %}
+                            <span class="badge">{{ supplierComments | length }}</span>
+                        {% endif %}
+                    </a>
+                </li>
+                {% if projects | length != 0 %}
+                    <li class="tab-projectstab" role="presentation" data-target="projects">
+                        <a href="#projectstab">{{ 'Projects' | trans() }}
+                            <span class="badge">{{ projects | length }}</span>
+                        </a>
+                    </li>
+                {% endif %}
+                {% if app.user.hasAccessToBlackList and (incidents | length != 0) %}
+                    <li class="tab-incidentstab" role="presentation" data-target="incidents">
+                        <a href="#incidentstab">{{ 'Incidents' | trans() }}
+                            <span class="badge">{{ incidents | length }}</span>
+                        </a>
+                    </li>
+                {% endif %}
+                <li class="tab-historytab" role="presentation" data-target="history">
+                    <a href="#historytab">{{ 'History' | trans() }}</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="no-bg b-gray-dark tab" id="cards">
+        {% include 'supplier/partial/info_sidebar.html.twig' with vars %}
+    </div>
+
+    <div class="panel-default no-bg b-gray-dark hidden tab" id="contracts">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th class="small text-muted text-uppercase"><strong>{{ "document.code" | trans() }}</strong></th>
+                    <th class="small text-muted text-uppercase"><strong>{{ "document.template" | trans() }}</strong></th>
+                    <th class="small text-muted text-uppercase"><strong>{{ "Project" | trans() }}</strong></th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for document in documents %}
+                <tr>
+                    <td class="v-a-m">
+                        <a href="{{ path('document_details', {'id': document.id}) }}">{{ document.code }}</a>
+                    </td>
+                    <td class="v-a-m">
+                        {{ document.documentTemplate is not null ? document.documentTemplate : '-' }}
+                    </td>
+                    <td class="v-a-m">
+                        {% if document.project is defined %}
+                            <a href="{{ path('project_tasks', {'id': document.project.id }) }}">{{ document.project }}</a>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="panel-default no-bg b-gray-dark hidden tab" id="invoices">
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th class="small text-muted text-uppercase">{{ 'Request code' | trans() }}</th>
+                <th class="small text-muted text-uppercase">{{ 'Invoice' | trans() }}</th>
+                <th class="small text-muted text-uppercase">{{ "Status" | trans() }}</th>
+                <th class="small text-muted text-uppercase">{{ "Description" | trans() }}</th>
+                <th class="small text-muted text-uppercase">{{ "Project" | trans() }}</th>
+                <th class="small text-muted text-uppercase">{{ 'Created at' | trans() }}</th>
+                <th class="small text-muted text-uppercase">{{ "Amount" | trans() }}</th>
+            </tr>
+            </thead>
+            <tbody>
+
+            {% set grandTotal = 0 %}
+            {% set grandPaid = 0 %}
+            {% set grandUnpaid = 0 %}
+
+            {% for invoice in invoices %}
+                <tr {% if invoice.purchaseRequest.status == 'rejected' %} class="table-row-light" {% endif %} >
+                    <td class="v-a-m">
+                        <a href="{{ path('request_details', {'id': invoice.purchaseRequest.project.id, 'requestId': invoice.purchaseRequest.id }) }}">
+                            <span>{{ invoice.purchaseRequest.code }}</span>
+                        </a>
+                    </td>
+                    <td class="v-a-m">{{ invoice.invoiceNumber ? invoice.invoiceNumber : '-' }}</td>
+                    <td class="v-a-m">{{ invoice.purchaseRequest.status | trans() }}</td>
+                    <td class="v-a-m">{{ invoice.purchaseRequest.description | trans() }}</td>
+                    <td class="v-a-m">
+                        <a href="{{ path('project_tasks', { 'id': invoice.purchaseRequest.project.id }) }}">
+                            <span>{{ invoice.purchaseRequest.project.name | trans() }}</span>
+                        </a>
+                    </td>
+                    <td class="v-a-m">{{ invoice.createdAt ? invoice.createdAt | date('d.m.Y') : '-' }}</td>
+                    <td class="v-a-m">
+                        <h5 class="m-t-0 m-b-0 f-w-300" style="white-space: nowrap;">
+                            <span>{{ invoice.amount | number_format(2, '.', ',') }} <i class="fa fa-fw fa-rouble"></i> </span>
+                        </h5>
+                    </td>
+                </tr>
+                {% if invoice.purchaseRequest.status != 'rejected' %}
+                    {% if invoice.purchaseRequest.PaymentStatus == 'paid' %}
+                        {% set grandPaid = grandPaid + invoice.amount %}
+                    {% endif %}
+                    {% set grandTotal = grandTotal + invoice.amount %}
+                    {% set grandUnpaid = grandTotal - grandPaid %}
+                {% endif %}
+            {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th colspan="5"></th>
+                    <th><strong>{{ "paid" | trans() }}</strong></th>
+                    <th>
+                        <h4 class="m-t-0 m-b-0 f-w-300" style="white-space: nowrap;">
+                            <span>{{ grandPaid | number_format(2, '.', ',') }} <i class="fa fa-fw fa-rouble"></i> </span>
+                        </h4>
+                    </th>
+                </tr>
+                <tr>
+                    <th colspan="5"></th>
+                    <th><strong>{{ "unpaid" | trans() }}</strong></th>
+                    <th>
+                        <h4 class="m-t-0 m-b-0 f-w-300" style="white-space: nowrap;">
+                            <span>{{ grandUnpaid | number_format(2, '.', ',') }} <i class="fa fa-fw fa-rouble"></i> </span>
+                        </h4>
+                    </th>
+                </tr>
+                <tr>
+                    <th colspan="5"></th>
+                    <th><strong>{{ "Total" | trans() }}</strong></th>
+                    <th>
+                        <h4 class="m-t-0 m-b-0 f-w-300" style="white-space: nowrap;">
+                            <span>{{ grandTotal | number_format(2, '.', ',') }} <i class="fa fa-fw fa-rouble"></i> </span>
+                        </h4>
+                    </th>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+
+    <div class="panel-default no-bg b-gray-dark hidden tab" id="supplier-persons">
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th class="small text-muted text-uppercase">{{ 'Responsible person' | trans() }}</th>
+                <th class="small text-muted text-uppercase">{{ 'Employee Role' | trans() }}</th>
+                <th class="small text-muted text-uppercase">{{ 'Phone' | trans() }}</th>
+                <th class="small text-muted text-uppercase">{{ 'Email' }}</th>
+                {% if app.user.canEditSupplier() %}
+                    <th class="small text-muted text-uppercase text-right">{{ 'Actions' | trans() }}</th>
+                {% endif %}
+            </tr>
+            </thead>
+            <tbody>
+            {% for supplierPerson in supplierPersons %}
+                <tr>
+                    <td class="v-a-m">
+                        {{ supplierPerson.lastNameWithInitials }}
+                    </td>
+                    <td class="v-a-m">
+                        {{ supplierPerson.role }}
+                    </td>
+                    <td class="v-a-m">
+                        {{ supplierPerson.phone }}
+                    </td>
+                    <td class="v-a-m">
+                        {{ supplierPerson.email }}
+                    </td>
+                    {% if app.user.canEditSupplier() %}
+                        <td class="text-right v-a-m">
+                            <div class="dropdown">
+                                <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                    <i class="fa fa-fw fa-gear"></i> <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-right">
+                                    <li><a href=""
+                                           class="editSupplierPerson"
+                                           data-href="{{ path('edit_supplier_person', {'id': supplier.id, 'supplierPersonId': supplierPerson.id}) }}"
+                                           data-firstname="{{ supplierPerson.firstname }}"
+                                           data-middlename="{{ supplierPerson.middlename }}"
+                                           data-lastname="{{ supplierPerson.lastname }}"
+                                           data-role="{{ supplierPerson.role }}"
+                                           data-phone="{{ supplierPerson.phone }}"
+                                           data-email="{{ supplierPerson.email }}"
+                                           data-toggle="modal"
+                                           data-target=".editSupplierPersonModal"
+                                        ><i class="fa fa-fw fa-pencil text-gray-lighter m-r-1"></i> {{ 'Edit' | trans() }}</a>
+                                    </li>
+                                        {% if app.user.canDeleteSupplierPerson(app.user) %}
+                                            <li>
+                                                <a href=""
+                                                   class="deleteSupplierPerson"
+                                                   data-modal-title="{{ 'Delete supplier person' | trans() }}"
+                                                   data-form-action="{{ path('delete_supplier_person', {'id': supplier.id, 'supplierPersonId': supplierPerson.id}) }}"
+                                                   data-target=".deleteSupplierPersonModal"
+                                                   data-toggle="modal">
+                                                    <i class="fa fa-fw fa-minus-square-o text-danger"></i> {{ 'Delete supplier person' | trans() }}</a>
+                                            </li>
+                                        {% endif %}
+                                </ul>
+                            </div>
+                        </td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="panel panel-default no-bg b-gray-dark hidden tab" id="comments">
+        {% set vars = {
+            'comments': supplierComments,
+            'action': path('supplier_add_comment', { 'id': supplier.id })
+        } %}
+        {% include 'partial/comments.html.twig' with vars %}
+    </div>
+
+    <div class="panel panel-default no-bg b-gray-dark hidden tab" id="incidents">
+        <div class="panel-body">
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th class="small text-muted text-uppercase"><strong>{{ "Incident" | trans() }}</strong></th>
+                    <th class="small text-muted text-uppercase"><strong>{{ "Criticality" | trans() }}</strong></th>
+                    <th class="small text-muted text-uppercase"><strong>{{ "Date of incident" | trans() }}</strong></th>
+                    <th class="small text-muted text-uppercase text-right"><strong>{{ 'Actions' | trans() }}</strong></th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for incident in incidents %}
+                    <tr>
+                        <td class="v-a-m text-overflow" style="max-width: 1200px;">
+                            {{ incident.comment }}
+                        </td>
+                        <td class="v-a-m">
+                            <span class="label label-pill label-{{ incident.criticalityLabels[incident.criticality] }} label-outline">{{ incident.criticalityChoices[incident.criticality] | trans() }}</span>
+                        </td>
+                        <td class="v-a-m">
+                            {{ incident.date | date('d.m.Y') }}
+                        </td>
+                        <td class="text-right v-a-m">
+                            <div class="dropdown">
+                                <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown"
+                                        aria-haspopup="true" aria-expanded="true">
+                                    <i class="fa fa-fw fa-gear"></i> <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-right">
+                                    {% include 'supplier/partial/incident_action.html.twig' %}
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="panel panel-default no-bg b-gray-dark hidden tab" id="history">
+        <div class="panel-body">
+            <div>
+                {% if supplierChanges | length %}
+                    <table class="table table-sm table-hover">
+                        <thead>
+                        <tr>
+                            <th class="small text-muted text-uppercase">{{ 'Field' | trans() }}</th>
+                            <th class="small text-muted text-uppercase">{{ 'Old value' | trans() }}</th>
+                            <th class="small text-muted text-uppercase">{{ 'New value' | trans() }}</th>
+                            <th class="small text-muted text-uppercase">{{ 'Changed by' | trans() }}</th>
+                            <th class="small text-muted text-uppercase">{{ 'Changed at' | trans() }}</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for changes in supplierChanges %}
+                            <tr>
+                                <td>{{ (changes.field | capitalize) | trans() }}</td>
+                                <td><strike>{{ changes.oldValue | trans() }}</strike></td>
+                                <td class="text-inverse">{{ changes.newValue | trans() }}</td>
+                                <td>{{ changes.changedBy is not null ?  changes.changedBy.fullName : '-'}}</td>
+                                <td>{{ changes.updatedAt | date('d.m.Y H:i') }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <span class="v-a-m b-t-0 text-muted">{{ "There's no changes yet" | trans() }}</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="panel panel-default no-bg b-gray-dark hidden tab" id="projects">
+        {% if projects | length %}
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th class="small text-muted text-uppercase">{{ 'title' | trans() }}</th>
+                        <th class="small text-muted text-uppercase">{{ 'Status' | trans() }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    {% for project in projects %}
+                <tr>
+                    <td class="v-a-m">
+                        <a href="{{ path('project_tasks', {'id': project.id}) }}">{{ project.name }}</a>
+                    </td>
+                    <td class="v-a-m">
+                        {% if project.status %}
+                            <span class="label label-pill label-{{ project.status.label }} label-outline">{{ project.status.name }}</span>
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    </div>
+
+
+    {% import 'supplier/partial/form.html.twig' as editSupplierForm %}
+    {% import 'supplier/partial/supplier_person_form.html.twig' as supplierPersonForm %}
+    {% import 'supplier/partial/delete_supplier_person_form.html.twig' as deleteSupplierPersonForm %}
+    {% import 'supplier/partial/supplier_incident_form.html.twig' as addSupplierBlackListForm %}
+    {% import 'supplier/partial/remove_blacklist_supplier_form.html.twig' as removeSupplierBlackListForm %}
+    {% import 'supplier/partial/add_supplier_incidents_form.html.twig' as addSupplierIncidentsForm %}
+    {% import 'supplier/partial/supplier_incident_form.html.twig' as editSupplierIncidentForm %}
+    {% import 'supplier/partial/delete_supplier_incident_form.html.twig' as deleteSupplierIncidentForm %}
+
+    {% set editSupplierFormVars = {
+        'class': 'editSupplierModal',
+        'size': 'large',
+        'formId': 'editSupplierForm',
+        'title': 'Edit supplier',
+        'content': editSupplierForm.inputs(clients, suppliesCategoriesGrouped, legalForms),
+        'submitTitle': 'Save'
+    } %}
+
+    {% set addSupplierPersonFormVars = {
+        'class': 'addSupplierPersonFormModal',
+        'formId': 'addSupplierPersonFormModal',
+        'title': 'Add responsible person' | trans() ,
+        'size': 'large',
+        'formAction': path('add_supplier_person', {'id': supplier.id}),
+        'content': supplierPersonForm.inputs(),
+        'submitTitle': 'Add'
+    } %}
+
+    {% set editSupplierPersonFormVars = {
+        'class': 'editSupplierPersonModal',
+        'size': 'large',
+        'formId': 'editSupplierPersonForm',
+        'title': 'Edit responsible person' | trans() ,
+        'content': supplierPersonForm.inputs(),
+        'submitTitle': 'Save'
+    } %}
+
+    {% set deleteSupplierPersonFormVars = {
+        'class': 'deleteSupplierPersonModal',
+        'formId': 'deleteSupplierPersonForm',
+        'title': 'Delete supplier person',
+        'content': deleteSupplierPersonForm.inputs(),
+        'submitTitle': 'Delete'
+    } %}
+
+    {% set addSupplierBlackListVars = {
+        'class': 'addSupplierBlackListModal',
+        'formId': 'addSupplierBlackListForm',
+        'title': 'Add to blacklist',
+        'formAction': path('add_blacklist_supplier', {'id': supplier.id}),
+        'content': addSupplierBlackListForm.inputs(criticalities),
+        'submitTitle': 'Add'
+    } %}
+
+    {% set removeSupplierBlackListVars = {
+        'class': 'removeSupplierBlackListModal',
+        'formId': 'removeSupplierBlackListForm',
+        'title': 'Remove from the blacklist',
+        'formAction': path('remove_blacklist_supplier', {'id': supplier.id}),
+        'content': removeSupplierBlackListForm.inputs(),
+        'submitTitle': 'Remove'
+    } %}
+
+    {% set addSupplierIncidentsVars = {
+        'class': 'addSupplierIncidentsModal',
+        'formId': 'addSupplierIncidentsForm',
+        'title': 'Add incidents',
+        'formAction': path('add_supplier_incidents', {'id': supplier.id}) ~ '#incidentstab',
+        'content': addSupplierIncidentsForm.inputs(criticalities),
+        'submitTitle': 'Add'
+    } %}
+
+    {% set editSupplierIncidentVars = {
+        'class': 'editSupplierIncidentModal',
+        'formId': 'editSupplierIncidentForm',
+        'title': 'Edit incident',
+        'content': editSupplierIncidentForm.inputs(criticalities),
+        'submitTitle': 'Save'
+    } %}
+
+    {% set deleteSupplierIncidentVars = {
+        'class': 'deleteSupplierIncidentModal',
+        'formId': 'deleteSupplierIncidentForm',
+        'title': 'Delete incident',
+        'content': deleteSupplierIncidentForm.inputs(),
+        'submitTitle': 'Delete'
+    } %}
+
+    {% include 'partial/modal.html.twig' with editSupplierFormVars %}
+    {% include 'partial/modal.html.twig' with addSupplierPersonFormVars %}
+    {% include 'partial/modal.html.twig' with editSupplierPersonFormVars %}
+    {% include 'partial/modal.html.twig' with deleteSupplierPersonFormVars %}
+    {% include 'partial/modal.html.twig' with addSupplierBlackListVars %}
+    {% include 'partial/modal.html.twig' with removeSupplierBlackListVars %}
+    {% include 'partial/modal.html.twig' with addSupplierIncidentsVars %}
+    {% include 'partial/modal.html.twig' with editSupplierIncidentVars %}
+    {% include 'partial/modal.html.twig' with deleteSupplierIncidentVars %}
+
+
+
+    <script>
+        $(document).ready(function() {
+            $('.tabs .nav a').bind('click', function(){
+                $('.tabs .nav li').removeClass('active');
+                $('.tab').addClass('hidden');
+
+                $('#' + $(this).parent().data('target')).removeClass('hidden');
+                $(this).parent().addClass('active')
+            });
+
+            var url = window.location.href;
+            var hash = url.substring(url.indexOf('#')+1);
+
+            if (hash == 'invoicestab' || hash == 'cardstab' || hash == 'contractstab' || hash == 'supplierpersonstab' || hash == 'commentstab' || hash == 'incidentstab' || hash == 'projectstab' || hash == 'historytab') {
+                $('.tab-' + hash + ' a').click();
+            }
+        });
+
+        $(document).submit(function(){
+            $('.send-comment-button').attr("disabled", "disabled");
+        });
+
+    </script>
+
+{% endblock %}

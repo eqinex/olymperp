@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html>
+    <head>
+
+        <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
+
+        <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+        <!-- Enable responsiveness on mobile devices-->
+        <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+
+        <title>{% block title %}Welcome!{% endblock %}</title>
+
+        <!--START Loader -->
+        <style>
+            #initial-loader{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;width:100%;background:#212121;position:fixed;z-index:10000;top:0;left:0;bottom:0;right:0;transition:opacity .2s ease-out}#initial-loader .initial-loader-top{display:flex;align-items:center;justify-content:space-between;width:200px;border-bottom:1px solid #2d2d2d;padding-bottom:5px}#initial-loader .initial-loader-top > *{display:block;flex-shrink:0;flex-grow:0}#initial-loader .initial-loader-bottom{padding-top:10px;color:#5C5C5C;font-family:-apple-system,"Helvetica Neue",Helvetica,"Segoe UI",Arial,sans-serif;font-size:12px}@keyframes spin{100%{transform:rotate(360deg)}}#initial-loader .loader g{transform-origin:50% 50%;animation:spin .5s linear infinite}body.loading {overflow: hidden !important} body.loaded #initial-loader{opacity:0}
+        </style>
+        <!--END Loader-->
+
+        <!-- SCSS Output -->
+        <!-- build:css assets/stylesheets/app.min.css -->
+        {% block stylesheets %}
+            <link rel="stylesheet" href="{{ asset('css/bootstrap.css') }}" />
+            <link rel="stylesheet" href="{{ asset('css/app.css') }}" />
+            <link rel="stylesheet" href="{{ asset('css/plugins.css') }}" />
+            <link rel="stylesheet" href="{{ asset('css/trumbowyg.min.css') }}" />
+            <link rel="stylesheet" href="{{ asset('css/select2.min.css') }}" />
+            <link rel="stylesheet" href="{{ asset('css/tokenfield.css') }}" />
+            <link rel="stylesheet" href="{{ asset('css/Chart.min.css') }}">
+            <link rel="stylesheet" href="{{ asset('css/checkselect.css') }}">
+        {% endblock %}
+        <!-- endbuild -->
+    </head>
+    <body class="sidebar-{{ app.user is not null and app.user.theme ? app.user.theme : 'dark' }}-primary {{ app.user is not null and app.user.showMenu == 'on' ? 'sidebar-slim' : ''}}">
+        <script src="{{ asset('js/lib.min.js') }}"></script>
+
+        <div class="main-wrap">
+            <nav class="navigation">
+                <!-- START Navbar -->
+                <div class="navbar-{{ app.user is not null and app.user.theme and app.user.theme == 'dark' ? 'inverse' : 'default' }} navbar navbar-fixed-top">
+                    <div class="container-fluid">
+
+                        <div class="navbar-header">
+                            <a class="current navbar-brand" href="/">
+                                <img alt="Spin Logo Inverted" class="h-20" src="/favicon.ico">
+                            </a>
+                            <a class="navbar-brand text-inverse" href="/">
+                                <span class="text-inverse">Олимп</span>
+                            </a>
+
+                            <button class="navbar-toggle collapsed" data-target="#navbar" data-toggle="collapse" type="button">
+                                {% if app.user.imageUrl is not null %}
+                                    <img src="{{ app.user.imageUrl }}" style="width: 25px" />
+                                {% else %}
+                                    <i class="fa fa-fw fa-user text-inverse"></i>
+                                {% endif %}
+                            </button>
+                            <button class="action-sidebar-open navbar-toggle collapsed" type="button">
+                                <i class="fa fa-fw fa-bars text-inverse"></i>
+                            </button>
+                        </div>
+
+                        <div class="collapse navbar-collapse" id="navbar">
+
+                            <!-- START Search Mobile -->
+                            <div class="form-group hidden-lg hidden-md hidden-sm m-t-2">
+                                <div class="input-group hidden-lg hidden-md">
+                                    <input type="text" class="form-control" placeholder="Search for...">
+                        <span class="input-group-btn">
+                            <button class="btn btn-primary" type="button"><i class="fa fa-fw fa-search"></i></button>
+                        </span>
+                                </div>
+                            </div>
+                            <!-- END Search Mobile -->
+
+                            <!-- START Left Side Navbar -->
+                            <ul class="nav navbar-nav navbar-left clearfix yamm">
+
+                                <!-- START Switch Sidebar ON/OFF -->
+                                <li id="sidebar-switch" class="hidden-xs">
+                                    <a class="action-toggle-sidebar-slim" data-placement="bottom" data-toggle="tooltip" href="#" title="Slim sidebar on/off">
+                                        <i class="fa fa-lg fa-bars fa-fw"></i>
+                                    </a>
+                                </li>
+                                <!-- END Switch Sidebar ON/OFF -->
+
+                                <li class="spin-search-box clearfix hidden-xs">
+                                    <a href="#" class="pull-left">
+                                        <i class="fa fa-search fa-lg icon-inactive"></i>
+                                        <i class="fa fa-close  fa-lg icon-active"></i>
+                                    </a>
+                                    <div class="input-group input-group-sm pull-left p-10">
+                                        <input type="text" class="form-control" placeholder="Search for...">
+                            <span class="input-group-btn active">
+                                <button class="btn btn-primary" type="button">
+                                    <i class="fa fa-search"></i>
+                                </button>
+                            </span>
+                                    </div>
+                                </li>
+                            </ul>
+                            <!-- START Left Side Navbar -->
+
+                            <!-- START Right Side Navbar -->
+                            <ul class="nav navbar-nav navbar-right">
+                                <li class="dropdown">
+                                    <a href="{{ path('scheduled_tasks') }}" title="{{ "Scheduler tasks" | trans() }}">
+                                        <i class="fa fa-clock-o fa-lg fa-fw"></i><span class="nav-label"></span>
+                                    </a>
+                                </li>
+                                <li class="dropdown">
+                                    <a href="{{ path('calendar_index') }}" title="{{ "Calendar" | trans() }}">
+                                        <i class="fa fa-calendar-o fa-lg fa-fw"></i>
+                                    </a>
+                                </li>
+
+                                {% set newNotifications = notification_service.getNotificationsCounter(app.user) %}
+
+                                <li class="dropdown">
+                                    <a href="{{ path('notification_list') }}" title="{{ "Notifications" | trans() }}">
+                                        <i class="fa fa-bell fa-lg fa-fw"></i>
+                                        {% if newNotifications %}
+                                            <i class="badge badge-warning ntf-marker">{{ newNotifications < 100 ? newNotifications : '99+'}}</i>
+                                        {% endif %}
+                                    </a>
+                                </li>
+                                <li class="dropdown">
+                                    <a href="{{ path('aggregate_report') }}" title="{{ "Aggregated Report" | trans() }}">
+                                        <i class="fa fa-bar-chart fa-lg fa-fw"></i>
+                                    </a>
+                                </li>
+                                <li class="dropdown">
+                                    <a href="{{ path('files_list') }}" title="{{ "Files" | trans() }}">
+                                        <i class="fa fa-archive fa-lg fa-fw"></i>
+                                    </a>
+                                </li>
+                                <li class="dropdown">
+                                    <a href="{{ path('it_requests_list') }}" title="{{ "IT Requests" | trans() }}">
+                                        <i class="fa fa-support fa-lg fa-fw"></i>
+                                    </a>
+                                </li>
+
+                                {% set todayBirthdatesAction = employee_service.getTodayEmployeesBirthdates() %}
+
+                                <li class="dropdown">
+                                    <a href="{{ path('employees_birthdates') }}" title="{{ "Birthdays in the next two weeks" | trans() }}">
+                                        <i class="fa fa-birthday-cake fa-lg fa-fw"></i>
+                                        {% if todayBirthdatesAction %}
+                                            <i class="fa fa-fw fa fa-circle text-warning birth-marker"></i>
+                                        {% endif %}
+                                    </a>
+                                </li>
+                                {% if is_granted("IS_AUTHENTICATED_REMEMBERED") %}
+                                    <li class="dropdown">
+                                        <a class="dropdown-toggle user-dropdown" data-toggle="dropdown" href="javascript: void(0)" role="button">
+                                            <span class="m-r-1">{{ app.user.fullName }}</span>
+                                            <div class="avatar avatar-image avatar-sm avatar-inline">
+                                                <div class="avatar-circle">
+                                                    {% if app.user.imageUrl is not null %}
+                                                        <img src="{{ app.user.imageUrl }}" />
+                                                    {% else %}
+                                                        <img alt="User" src="/images/noavatar.png">
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </a>
+                                        <ul class="dropdown-menu">
+                                            <li>
+                                                <a href="{{ path('profile') }}">{{ 'user.profile'|trans() }}</a>
+                                            </li>
+                                            <li>
+                                                <a href="{{ path('fos_user_security_logout') }}">{{ 'layout.logout'|trans({}, 'FOSUserBundle') }}</a>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                {% else %}
+                                    {#<li class="nav-item">#}
+                                    {#<a class="nav-link" href="{{ path('fos_user_security_login') }}">{{ 'layout.login'|trans({}, 'FOSUserBundle') }}</a>#}
+                                    {#</li>#}
+                                {% endif %}
+                            </ul>
+                            <!-- END Right Side Navbar -->
+                        </div>
+
+                    </div>
+                </div>
+                <!-- END Navbar -->
+                <!-- START Sidebars -->
+                <aside class="navbar-default sidebar">
+
+                    <div class="sidebar-overlay-head">
+                        <img src="/images/spin-logo-inverted.png" alt="Logo" />
+                        <a href="javascript:void(0)" class="sidebar-switch action-sidebar-close">
+                            <i class="fa fa-times"></i>
+                        </a>
+                    </div>
+                    <div class="sidebar-logo">
+                        <img class="logo-default" src="/images/spin-logo-big-inverse-@2X.png" alt="Logo" width="53">
+                        <img class="logo-slim" src="/images/spin-logo-slim.png" alt="Logo">
+                    </div>
+
+                    <div class="sidebar-content">
+                        <!-- START Tree -->
+                        <ul class="side-menu m-t-2">
+                            <li {% if app.request.attributes.get('_route') == 'homepage' %}class="active"{% endif %}>
+                                <a href="{{ path('homepage') }}" title="{{ "Dashboard" | trans() }}">
+                                    <i class="fa fa-bar-chart fa-lg fa-fw"></i><span class="nav-label">{{ "Dashboard" | trans() }}</span>
+                                </a>
+                            </li>
+                            <li {% if app.request.attributes.get('_route') == 'projects_list' %}class="active"{% endif %}>
+                                <a href="{{ path('projects_list') }}" title="{{ "Projects" | trans() }}">
+                                    <i class="fa fa-rocket fa-lg fa-fw"></i><span class="nav-label">{{ "Projects" | trans() }}</span>
+                                </a>
+                            </li>
+                            <li {% if app.request.attributes.get('_route') == 'user_created_tasks' %}class="active"{% endif %}>
+                                <a href="{{ path('user_created_tasks') }}" title="{{ "Tasks" | trans() }}">
+                                    <i class="fa fa-tasks fa-lg fa-fw"></i><span class="nav-label">{{ "Tasks" | trans() }}</span>
+                                </a>
+                            </li>
+                            {%  if app.user.canViewRent() or app.user.canViewTenement() %}
+                            <li>
+                                <a href="javascript: void(0)" title="{{ "Tenants" | trans() }}">
+                                    <i class="fa fa-address-card fa-lg fa-fw"></i><span class="nav-label">{{ "Tenants" | trans() }}</span><i class="fa arrow"></i>
+                                </a>
+
+                                <ul data-submenu-title="Widgets" class="submenu-level-1" style="">
+                                    {% if app.user.canViewRent() %}
+                                        <li {% if app.request.attributes.get('_route') == 'rent_list' %}class="active"{% endif %}>
+                                            <a href="{{ path('rent_list') }}" title="{{ "Rent" | trans() }}">
+                                                <i class="fa fa-fw fa-address-card fa-sm m-r-1"></i><span class="nav-label">{{ "Rent" | trans() }}</span>
+                                            </a>
+                                        </li>
+                                    {% endif %}
+                                    {% if app.user.canViewTenement() %}
+                                    <li {% if app.request.attributes.get('_route') == 'tenement_list' %}class="active"{% endif %}>
+                                        <a href="{{ path('tenement_list') }}" title="{{ "Tenement" | trans() }}">
+                                            <i class="fa fa-fw fa-home fa-sm m-r-1"></i><span class="nav-label">{{ "Tenement" | trans() }}</span>
+                                        </a>
+                                    </li>
+                                    {% endif %}
+                                </ul>
+                            </li>
+                            {% endif %}
+
+                            <li class="primary-submenu has-submenu {{ app.request.attributes.get('_route') == 'requests_list' or app.request.attributes.get('_route') == 'requests_dashboard' ? 'expanded' }}">
+                                {% set allReqs = request_service.getRequestsCounter('all-requests', app.user) %}
+                                {% set needManagerReqs = request_service.getRequestsCounter('need-manager', app.user) %}
+                                {% set myReqs = request_service.getRequestsCounter('my-requests', app.user) %}
+                                {% set needApproveReqs = request_service.getRequestsCounter('need-approve', app.user) %}
+                                {% set managerAssignedReqs = request_service.getRequestsCounter('manager-assigned', app.user) %}
+                                {% set needsPaymentReqs = request_service.getRequestsCounter('needs-payment', app.user) %}
+                                {% set needsAttention = false %}
+                                {% if (app.user.isGranted("ROLE_PURCHASING_LEADER") and app.user.team.isPurchaseLeader(app.user) and needManagerReqs) or (app.user.isGranted("ROLE_TECHNICAL_LEADER") and needApproveReqs)
+                                    or (app.user.isGranted("ROLE_PROJECT_LEADER") and needApproveReqs) or needApproveReqs %}
+                                    {% set needsAttention = true %}
+                                {% endif %}
+                                <a href="javascript: void(0)" title="{{ "Requests" | trans() }}">
+                                    <i class="fa fa-shopping-cart fa-lg"></i><span class="nav-label">{{ "Requests" | trans() }}</span>
+                                    {% if needsAttention %}
+                                        <i class="fa fa-circle pull-right text-warning" style='margin-top: 4px;'></i>
+                                    {% else %}
+                                        <i class="fa arrow"></i>
+                                    {% endif %}
+                                </a>
+                                <ul data-submenu-title="Widgets" class="submenu-level-1" style="">
+                                    {% if app.user.isGranted("ROLE_CAN_VIEW_REQUESTS_DASHBOARD") %}
+                                    <li {{ app.request.attributes.get('_route') == 'requests_dashboard' ? 'class="active nested-active expanded"' }}>
+                                        <a href="{{ path('requests_dashboard') }}" title="{{ 'Dashboard' | trans() }}">
+                                            <span class="nav-label">{{ 'Dashboard' | trans() }}</span>
+                                        </a>
+                                    </li>
+                                    {% endif %}
+                                    {% if app.user.isPurchasingLeader() %}
+                                        <li {{ app.request.get('type') == 'all-requests' ? 'class="active nested-active expanded"' }}>
+                                            <a href="{{ path('requests_list', {'type': 'all-requests'}) }}" title="{{ 'All requests' | trans() }}">
+                                                <span class="nav-label">{{ 'All requests' | trans() }}</span>
+                                                <span class="pull-right badge badge-inverse badge-outline text-uppercase">
+                                                    {{ allReqs }}
+                                                </span>
+                                            </a>
+                                        </li>
+                                        <li {{ app.request.get('type') == 'need-manager' ? 'class="active nested-active expanded"' }}>
+                                            <a href="{{ path('requests_list', {'type': 'need-manager'}) }}" title="{{ 'Need manager' | trans() }}">
+                                                <span class="nav-label">{{ 'Need manager' | trans() }}</span>
+                                                {% if needManagerReqs %}
+                                                <span class="pull-right badge badge-warning badge-outline text-uppercase">
+                                                    {{ needManagerReqs }}
+                                                </span>
+                                                {% endif %}
+                                            </a>
+                                        </li>
+                                    {% endif %}
+                                    <li {{ app.request.get('type') == 'my-requests' ? 'class="active nested-active expanded"' }}>
+                                        <a href="{{ path('requests_list', {'type': 'my-requests'}) }}" title="{{ 'My requests' | trans() }}">
+                                            <span class="nav-label">{{ 'My requests' | trans() }}</span>
+                                            <span class="pull-right badge badge-inverse badge-outline text-uppercase">
+                                                {{ myReqs }}
+                                            </span>
+                                        </a>
+                                    </li>
+                                    {% if app.user.isPurchaseRequestApprovingLeader() or needApproveReqs %}
+                                    <li {{ app.request.get('type') == 'need-approve' ? 'class="active nested-active expanded"' }}>
+                                        <a href="{{ path('requests_list', {'type': 'need-approve'}) }}" title="{{ 'Awaiting approve' | trans() }}">
+                                            <span class="nav-label">{{ 'Awaiting approve' | trans() }}</span>
+                                            {% if needApproveReqs %}
+                                                <span class="pull-right badge badge-warning badge-outline text-uppercase">
+                                                    {{ needApproveReqs }}
+                                                </span>
+                                            {% endif %}
+                                        </a>
+                                    </li>
+                                    {% endif %}
+                                    {% if app.user.isPurchasingManager() or app.user.isPurchasingLeader() %}
+                                    <li {{ app.request.get('type') == 'manager-assigned' ? 'class="active nested-active expanded"' }}>
+                                        <a href="{{ path('requests_list', {'type': 'manager-assigned'}) }}" title="{{ 'Manager assigned' | trans() }}">
+                                            <span class="nav-label">{{ 'Manager assigned' | trans() }}</span>
+                                            {% if managerAssignedReqs %}
+                                                <span class="pull-right badge badge-inverse badge-outline text-uppercase">
+                                                    {{ managerAssignedReqs }}
+                                                </span>
+                                            {% endif %}
+                                        </a>
+                                    </li>
+                                    {% endif %}
+                                    {% if app.user.isFinancialManager() or app.user.isFinancialLeader() %}
+                                    <li {{ app.request.get('type') == 'needs-payment' ? 'class="active nested-active expanded"' }}>
+                                        <a href="{{ path('requests_list', {'type': 'needs-payment'}) }}" title="{{ 'Needs payment' | trans() }}">
+                                            <span class="nav-label">{{ 'Needs payment' | trans() }}</span>
+                                            {% if needsPaymentReqs %}
+                                                <span class="pull-right badge badge-inverse badge-outline text-uppercase">
+                                                    {{ needsPaymentReqs }}
+                                                </span>
+                                            {% endif %}
+                                        </a>
+                                    </li>
+                                    {% endif %}
+
+                                    <li {{ app.request.get('type') == 'favorite' ? 'class="active nested-active expanded"' }}>
+                                        <a href="{{ path('requests_list', {'type': 'favorite'}) }}" title="{{ 'Favorite' | trans() }}">
+                                            <span class="nav-label">{{ 'Favorite' | trans() }}</span>
+                                        </a>
+                                    </li>
+
+                                    {% if app.user.canViewRegistry() or app.user.canEditRegistry() %}
+                                        <li {{ app.request.get('type') == 'list' ? 'class="active nested-active expanded"' }}>
+                                            <a href="{{ path('invoices_registry_list', {'type': 'list'}) }}" title="{{ 'Registry' | trans() }}">
+                                                <span class="nav-label">{{ 'Registry' | trans() }}</span>
+                                            </a>
+                                        </li>
+                                    {% endif %}
+                                </ul>
+                            </li>
+                            {% set needsAttentionDocuments = document_service.getNeedsApproveDocuments(app.user) %}
+                            {% set needsAttentionTechnicalMaps = document_service.getNeedsApproveTechnicalMaps(app.user) %}
+                            {% set activitiesResponsible = activity_service.getActivitiesResponsible(app.user) %}
+                            <li>
+                                <a href="javascript: void(0)" title="{{ "Documents" | trans() }}">
+                                    <i class="fa fa-folder-open fa-lg fa-fw"></i><span class="nav-label">{{ "Documents" | trans() }}</span>
+                                    {% if needsAttentionDocuments or needsAttentionTechnicalMaps %}
+                                        <i class="fa fa-circle pull-right text-warning" style='margin-top: 4px;'></i>
+                                    {% else %}
+                                        <i class="fa arrow"></i>
+                                    {% endif %}
+                                </a>
+                                <ul data-submenu-title="Widgets" class="submenu-level-1" style="">
+                                    <li {% if app.request.attributes.get('_route') == 'documents_list' %}class="active"{% endif %}>
+                                        <a href="{{ path('documents_list') }}" title="{{ "Contracts" | trans() }}">
+                                            <i class="fa fa-folder-open fa-sm fa-fw m-r-1"></i> <span class="nav-label">{{ "Contracts" | trans() }}</span>
+                                        </a>
+                                    </li>
+                                    <li {% if app.request.attributes.get('_route') == 'documents_need_approve_list' %}class="active"{% endif %}>
+                                        <a href="{{ path('documents_need_approve_list') }}" title="{{ "document.needs_approve" | trans() }}">
+                                            <i class="fa fa-thumbs-up fa-sm fa-fw m-r-1"></i> <span class="nav-label">{{ "document.needs_approve" | trans() }}</span>
+                                            {% if needsAttentionDocuments %}
+                                                <i class="pull-right badge badge-warning badge-outline text-uppercase" style='position: absolute; right: 12px; top: 17px'>
+                                                    {{ needsAttentionDocuments }}
+                                                </i>
+                                            {% endif %}
+                                        </a>
+                                    </li>
+                                    <li {% if app.request.attributes.get('_route') == 'protocols_list' %}class="active"{% endif %}>
+                                        <a href="{{ path('protocols_list') }}" title="{{ "Protocols" | trans() }}">
+                                            <i class="fa fa-book fa-sm fa-fw m-r-1"></i> <span class="nav-label">{{ "Protocols" | trans() }}</span>
+                                        </a>
+                                    </li>
+                                    {% if app.user.canViewActivity or activitiesResponsible %}
+                                        <li {% if app.request.attributes.get('_route') == 'activities_list' %}class="active"{% endif %}>
+                                            <a href="{{ path('activities_list') }}" title="{{ "Activity map" | trans() }}">
+                                                <i class="fa fa-map fa-sm fa-fw m-r-1"></i> <span class="nav-label">{{ "Activity map" | trans() }}</span>
+                                            </a>
+                                        </li>
+                                    {% endif %}
+                                    <li {% if app.request.attributes.get('_route') == 'technical_maps_list' %}class="active"{% endif %}>
+                                        <a href="{{ path('technical_maps_list') }}" title="{{ "TSM" | trans() }}">
+                                            <i class="fa fa-calendar-check-o fa-sm fa-fw m-r-1"></i> <span class="nav-label">{{ "TSM" | trans() }}</span>
+                                        </a>
+                                    </li>
+                                    {% if needsAttentionTechnicalMaps %}
+                                    <li {% if app.request.attributes.get('_route') == 'technical_maps_need_approve_list' %}class="active"{% endif %}>
+                                        <a href="{{ path('technical_maps_need_approve_list') }}" title="{{ "technical_map.needs_approve" | trans() }}">
+                                            <i class="fa fa-thumbs-up fa-sm fa-fw m-r-1"></i> <span class="nav-label">{{ "technical_map.needs_approve" | trans() }}</span>
+                                            <i class="pull-right badge badge-warning badge-outline text-uppercase" style='position: absolute; right: 12px; top: 17px'>
+                                                {{ needsAttentionTechnicalMaps }}
+                                            </i>
+                                        </a>
+                                    </li>
+                                    {% endif %}
+                                </ul>
+                            </li>
+                            {% set productionLeaderReqs = request_service.getRequestsCounter('production', app.user) %}
+                            <li class="primary-submenu has-submenu {{ app.request.attributes.get('_route') == 'requests_list' or app.request.attributes.get('_route') == 'requests_dashboard' ? 'expanded' }}">
+                                <a href="javascript: void(0)" title="{{ "Production" | trans() }}">
+                                    <i class="fa fa-industry fa-lg"></i><span class="nav-label">{{ "Production" | trans() }}</span>
+                                    <i class="fa arrow"></i>
+                                </a>
+                                <ul data-submenu-title="Widgets" class="submenu-level-1" style="">
+                                    {% if app.user.isProductionLeader or app.user.canViewToolWorkLog %}
+                                        {% if app.user.isProductionLeader or productionLeaderReqs %}
+                                            <li {{ app.request.get('type') == 'production' ? 'class="active nested-active expanded"' }}>
+                                                <a href="{{ path('requests_list', {'type': 'production'}) }}" title="{{ 'Requests' | trans() }}">
+                                                    <i class="fa fa-fw fa-cubes fa-sm m-r-1"></i> <span class="nav-label">{{ 'Requests' | trans() }}</span>
+                                                    {% if productionLeaderReqs and app.user.isProductionLeader is empty %}
+                                                        <i class="pull-right badge badge-warning badge-outline text-uppercase" style='position: absolute; right: 12px; top: 17px'>
+                                                            {{ productionLeaderReqs }}
+                                                        </i>
+                                                    {% endif %}
+                                                </a>
+                                            </li>
+                                        {% endif %}
+                                        <li {{ app.request.attributes.get('_route') == 'production_tools_list' ? 'class="active nested-active expanded"' }}>
+                                            <a href="{{ path('production_tools_list') }}" title="{{ 'Toolbox' | trans() }}">
+                                                <i class="fa fa-fw fa-microchip fa-sm m-r-1"></i> <span class="nav-label">{{ 'Toolbox' | trans() }}</span>
+                                            </a>
+                                        </li>
+                                    {% endif %}
+                                        <li {% if app.request.attributes.get('_route') == 'products_list' %}class="active"{% endif %}>
+                                            <a href="{{ path('products_list') }}" title="{{ "Products" | trans() }}">
+                                                <i class="fa fa-industry fa-sm fa-fw m-r-1"></i> <span class="nav-label">{{ "Products" | trans() }}</span>
+                                            </a>
+                                        </li>
+                                        <li {% if app.request.attributes.get('_route') == 'production_materials_list' %}class="active"{% endif %}>
+                                            <a href="{{ path('production_materials_list') }}" title="{{ "Materials" | trans() }}">
+                                                <i class="fa fa-cubes fa-sm fa-fw m-r-1"></i> <span class="nav-label">{{ "Materials" | trans() }}</span>
+                                            </a>
+                                        </li>
+                                    {% if app.user.canViewAllInventoryItems() %}
+                                        <li {% if app.request.attributes.get('_route') == 'inventory_list' %}class="active"{% endif %}>
+                                            <a href="{{ path('inventory_list') }}" title="{{ "Inventory" | trans() }}">
+                                                <i class="fa fa-th-large fa-sm fa-fw m-r-1"></i> <span class="nav-label">{{ "Inventory" | trans() }}</span>
+                                            </a>
+                                        </li>
+                                    {% endif %}
+                                    {% if app.user.canViewSerialProduction() %}
+                                        <li {% if app.request.attributes.get('_route') == 'production_serials_list' %}class="active"{% endif %}>
+                                            <a href="{{ path('production_serials_list') }}" title="{{ 'Serial' | trans() }}">
+                                                <i class="fa fa-clone fa-sm fa-fw m-r-1"></i> <span class="nav-label">{{ 'Serial' | trans() }}</span>
+                                            </a>
+                                        </li>
+                                    {% endif %}
+                                </ul>
+                            </li>
+                            <li class="primary-submenu has-submenu">
+                                <a href="javascript: void(0)" title="{{ "Development" | trans() }}">
+                                    <i class="fa fa-cogs fa-lg"></i><span class="nav-label">{{ "Development" | trans() }}</span>
+                                    <i class="fa arrow"></i>
+                                </a>
+                                <ul data-submenu-title="Widgets" class="submenu-level-1" style="">
+                                    <li {% if app.request.attributes.get('_route') == 'engineering_document_list' %}class="active"{% endif %}>
+                                        <a href="{{ path('engineering_document_list') }}" title="{{ "Engineering Document Catalog" | trans() }}">
+                                            <i class="fa fa-bar-chart fa-sm fa-fw m-r-1"></i> <span class="nav-label">{{ "Engineering Document Catalog" | trans() }}</span>
+                                        </a>
+                                    </li>
+                                    <li {% if app.request.attributes.get('_route') == 'programming_document_list' %}class="active"{% endif %}>
+                                        <a href="{{ path('programming_document_list') }}" title="{{ "Programming Document Catalog" | trans() }}">
+                                            <i class="fa fa-product-hunt fa-sm fa-fw m-r-1"></i> <span class="nav-label">{{ "Programming Document Catalog" | trans() }}</span>
+                                        </a>
+                                    </li>
+                                    {% if app.user.canViewProjectCode %}
+                                    <li {% if app.request.attributes.get('_route') == 'project_code_list' %}class="active"{% endif %}>
+                                        <a href="{{ path('project_code_list') }}" title="{{ "Project registry" | trans() }}">
+                                            <i class="fa fa-th-large fa-sm fa-fw m-r-1"></i> <span class="nav-label">{{ "Project registry" | trans() }}</span>
+                                        </a>
+                                    </li>
+                                    {% endif %}
+                                </ul>
+                            </li>
+                            {% if app.user.canViewInfrastructure %}
+                                <li>
+                                    <a href="javascript: void(0)" title="{{ "Infrastructure" | trans() }}">
+                                        <i class="fa fa-address-card-o fa-lg fa-fw"></i><span class="nav-label">{{ "Infrastructure" | trans() }}</span>
+                                        <i class="fa arrow"></i>
+                                    </a>
+                                    <ul data-submenu-title="Widgets" class="submenu-level-1" style="">
+                                        <li {% if app.request.attributes.get('_route') == 'computers_list' %}class="active"{% endif %}>
+                                            <a href="{{ path('computers_list') }}" title="{{ "Computers" | trans() }}">
+                                                <i class="fa fa-desktop fa-sm fa-fw m-r-1"></i> <span class="nav-label">{{ "Computers" | trans() }}</span>
+                                            </a>
+                                        </li>
+                                        <li {% if app.request.attributes.get('_route') == 'computer_parts_list' %}class="active"{% endif %}>
+                                            <a href="{{ path('computer_parts_list') }}" title="{{ "Accessories" | trans() }}">
+                                                <i class="fa fa-laptop fa-sm fa-fw m-r-1"></i> <span class="nav-label">{{ "Accessories" | trans() }}</span>
+                                            </a>
+                                        </li>
+                                        <li {% if app.request.attributes.get('_route') == 'servers_list' %}class="active"{% endif %}>
+                                            <a href="{{ path('servers_list') }}" title="{{ "Servers" | trans() }}">
+                                                <i class="fa fa-server fa-sm fa-fw m-r-1"></i> <span class="nav-label">{{ "Servers" | trans() }}</span>
+                                            </a>
+                                        </li>
+                                        <li {% if app.request.attributes.get('_route') == 'printers_list' %}class="active"{% endif %}>
+                                            <a href="{{ path('printers_list') }}" title="{{ "Printers" | trans() }}">
+                                                <i class="fa fa-print fa-sm fa-fw m-r-1"></i> <span class="nav-label">{{ "Printers" | trans() }}</span>
+                                            </a>
+                                        </li>
+                                        <li {% if app.request.attributes.get('_route') == 'commutators_list' %}class="active"{% endif %}>
+                                            <a href="{{ path('commutators_list') }}" title="{{ "Commutators" | trans() }}">
+                                                <i class="fa fa-simplybuilt  fa-sm fa-fw m-r-1"></i> <span class="nav-label">{{ "Commutators" | trans() }}</span>
+                                            </a>
+                                        </li>
+                                        <li {% if app.request.attributes.get('_route') == 'monitoring_servers_list' %}class="active"{% endif %}>
+                                            <a href="{{ path('monitoring_servers_list') }}" title="{{ 'Monitoring' | trans() }}">
+                                                <i class="fa fa-area-chart fa-sm fa-fw m-r-1"></i> <span class="nav-label">{{ 'Monitoring' | trans() }}</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+                            {% endif %}
+                            {% if app.user.canViewSupplier() or app.user.canViewNomenclature() or app.user.canViewEngineeringDocumentClassifier() or app.user.canViewMedicalInstitutions() %}
+                                <li>
+                                    <a href="javascript: void(0)" title="{{ "Catalogs" | trans() }}">
+                                        <i class="fa fa-address-book-o fa-lg fa-fw"></i><span class="nav-label">{{ "Catalogs" | trans() }}</span><i class="fa arrow"></i>
+                                    </a>
+                                    <ul data-submenu-title="Widgets" class="submenu-level-1" style="">
+                                        {% if app.user.canViewSupplier() %}
+                                            <li {% if app.request.attributes.get('_route') == 'suppliers_list' %}class="active"{% endif %}>
+                                                <a href="{{ path('suppliers_list') }}" title="{{ "Suppliers" | trans() }}">
+                                                    <i class="fa fa-envelope-open fa-sm fa-fw m-r-1"></i> <span class="nav-label">{{ "Suppliers" | trans() }}</span>
+                                                </a>
+                                            </li>
+                                        {% endif %}
+                                        {% if app.user.canViewNomenclature() %}
+                                            <li {% if app.request.attributes.get('_route') == 'nomenclature_list' %}class="active"{% endif %}>
+                                                <a href="{{ path('nomenclature_list') }}" title="{{ 'Nomenclature' | trans() }}">
+                                                    <i class="fa fa-table fa-sm fa-fw m-r-1"></i> <span class="nav-label">{{ 'Nomenclature' | trans() }}</span>
+                                                </a>
+                                            </li>
+                                        {% endif %}
+                                        {% if app.user.canViewEngineeringDocumentClassifier() %}
+                                            <li {% if app.request.attributes.get('_route') == 'engineering_document_classifier_list' %}class="active"{% endif %}>
+                                                <a href="{{ path('engineering_document_classifier_list') }}" title="{{ 'Engineering document classifier' | trans() }}">
+                                                    <i class="fa fa-book fa-sm fa-fw m-r-1"></i> <span class="nav-label">{{ 'Engineering document classifier' | trans() }}</span>
+                                                </a>
+                                            </li>
+                                        {% endif %}
+                                        {% if app.user.canViewMedicalInstitutions() %}
+                                            <li {% if app.request.attributes.get('_route') == 'medical_institutions_list' %}class="active"{% endif %}>
+                                                <a href="{{ path('medical_institutions_list') }}" title="{{ 'Medical institutions' | trans() }}">
+                                                    <i class="fa fa-medkit fa-sm fa-fw"></i> <span class="nav-label">{{ 'Medical institutions' | trans() }}</span>
+                                                </a>
+                                            </li>
+                                        {% endif %}
+                                    </ul>
+                                </li>
+                            {% endif %}
+                            <li class="primary-submenu has-submenu {{ app.request.attributes.get('_route') == 'employees_list' or
+                                app.request.attributes.get('_route') == 'team_spaces_list' ? 'expanded' }}">
+                                <a href="javascript: void(0)" title="{{ "Company" | trans() }}">
+                                    <i class="fa fa-globe fa-lg"></i><span class="nav-label">{{ "Company" | trans() }}</span>
+                                    <i class="fa arrow"></i>
+                                </a>
+                                <ul data-submenu-title="Widgets" class="submenu-level-1">
+                                    <li {{ app.request.attributes.get('_route') == 'employees_list' ? 'class="active nested-active expanded"' }}>
+                                        <a href="{{ path('employees_list') }}" title="{{ "Employees" | trans() }}">
+                                            <i class="fa fa-fw fa-address-card fa-sm m-r-1"></i><span class="nav-label">{{ "Employees" | trans() }}</span>
+                                        </a>
+                                    </li>
+                                    <li {{ app.request.attributes.get('_route') == 'team_spaces_list' ? 'class="active nested-active expanded"' }}>
+                                        <a href="{{ path('team_spaces_list') }}" title="{{ "Teams" | trans() }}">
+                                            <i class="fa fa-fw fa-group fa-sm m-r-1"></i><span class="nav-label">{{ "Teams" | trans() }}</span>
+                                        </a>
+                                    </li>
+                                    <li {{ app.request.attributes.get('_route') == 'company_structure' ? 'class="active nested-active expanded"' }}>
+                                        <a href="{{ path('company_structure') }}" title="{{ "Structure" | trans() }}">
+                                            <i class="fa fa-fw fa-group fa-sm m-r-1"></i><span class="nav-label">{{ "Structure" | trans() }}</span>
+                                        </a>
+                                    </li>
+                                    <li {{ app.request.attributes.get('_route') == 'achievements_list' ? 'class="active nested-active expanded"' }}>
+                                        <a href="{{ path('achievements_list') }}" title="{{ "Achievements" | trans() }}">
+                                            <i class="fa fa-fw fa-trophy fa-sm m-r-1"></i><span class="nav-label">{{ "Achievements" | trans() }}</span>
+                                        </a>
+                                    </li>
+                                    <li {{ app.request.attributes.get('_route') == 'books_list' ? 'class="active nested-active expanded"' }}>
+                                        <a href="{{ path('books_list') }}" title="{{ "Library" | trans() }}">
+                                            <i class="fa fa-fw fa-book fa-sm m-r-1"></i><span class="nav-label">{{ "Library" | trans() }}</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                            {% if app.user.canViewApplicant or app.user.canViewVacancy or app.user.getSubmissionTeam() %}
+                                <li>
+                                    <a href="javascript: void(0)" title="{{ "Staff" | trans() }}">
+                                        <i class="fa fa-users fa-lg"></i><span class="nav-label">{{ "Staff" | trans() }}</span>
+                                        <i class="fa arrow"></i>
+                                    </a>
+                                    <ul data-submenu-title="Widgets" class="submenu-level-1">
+                                    {% if app.user.canViewApplicant %}
+                                        <li {{ app.request.attributes.get('_route') == 'applicant_list' ? 'class="active nested-active expanded"' }}>
+                                            <a href="{{ path('applicant_list') }}" title="{{ "Applicant" | trans() }}">
+                                                <i class="fa fa-fw fa-users fa-sm m-r-1"></i><span class="nav-label">{{ "Applicant" | trans() }}</span>
+                                            </a>
+                                        </li>
+                                    {% endif %}
+                                    {% if app.user.canViewVacancy or app.user.getSubmissionTeam() %}
+                                        <li {{ app.request.attributes.get('_route') == 'vacancies_list' ? 'class="active nested-active expanded"' }}>
+                                            <a href="{{ path('vacancies_list') }}" title="{{ "Vacancies" | trans() }}">
+                                                <i class="fa fa-fw fa-briefcase fa-sm m-r-1"></i><span class="nav-label">{{ "Vacancies" | trans() }}</span>
+                                            </a>
+                                        </li>
+                                    {% endif %}
+                                    {% if app.user.canViewInterview %}
+                                            <li {{ app.request.attributes.get('_route') == 'interviews_list' ? 'class="active nested-active expanded"' }}>
+                                                <a href="{{ path('interviews_list') }}" title="{{ "Interviews" | trans() }}">
+                                                    <i class="fa fa-fw fa-comment fa-sm m-r-1"></i><span class="nav-label">{{ "Interviews" | trans() }}</span>
+                                                </a>
+                                            </li>
+                                    {% endif %}
+                                    </ul>
+                                </li>
+                            {% endif %}
+
+                        </ul>
+                        <!-- END Tree  -->
+
+                        <div class="sidebar-default-visible"><hr></div>
+
+                    </div>
+                </aside>
+                <!-- END Sidebars -->
+
+            </nav>
+            {%  for message in app.session.flashBag('notice') %}
+                <div class="alert alert-success" role="alert">
+                    <button type="button" class="close text-gray-darker" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
+                    <strong>{{ 'Success' | trans() }} {{ message }}</strong>
+                </div>
+            {% endfor %}
+            <div class="content">
+                <!-- START Sub-Navbar with Header and Breadcrumbs-->
+                <div class="sub-navbar sub-navbar__header-breadcrumbs">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-lg-12 sub-navbar-column">
+                                <ol class="breadcrumb navbar-text navbar-right no-bg" style="padding: 8px 0;margin-left: 0;">
+                                    <li class="current-parent">
+                                        <a class="current-parent" href="/">
+                                            <i class="fa fa-fw fa-home"></i>
+                                        </a>
+                                    </li>
+                                    {% block breadcrumbs %}{% endblock%}
+                                    {{ wo_render_breadcrumbs() }}
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- END Sub-Navbar with Header and Breadcrumbs-->
+
+                {% for label, messages in app.flashes(['danger']) %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ label }}">
+                            <button type="button" class="close text-gray-darker" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
+                            {{ message | trans() }}
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+
+                <div class="container-fluid">
+
+                    <!-- START Content -->
+                    <div class="row">
+                        {% block body %}{% endblock %}
+                    </div>
+                    <!-- END Content -->
+
+                </div>
+
+            </div>
+
+            <!-- START Footer -->
+            <footer>
+                <div class="container-fluid">
+                    <p class="text-gray-dark">
+                        © 2017 - {{ 'now' | date('Y') }} НПО Андроидная Техника
+                    </p>
+                </div>
+            </footer>
+        </div>
+        <link rel="stylesheet" href="{{ asset('css/lib.min.css') }}">
+        {% block javascripts %}
+            <!-- JS -->
+            <script src="{{ asset('js/helpers.js') }}"></script>
+            <script src="{{ asset('js/layoutControl.js') }}"></script>
+            <script src="{{ asset('js/rightSidebar.js') }}"></script>
+            <script src="{{ asset('js/sidebar.js') }}"></script>
+            <script src="{{ asset('js/main.js') }}"></script>
+            <script src="{{ asset('js/moment-with-locales.js') }}"></script>
+            <script src="{{ asset('js/daterangepicker.min.js') }}"></script>
+            <script src="{{ asset('js/fullcalendar.min.js') }}"></script>
+            <script src="{{ asset('js/trumbowyg.min.js') }}"></script>
+            <script src="{{ asset('js/select2.min.js') }}"></script>
+            <script src="{{ asset('js/htmldiff.js') }}"></script>
+            <script src="{{ asset('js/tokenfield.js') }}"></script>
+            <script src="{{ asset('js/Chart.min.js') }}"></script>
+            <script src="{{ asset('js/ChartUtils.min.js') }}"></script>
+            <script src="{{ asset('js/checkselect.js') }}"></script>
+            <script src="{{ asset('js/jquery.inputmask.min.js') }}"></script>
+
+            <script>
+                $(document).ready(function(){
+                    $('.filter').change(function(){
+                        $('.filter-form').submit();
+                    });
+                    moment.locale('ru');
+
+                    $('.filter-form select, .select2-modify').select2({ width: '200px' });
+                    $('.select2-modal').select2({ width: '100%' });
+
+                    $('.trumbowyg-textarea').trumbowyg({removeformatPasted: true});
+
+                    $('.alert').delay(10000).slideUp(400);
+
+                    $(':input[type=tel]').inputmask('+7 (999) 999-99-99');
+
+                    lastOnline();
+                });
+                var timerIteration = 1;
+
+                function lastOnline() {
+                    $.ajax({
+                        url: "{{ path('employee_last_online') }}",
+                        type: "POST",
+                        success: function() {
+                            if (timerIteration <= 5) {
+                                setTimeout(lastOnline, 60000);
+                                timerIteration++;
+                            }
+                        }
+                    });
+                }
+            </script>
+        {% endblock %}
+    </body>
+</html>

@@ -1,0 +1,47 @@
+<li>
+    <a href=""
+       data-href="{{ path('suppliers_edit', {'id': supplier.id}) }}"
+       class="edit-supplier"
+       data-title="{{ supplier.title }}"
+       data-legal-form="{{ supplier.legalForm.id }}"
+       data-supplies-categories="{{ supplier.encodeSupplierCategories }}"
+       data-full-title="{{ supplier.fullTitle }}"
+       data-legal-address="{{ supplier.legalAddress }}"
+       data-actual-address="{{ supplier.actualAddress }}"
+       data-postal-address="{{ supplier.postalAddress }}"
+       data-email="{{ supplier.email }}"
+       data-site="{{ supplier.site }}"
+       data-phone="{{ supplier.phone }}"
+       data-fax="{{ supplier.fax }}"
+       data-ogrn="{{ supplier.ogrn }}"
+       data-itn="{{ supplier.itn }}"
+       data-kpp="{{ supplier.kpp }}"
+       data-okpo="{{ supplier.okpo }}"
+       data-okved="{{ supplier.okved }}"
+       data-okfs="{{ supplier.okfs }}"
+       data-okopf="{{ supplier.okopf }}"
+       data-okato="{{ supplier.okato }}"
+       data-director="{{ supplier.director}}"
+       data-basis="{{ supplier.basis }}"
+       data-accountant="{{ supplier.accountant }}"
+       data-registered-at="{{ supplier.registeredAt | date('d.m.Y') }}"
+       data-checking-account="{{ supplier.checkingAccount }}"
+       data-bank-short-name="{{ supplier.bankShortName }}"
+       data-bank-full-name="{{ supplier.bankFullName }}"
+       data-correspondent-account="{{ supplier.correspondentAccount }}"
+       data-bic="{{ supplier.bic }}"
+       data-bank-mailing-address="{{ supplier.bankMailingAddress }}"
+       data-bank-legal-address="{{ supplier.bankLegalAddress }}"
+       data-bank-actual-address="{{ supplier.actualAddress }}"
+       data-bank-itn="{{ supplier.bankItn }}"
+       data-bank-kpp="{{ supplier.bankKpp }}"
+       {% if supplier.client %}
+           data-client="{{ supplier.client.id }}"
+       {% endif %}
+       data-toggle="modal"
+       data-target=".editSupplierModal">
+        <i class="fa fa-fw fa-pencil"></i> {{ 'Edit' | trans() }}</a>
+</li>
+<li>
+    <a href="{{ path("supplier_update_info", {'id': supplier.id}) }}"><i class="fa fa-fw fa-pencil"></i> {{ 'AutoUpdate (Test)' | trans() }}</a>
+</li>

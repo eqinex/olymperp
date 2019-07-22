@@ -1,0 +1,171 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'Monitoring' | trans() }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ breadcrumb( 'Monitoring' | trans(), path('monitoring_servers_list') ) }}
+{% endblock %}
+
+{% block body %}
+
+    {% for hostname in hostnames %}
+        <div class="panel panel-default no-bg  b-gray-dark">
+            <div class="panel-body">
+                <div class="col-lg-4">
+                    <canvas id="chart-line-{{ hostname.id }}"></canvas>
+                </div>
+                <div class="col-lg-4">
+                    <canvas id="chart-pie-{{ hostname.id }}"></canvas>
+                </div>
+                <div class="col-lg-4">
+                    <h3>{{ 'Server' | trans() ~ ': ' ~ hostname.hostname }}</h3>
+                    {% set uptime = [] %}
+                    {% set disk = [] %}
+                    {% set total = [] %}
+                    {% set memtotal = [] %}
+                    {% set memavail = [] %}
+
+                    {% for data in monitoring_service.lastFiveDataMonitoring(hostname) %}
+                        {% set uptime = uptime | merge([data.uptime]) %}
+                        {% set disk = disk | merge([data.disk]) %}
+                        {% set total = total | merge([data.total]) %}
+                        {% set memtotal = memtotal | merge([data.memtotal]) %}
+                        {% set memavail = memavail | merge([data.memavail]) %}
+                    {% endfor %}
+                    <h4>{{ 'Uptime (час): ' ~ ((uptime | first)/60) | number_format(2, '.', ',') }}</h4>
+                    <h4>{{ 'HDD ' ~ 'Disk' | trans() ~ ': ' ~ disk | first }}</h4>
+                    <h4>{{ 'Total disk space' | trans() ~ ' (Gb): ' ~ total | first }}</h4>
+                    <h4>{{ 'Memtotal' | trans() ~ ' (Gb): ' ~ ((memtotal | first)/1000000) | number_format(2, '.', ',') }}</h4>
+                    <h4>{{ 'Memavail' | trans() ~ ' (Gb): ' ~ ((memavail | first)/1000000) | number_format(2, '.', ',') }}</h4>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+
+    <script>
+        $(document).ready(function() {
+
+            let ctxLine = [];
+            let ctxPie = [];
+            let busy;
+            let free;
+            let dates = [];
+            let loadAveragesMinute = [];
+            let membusys = [];
+
+            {% for hostname in hostnames %}
+                {% set total = [] %}
+                {% set free = [] %}
+                {% set dates = [] %}
+                {% set loadAveragesMinute = [] %}
+                {% set membusys = [] %}
+
+                {% for data in monitoring_service.lastFiveDataMonitoring(hostname) %}
+                    {% set total = total | merge([data.total]) %}
+                    {% set free = free | merge([data.free]) %}
+                    {% set dates = dates | merge([data.createdAt | date('H:i')]) %}
+                    {% set loadAveragesMinute = loadAveragesMinute | merge([data.loadAverageMinute]) %}
+                    {% set membusys = membusys | merge([(data.memtotal - data.memavail)/1024]) %}
+                {% endfor %}
+
+                busy = {{ (total | first) - (free | first) }};
+                free = {{ free | first }};
+
+                {% set count = 0 %}
+                dates[{{ hostname.id }}] = [];
+                {% for date in dates | reverse() %}
+                    dates[{{ hostname.id }}][{{ count }}] = '{{ date }}';
+                    {% set count = count + 1 %}
+                {% endfor %}
+
+                {% set count = 0 %}
+                loadAveragesMinute[{{ hostname.id }}] = [];
+                {% for loadAverageMinute in loadAveragesMinute | reverse() %}
+                    loadAveragesMinute[{{ hostname.id }}][{{ count }}] = '{{ loadAverageMinute }}';
+                    {% set count = count + 1 %}
+                {% endfor %}
+
+                {% set count = 0 %}
+                membusys[{{ hostname.id }}] = [];
+                {% for membusy in membusys | reverse() %}
+                    membusys[{{ hostname.id }}][{{ count }}] = '{{ membusy }}';
+                    {% set count = count + 1 %}
+                {% endfor %}
+
+                ctxLine[{{ hostname.id }}] = {
+                    'chart': $('#chart-line-{{ hostname.id }}')[0].getContext('2d'),
+                    'dates': dates[{{ hostname.id }}],
+                    'loadAveragesMinute': loadAveragesMinute[{{ hostname.id }}],
+                    'membusys': membusys[{{ hostname.id }}]
+                };
+
+                ctxPie[{{ hostname.id }}] = {
+                    'chart': $('#chart-pie-{{ hostname.id }}')[0].getContext('2d'),
+                    'diskMemory': [busy, free]
+                };
+
+            {% endfor %}
+
+            for (let line in ctxLine) {
+                renderCanvasLine(ctxLine[line]['chart'], ctxLine[line]['dates'], ctxLine[line]['loadAveragesMinute'], ctxLine[line]['membusys']);
+            }
+
+            for (let pie in ctxPie) {
+                renderCanvasPie(ctxPie[pie]['chart'], ctxPie[pie]['diskMemory']);
+            }
+
+            function renderCanvasLine(ctx, dates, loadAveragesMinute, membusys) {
+                var chart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: dates,
+                        xAxisID: '{{ 'Time' | trans() }}',
+                        datasets: [
+                            {
+                                label: '{{ 'Load CPU' | trans() }}',
+                                data: loadAveragesMinute,
+                                fill: false,
+                                borderColor: ['rgba(54, 162, 235, 1)'],
+                                lineTension: 0.1
+                            },
+                            {
+                                label: '{{ 'Membusy' | trans() }}',
+                                data: membusys,
+                                fill: false,
+                                borderColor: ['rgba(255, 206, 86, 1)'],
+                                lineTension: 0.1
+                            }
+                        ]
+                    },
+                    options: {
+                        scales: {
+                            xAxes: [{
+                                scaleLabel: {
+                                    display: true,
+                                    labelString: '{{ 'Time' | trans() }}'
+                                }
+                            }]
+                        }
+                    }
+                });
+            }
+
+            function renderCanvasPie(ctx, diskMemory) {
+                var chart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['{{ 'Busy' | trans() }}','{{ 'Free' | trans() }}'],
+                        datasets: [
+                            {
+                                label: 'Disk memory',
+                                data: diskMemory,
+                                backgroundColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)']
+                            }
+                        ]
+                    }
+                });
+            }
+
+        });
+    </script>
+{% endblock %}

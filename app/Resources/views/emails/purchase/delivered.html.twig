@@ -1,0 +1,17 @@
+{% extends 'emails/base_email_template.html.twig' %}
+    {% set title = 'request marked as delivered' %}
+
+{% block template_title %}
+    {% if app.user %}
+        {{ app.user.fullName }} <strong>{{ title | trans() }}</strong>
+    {% else %}
+        {{ user.fullName }} <strong>{{ title | trans() }}</strong>
+    {% endif %}
+    <strong>{{ 'in project' | trans() }}</strong>
+    <a href="{{ base_url ~ path('project_details', {'id': purchaseRequest.project.id}) }}" style="color:#3b73af;text-decoration:none;" target="_blank" rel="noopener noreferrer"> {{ purchaseRequest.project.name }} </a>
+{% endblock %}
+{% block template_table %}
+    <strong>{{ 'Purchase request' | trans() }}</strong>
+    <a href="{{ base_url ~ path('request_details', {'id': purchaseRequest.project.id, 'requestId': purchaseRequest.id}) }}" style="color:#3b73af;text-decoration:none;" target="_blank" rel="noopener noreferrer"> {{ purchaseRequest.code }} </a>
+    <strong>{{ 'delivered a' | trans() }}</strong>
+{% endblock %}

@@ -1,0 +1,25 @@
+<li>
+    <a href=""
+       data-href="{{ path('applicant_edit', {'id': applicant.id}) }}"
+       class="editApplicant"
+       data-first-name="{{ applicant.firstname }}"
+       data-last-name="{{ applicant.lastname }}"
+       data-middle-name="{{ applicant.middlename }}"
+       data-employee-role="{{ applicant.employeeRole.id }}"
+       data-status="{% if applicant.status is not null%}{{ applicant.status.id }}{% endif %}"
+       data-notice="{{ applicant.notice }}"
+       data-phone="{{ applicant.phone }}"
+       data-email="{{ applicant.email }}"
+       data-toggle="modal"
+       data-target=".editApplicantModal">
+        <i class="fa fa-fw fa-pencil"></i> {{ 'Edit' | trans() }}</a>
+</li>
+<li>
+    <a href=""
+       data-href="{{ path('applicant_upload_file', {'applicantId': applicant.id }) }}"
+       class="upload-applicant-file"
+       data-id="{{ applicant.id }}"
+       data-toggle="modal"
+       data-target=".uploadApplicantFileModal">
+        <i class="fa fa-fw fa-upload"></i> {{ 'Upload File' | trans() }}</a>
+</li>

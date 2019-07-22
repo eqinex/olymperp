@@ -1,0 +1,90 @@
+{% set totalPlan = 0 %}
+{% set totalFact = 0 %}
+{% set totalReceived = 0 %}
+{% set totalResidue = 0 %}
+{% for activity in activities %}
+    {% set totalPlan = totalPlan + activity.plan %}
+    {% set totalFact = totalFact + activity.fact %}
+    {% set totalReceived = totalReceived + activity.received %}
+
+    <tr>
+        <td class="v-a-m">
+            <span>{{ activity.project.code }}</span>
+        </td>
+        <td class="v-a-m">
+            <span>{{ activity.project.name }}</span>
+        </td>
+        <td class="v-a-m">
+            <a href="{{ path('activities_details', {'id': activity.id}) }}"><span>{{ activity.activity }}</span></a>
+        </td>
+        <td class="v-a-m">
+            <h5 class="m-t-0 m-b-0 f-w-300" style="white-space: nowrap;">
+                <span>{{ activity.profitability | number_format(2) ~ '%' }}</span>
+            </h5>
+        </td>
+        <td class="v-a-m">
+            <h5 class="m-t-0 m-b-0 f-w-300" style="white-space: nowrap;">
+                <span>{{ activity.plan | number_format(2, '.', ',') }} <i class="fa fa-fw fa-rouble"></i></span>
+            </h5>
+        </td>
+        <td class="v-a-m">
+            <h5 class="m-t-0 m-b-0 f-w-300" style="white-space: nowrap;">
+                <span>{{ activity.fact | number_format(2, '.', ',') }} <i class="fa fa-fw fa-rouble"></i></span>
+            </h5>
+        </td>
+        <td class="v-a-m">
+            <h5 class="m-t-0 m-b-0 f-w-300" style="white-space: nowrap;">
+                <span>{{ activity.received | number_format(2, '.', ',') }} <i class="fa fa-fw fa-rouble"></i></span>
+            </h5>
+        </td>
+        <td class="v-a-m">
+            {% set residue = activity.fact - activity.received %}
+            <h5 class="m-t-0 m-b-0 f-w-300" style="white-space: nowrap;">
+                <span>{{ (residue >= 0 ? residue : 0) | number_format(2, '.', ',') }} {% set totalResidue = totalResidue + residue %}<i class="fa fa-fw fa-rouble"></i></span>
+            </h5>
+        </td>
+        <td>
+            <ul>
+                {% for event in activity.activityEvents %}
+                    {% if event.isSuccessEvent %}
+                        <li>
+                            {{ event.name }}
+                            {% for childEvent in event.additionalEvents if event.additionalEvents %}
+                                <ul>
+                                    <li>{{ childEvent.name }}</li>
+                                </ul>
+                            {% endfor %}
+                        </li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </td>
+        <td class="no-wrap v-a-m">
+            <span>{{ activity.resultsList[activity.result] | trans() }}</span>
+        </td>
+        <td class="v-a-m">
+            <span>{{ activity.endAt ? activity.endAt | date('d.m.Y') : '' }}</span>
+        </td>
+        <td class="v-a-m">
+            <span>{{ activity.responsibleUser.lastNameWithInitials }}</span>
+        </td>
+        <td class="v-a-m">
+            {% if activity.notPerformed() %}
+                <div class="dropdown">
+                    <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                        <i class="fa fa-fw fa-gear"></i> <span class="caret"></span>
+                    </button>
+                    {% include 'activities/partial/activity_actions.html.twig' %}
+                </div>
+            {% endif %}
+        </td>
+    </tr>
+{% endfor %}
+<tr>
+    <td colspan="4">{{ "Total" | trans() }}</td>
+    <td>{{ totalPlan | number_format(2, '.', ',')}}<i class="fa fa-fw fa-rouble"></i></td>
+    <td>{{ totalFact | number_format(2, '.', ',')}}<i class="fa fa-fw fa-rouble"></i></td>
+    <td>{{ totalReceived| number_format(2, '.', ',') }}<i class="fa fa-fw fa-rouble"></i></td>
+    <td>{{ totalResidue | number_format(2, '.', ',')}}<i class="fa fa-fw fa-rouble"></i></td>
+    <td colspan="6"></td>
+</tr>

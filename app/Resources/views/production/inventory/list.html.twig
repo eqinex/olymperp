@@ -1,0 +1,117 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ "Inventory items" | trans() }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ breadcrumb( 'Inventory items' | trans(), path('inventory_list') ) }}
+{% endblock %}
+
+{% block body %}
+    <div class="panel panel-default no-bg  b-gray-dark">
+        <div class="panel-body">
+            <form class="form-inline filter-form" method="get" action="{{ path('inventory_list') }}">
+                <div class="form-group filter">
+                    <input class="form-control" name="filters[sku]" placeholder="{{ 'Search by sku' | trans() }}"
+                           value="{% if filters.sku is defined %}{{ filters.sku }}{% endif %}">
+                </div>
+                <div class="form-group filter">
+                    <input class="form-control" name="filters[title]" placeholder="{{ 'Search by title' | trans() }}"
+                           value="{% if filters.title is defined %}{{ filters.title }}{% endif %}">
+                </div>
+                <div class="form-group filter">
+                    <select class="form-control" name="filters[project]">
+                        <option value="">{{ 'Select project' | trans() }}</option>
+                        {% for project in project_service.getAvailableProjects(app.user) %}
+                            <option {% if filters.project is defined and filters.project == project.id %}selected{% endif %} value="{{ project.id }}">
+                                {{ project.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% if app.user.canViewFinancialInfo %}
+                    <div class="form-group filter">
+                        <select class="form-control" name="filters[supplier]">
+                            <option value="">{{ 'Select supplier' | trans() }}</option>
+                            <option value="null">{{ 'Without supplier' | trans() }}</option>
+                            {% for supplier in suppliers %}
+                                <option {% if filters.supplier is defined and filters.supplier == supplier.id %}selected{% endif %} value="{{ supplier.id }}">
+                                    {{ supplier.title }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th class="small text-muted text-uppercase"><strong>{{ 'item.status' | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ 'item.sku' | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ 'item.title' | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ 'item.quantity' | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ 'item.category' | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ 'item.notice' | trans() }}</strong></th>
+            {% if app.user.canViewFinancialInfo %}
+                <th class="small text-muted text-uppercase">
+                    <strong>{{ "item.supplier" | trans() }}</strong>
+                </th>
+                <th class="small text-muted text-uppercase">
+                    <strong>{{ "item.actual_quantity" | trans() }}</strong>
+                </th>
+                <th class="small text-muted text-uppercase">
+                    <strong>{{ "item.price" | trans() }}</strong>
+                </th>
+            {% endif %}
+            <th class="small text-muted text-uppercase"><strong>{{ 'Purchase request' | trans() }}</strong>
+            <th class="small text-muted text-uppercase"><strong>{{ 'Project' | trans() }}</strong></th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for item in items %}
+            {% if item.purchaseRequest.status == 'done' %}
+                {% set status = 'On stock' %}
+                {% set color = 'chelsea-cucumber'%}
+            {% else %}
+                {% set status = 'In processing' %}
+                {% set color = 'lastfm'%}
+            {% endif %}
+            <tr>
+                <td class="text-{{ color }}">{{ status | trans() }}</td>
+                <td>{{ item.sku }}</td>
+                <td>{{ item.title }}</td>
+                <td>{{ item.quantity }}{{ item.unit }}</td>
+                <td>{{ item.category }}</td>
+                <td style="max-width: 300px;word-break:break-all;">{{ item.notice }}</td>
+                {% if app.user.canViewFinancialInfo %}
+                    <td>
+                        {% if item.supplier %}
+                            <a class="link-comment" href="{{ path('suppliers_details', {'id': item.supplier.id}) }}">{{ item.supplier}}</a>
+                        {% else %}
+                            {{ '-' }}
+                        {% endif %}
+                    </td>
+                    <td>{{ item.actualQuantity ? item.actualQuantity ~ item.unit : '-' }}</td>
+                    <td>{{ item.price ? (item.price | number_format(2, '.', ',') ~ 'р'): '-' }}</td>
+                {% endif %}
+                <td><a href="{{ path('request_details', {'id': item.purchaseRequest.project.id, 'requestId': item.purchaseRequest.id}) }}">{{ item.purchaseRequest.code }}</a></td>
+                <td><a href="{{ path('project_requests_list', {'id': item.purchaseRequest.project.id}) }}">{{ item.purchaseRequest.project.name }}</a></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    {% set vars = {
+        'route': 'inventory_list',
+        'currentPage': currentPage,
+        'perPage': perPage,
+        'maxPages': maxPages,
+        'filters': filters
+    }
+    %}
+
+    {% include 'partial/paginator.html.twig' with vars %}
+
+{% endblock %}

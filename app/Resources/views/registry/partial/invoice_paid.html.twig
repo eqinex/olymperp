@@ -1,0 +1,20 @@
+{% macro inputs() %}
+    <input type="hidden" class="form-control invoice-id" value="" name="invoiceDetails[id]">
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ 'Amount' | trans() }}</label>
+        <div class="col-lg-9">
+            <input type="text" class="form-control invoice-amount-paid" placeholder="{{ 'Amount' | trans() }}" value="" name="invoiceDetails[amountPaid]">
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function(){
+            $('.invoice-amount-paid').bind('click', function() {
+                let invoiceAmountPaidForm = $('#invoiceAmountPaidForm');
+                invoiceAmountPaidForm.attr('action', $(this).data('action'));
+                invoiceAmountPaidForm.find('.invoice-id').val($(this).data('id'));
+                invoiceAmountPaidForm.find('.invoice-amount-paid').val($(this).data('amount-paid'));
+            });
+        });
+    </script>
+{% endmacro %}

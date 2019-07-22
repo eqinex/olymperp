@@ -1,0 +1,159 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ "IT Requests" | trans() }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ breadcrumb( 'IT Requests' | trans(), path('it_requests_list') ) }}
+{% endblock %}
+
+{% block body %}
+    <div class="panel panel-default no-bg  b-gray-dark">
+        <div class="panel-body">
+
+            <form class="form-inline filter-form" method="get" action="{{ path('it_requests_list') }}">
+                <div class="form-group filter">
+                    <select class="form-control" name="filters[status]">
+                        <option value="">Выберите статус</option>
+                        {% for key, status in statuses %}
+                            <option {% if filters.status is defined and filters.status is not same as('') and filters.status == key %}selected{% endif %} value="{{ key }}">
+                                {{ ('status_' ~ status) | trans() }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target=".addRequestModal"><i class="fa fa-plus"></i> {{ 'New IT Request' | trans() }}</button>
+            </form>
+        </div>
+    </div>
+    <table class="table table-hover">
+        <thead>
+
+        <tr>
+            <th class="small text-muted text-uppercase"><strong>#</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ "Status" | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ "Title and Description" | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ "task" | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ "Task owner" | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ "Assignee" | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ "Created At" | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ "Closed At" | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ "Actions" | trans() }}</strong></th>
+        </tr>
+        </thead>
+        <tbody>
+
+        {% for request in requests %}
+            <!-- START ROW Task -->
+            <tr>
+                <td class="v-a-m">{{ request.id }}</td>
+                <td class="v-a-m">
+                    <span class="text-{{ request.statusLabels[request.status] }}">{{ ("status_" ~ request.statusList[request.status]) | trans() }}</span>
+                </td>
+                <td class="v-a-m">
+                    <a  href="{{ path('it_requests_list', {'id': request.id}) }}"><span>{{ request.title }}</span></a>
+                    <br><span>{{ request.description | raw }}</span>
+                </td>
+                <td>
+                    {% if request.task is not null %}
+                    <a  href="{{ path('project_edit_task', {'id': request.task.project.id, 'taskId': request.task.id}) }}">
+                        <span>#{{ request.task.id }}</span>
+                    </a>
+                    {% endif %}
+                </td>
+                <td class="v-a-m">
+                    {{ request.owner.lastNameWithInitials }}
+                </td>
+                <td class="v-a-m">
+                    {% if request.assignee is not null %}
+                        {{ request.assignee.lastNameWithInitials }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+                <td class="v-a-m">
+                    {{ request.createdAt | date('d.m.Y H:i') }}
+                </td>
+                <td class="v-a-m">
+                    {% if request.closedAt is not null %}
+                        {{ request.closedAt | date('d.m.Y H:i') }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+                <td class="v-a-m">
+                    <div class="dropdown">
+                        <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                            <i class="fa fa-fw fa-gear"></i> <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-right">
+                            {% if request.status == 0 %}
+                                <li><a href=""
+                                       class="edit-request"
+                                       data-href="{{ path('it_request_edit', {'id': request.id}) }}"
+                                       data-title="{{ request.title }}"
+                                       data-description="{{ request.description }}"
+                                       data-toggle="modal"
+                                       data-target=".editRequestModal"
+                                    ><i class="fa fa-fw fa-pencil text-gray-lighter m-r-1"></i> {{ 'Edit' | trans() }}</a></li>
+
+                                {% if app.user.ITRequestManager %}
+                                    <li><a href="{{ path('it_requests_change_state', {'id': request.id, 'state': 1}) }}"><i class="fa fa-fw fa-play text-primary m-r-1"></i> {{ 'Start progress' | trans() }}</a></li>
+                                {% endif %}
+                                <li><a href="{{ path('it_requests_change_state', {'id': request.id, 'state': 3}) }}"><i class="fa fa-fw fa-minus-square-o text-danger m-r-1"></i> {{ 'Cancel' | trans() }}</a></li>
+                            {% elseif request.status == 1 %}
+                                <li><a href="{{ path('it_requests_change_state', {'id': request.id, 'state': 2}) }}"><i class="fa fa-fw fa-check-square-o text-success m-r-1"></i> {{ 'Done' | trans() }}</a></li>
+                                <li><a href="{{ path('it_requests_change_state', {'id': request.id, 'state': 3}) }}"><i class="fa fa-fw fa-minus-square-o text-danger m-r-1"></i> {{ 'Cancel' | trans() }}</a></li>
+                            {% elseif app.user.id == request.owner.id %}
+                                <li><a href="{{ path('it_requests_change_state', {'id': request.id, 'state': 0}) }}"><i class="fa fa-fw fa-hand-o-left text-gray-lighter m-r-1"></i> {{ 'Reopen' | trans() }}</a></li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </td>
+            </tr>
+        {% endfor %}
+        <!-- END ROW Task -->
+        </tbody>
+    </table>
+
+    {% import 'it_requests/partial/form.html.twig' as form %}
+
+    {% set addRequestVars = {
+            'class': 'addRequestModal',
+            'formId': 'addRequestForm',
+            'title': 'New IT Request',
+            'content': form.inputs,
+            'formAction': path('it_requests_new'),
+            'submitTitle': 'Create'
+        }
+    %}
+    {% set editRequestVars = {
+            'class': 'editRequestModal',
+            'formId': 'editRequestForm',
+            'title': 'Edit IT Request',
+            'content': form.inputs,
+            'submitTitle': 'Save'
+        }
+    %}
+
+    {% include 'partial/modal.html.twig' with addRequestVars %}
+    {% include 'partial/modal.html.twig' with editRequestVars %}
+
+    {% set vars = {'route': 'it_requests_list', 'currentPage': currentPage, 'maxPages': maxPages, 'filters': filters} %}
+    {% include 'partial/paginator.html.twig' with vars %}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        $(document).ready(function(){
+            $('.edit-request').bind('click', function(){
+                var editRequestForm = $('#editRequestForm');
+                editRequestForm.attr('action', $(this).data('href'));
+                editRequestForm.find('.request-id').val($(this).data('id'));
+                editRequestForm.find('.request-title').val($(this).data('title'));
+                editRequestForm.find('.request-description').val($(this).data('description'));
+            });
+        });
+    </script>
+{% endblock %}

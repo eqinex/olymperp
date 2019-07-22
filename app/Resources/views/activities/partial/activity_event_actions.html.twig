@@ -1,0 +1,26 @@
+<ul class="dropdown-menu dropdown-menu-right">
+    <li>
+        <a href=""
+           class="edit-activity-event"
+           data-href="{{ path('edit_activity_event', {'id': activity.id, 'eventId': event.id}) }}"
+           data-name="{{ event.name }}"
+           data-type="{{ event.type }}"
+                {% if event.responsibleUser is not empty %}
+                    data-responsible-user="{{ event.responsibleUser.id }}"
+                {% endif %}
+           data-end-at="{{ event.endAt | date('d.m.Y H:i') }}"
+                {% if event.successEvent is not empty %}
+                    data-success="{{ event.successEvent.id }}"
+                {% endif %}
+           data-toggle="modal"
+           data-target=".editActivityEventModal"
+        ><i class="fa fa-fw fa-pencil m-r-1"></i> {{ 'Edit' | trans() }}</a>
+    </li>
+    <li>
+        {% if event.isNotPerformed %}
+            <a href="{{ path('activity_event_change_state', {'id': activity.id, 'eventId': event.id, 'state': 2}) }}">
+                <i class="fa fa-fw fa-thumbs-up text-success m-r-1"></i> {{ 'Done' | trans() }}
+            </a>
+        {% endif %}
+    </li>
+</ul>

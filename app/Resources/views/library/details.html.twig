@@ -1,0 +1,252 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ book.title }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ breadcrumb( 'Library' | trans(), path('books_list') ) }}
+    {{ breadcrumb( book.title ) }}
+{% endblock %}
+
+{% block body %}
+        <!-- START Navigation Tree & Search -->
+        <div class="col-lg-3 task-sidebar" >
+
+            <div class="hr-text hr-text-left m-t-0 m-b-1">
+                <h6 class="text-inverse"><strong>{{ "Details" | trans() }}</strong></h6>
+            </div>
+
+            <table class="table table-condensed">
+                <tbody>
+                <tr>
+                    <td class="v-a-m">
+                        {{ 'Title' | trans() }}
+                    </td>
+                    <td class="v-a-m text-right">
+                        <span>{{ book.title }}</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="v-a-m">
+                        {{ "Author" | trans() }}
+                    </td>
+                    <td class="v-a-m text-right">
+                        <span>{{ book.author }}</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="v-a-m">
+                        {{ "Editor" | trans() }}
+                    </td>
+                    <td class="v-a-m text-right">
+                        <span>{{ book.editor }}</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="v-a-m">
+                        {{ "Year of issue" | trans() }}
+                    </td>
+                    <td class="v-a-m text-right">
+                        <span>{{ book.yearOfIssue }}</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="v-a-m">
+                        {{ "Publishing house" | trans() }}
+                    </td>
+                    <td class="v-a-m text-right">
+                        <span>{{ book.publishingHouse }}</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="v-a-m">
+                        {{ "Genre" | trans() }}
+                    </td>
+                    <td class="v-a-m text-right">
+                        {% for genre in bookGenres %}
+                            {{ genre.genre }}<br>
+                        {% endfor %}
+                    </td>
+                </tr>
+                <tr>
+                    <td class="v-a-m">
+                        {{ "Paper version" | trans() }}
+                    </td>
+                    <td class="v-a-m text-right">
+                        {% if book.paperVersion %}
+                            <span>{{ "Yes" | trans() }}</span>
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="col-lg-9">
+
+            <!-- START Header with Option -->
+            <div class="row">
+                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                    <h3 class="f-w-300 m-t-1">{{ book.title }}</h3>
+                </div>
+            </div>
+
+            <div class="tabbable-line tabs">
+                <ul class="nav nav-tabs">
+                    <li class="active tab-descriptiontab" role="presentation" data-target="description"><a href="#descriptiontab">{{ 'Description' | trans() }}</a></li>
+
+                    <li class="tab-attachmentstab" role="presentation" data-target="attachments"><a href="#attachmentstab">{{ 'attachments' | trans() | capitalize }}</a></li>
+
+                    <li class="tab-commentstab" role="presentation" data-target="comments"><a href="#commentstab">{{ 'Comments' | trans() }}</a></li>
+
+                    <li class="tab-historytab" role="presentation" data-target="history"><a href="#historytab">{{ 'History' | trans() }}</a></li>
+                </ul>
+                {% if app.user.canEditLibrary or book.paperVersion %}
+                <div class="pull-right" style="margin-top: -35px;">
+                    <div class="dropdown">
+                        <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                            <i class="fa fa-fw fa-gear"></i> <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-right">
+                            {% include 'library/partial/book_actions.html.twig' %}
+                        </ul>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            <!-- END Header with Option -->
+
+            <div class="tab" id="description">
+                <div class="panel panel-default no-bg b-gray-dark">
+                    <div class="panel-body">
+                        <span class="v-a-m b-t-0">{{ book.description }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel panel-default no-bg b-gray-dark hidden tab" id="attachments">
+                <div class="panel-body">
+                    {% if bookFiles | length %}
+                        <table class="table table-hover m-b-0">
+                            <tbody>
+                            {% for file in bookFiles %}
+                                {% set vars = {
+                                    'category': 'book',
+                                    'downloadFilePath': path('book_download_file', {'bookId': book.id, 'fileId': file.id}),
+                                    'deleteFilePath': path('book_remove_file', {'bookId': book.id, 'fileId': file.id})
+                                } %}
+                                {% if file.format == 'jpg' or file.format == 'jpeg' or file.format == 'png' %}
+                                    {% set vars = vars | merge({ 'previewImage': path('book_download_file', {'bookId': book.id, 'fileId': file.id, 'preview': true }) }) %}
+                                {% endif %}
+                                {% include 'partial/upload_files_list.html.twig' with vars %}
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <span class="v-a-m b-t-0 text-muted">{{ "There's no files yet" | trans() }}</span>
+                    {% endif %}
+                </div>
+                {% set vars = {'uploadFilePath' : path('book_upload_file', {'bookId': book.id})} %}
+                {% include 'partial/upload_files_form.html.twig' with vars %}
+            </div>
+            <div class="panel panel-default no-bg b-gray-dark hidden tab" id="comments">
+                {% set vars = {
+                    'comments': bookComments,
+                    'action': path('book_add_comment', {'bookId': book.id})
+                } %}
+                {% include 'partial/comments.html.twig' with vars %}
+            </div>
+            <div class="panel panel-default no-bg b-gray-dark hidden tab" id="history">
+                <div class="panel-body">
+                    <div>
+                        {% if bookChanges | length %}
+                        <table class="table table-sm table-hover">
+                            <thead>
+                            <tr>
+                                <th class="small text-muted text-uppercase">{{ 'User' | trans() }}</th>
+                                <th class="small text-muted text-uppercase">{{ 'Status' | trans() }}</th>
+                                <th class="small text-muted text-uppercase">{{ 'Updated At' | trans() }}</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                {% for changes in bookChanges %}
+                                <tr>
+                                    <td>{{ changes.user.firstname ~ ' ' ~ changes.user.lastname }}</td>
+                                    <td>{{ changes.status }}</td>
+                                    <td>{{ changes.updatedAt | date('d.m.Y H:i') }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        {% else %}
+                            <span class="v-a-m b-t-0 text-muted">{{ "There's no changes yet" | trans() }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% import 'library/partial/delete_file_form.html.twig' as deleteFileForm %}
+    {% import 'library/partial/form.html.twig' as form %}
+    {% import 'library/partial/upload_files_form.html.twig' as uploadBookFileForm %}
+    {% import 'library/partial/issueForm.html.twig' as issueForm %}
+
+    {% set deleteFileFormVars = {
+        'class': 'deleteFileModal',
+        'formId': 'deleteFileForm',
+        'title': 'Delete file',
+        'content': deleteFileForm.inputs(),
+        'submitTitle': 'Delete'
+    }
+    %}
+
+    {% set editBookFormVars = {
+        'class': 'editBookModal',
+        'formId': 'editBookForm',
+        'title': 'Edit book',
+        'size': 'large',
+        'content': form.inputs(genreList),
+        'submitTitle': 'Edit'
+    } %}
+
+    {% set uploadBookFileVars = {
+        'class': 'uploadBookFileModal',
+        'formId': 'uploadBookFileForm',
+        'title': 'Upload File',
+        'content': uploadBookFileForm.inputs(),
+        'submitTitle': 'Upload File'
+    } %}
+
+    {% set issueBookVars = {
+        'class': 'issueBookModal',
+        'formId': 'issueBookForm',
+        'title': 'Issue book',
+        'size': 'large',
+        'content': issueForm.inputs(users),
+        'submitTitle': 'Issue book'
+    } %}
+
+    {% include 'partial/modal.html.twig' with deleteFileFormVars %}
+    {% include 'partial/modal.html.twig' with editBookFormVars %}
+    {% include 'partial/modal.html.twig' with uploadBookFileVars %}
+    {% include 'partial/modal.html.twig' with issueBookVars %}
+
+    <script>
+            $(document).ready(function(){
+                $('.tabs .nav a').bind('click', function(){
+                    $('.tabs .nav li').removeClass('active');
+                    $('.tab').addClass('hidden');
+
+                    $('#' + $(this).parent().data('target')).removeClass('hidden');
+                    $(this).parent().addClass('active')
+                });
+
+                var url = window.location.href;
+                var hash = url.substring(url.indexOf('#')+1);
+
+                if (hash == 'descriptiontab' || hash == 'attachmentstab' || hash == 'commentstab'  || hash == 'historytab') {
+                    $('.tab-' + hash + ' a').click();
+                }
+            });
+        </script>
+{% endblock %}

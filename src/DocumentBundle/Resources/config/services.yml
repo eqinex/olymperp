@@ -1,0 +1,21 @@
+services:
+#    document.example:
+#        class: DocumentBundle\Example
+#        arguments: ["@service_id", "plain_value", "%parameter%"]
+    document.admin.document_template:
+        class: DocumentBundle\Admin\DocumentTemplateAdmin
+        arguments: [~, DocumentBundle\Entity\DocumentTemplate, SonataAdminBundle:CRUD]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: Documents, label: DocumentTemplate }
+
+    document.admin.document_category:
+        class: DocumentBundle\Admin\DocumentCategoryAdmin
+        arguments: [~, DocumentBundle\Entity\DocumentCategory, SonataAdminBundle:CRUD]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: Documents, label: DocumentCategory }
+
+    document.admin.document:
+        class: DocumentBundle\Admin\DocumentAdmin
+        arguments: [~, DocumentBundle\Entity\Document, SonataAdminBundle:CRUD]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: admin, label: Document }

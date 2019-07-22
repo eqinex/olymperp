@@ -1,0 +1,223 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'Project registry' | trans() }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ breadcrumb( 'Project registry' | trans(), path('project_code_list') ) }}
+{% endblock %}
+
+{% block body %}
+    <div class="panel panel-default no-bg  b-gray-dark">
+        <div class="panel-body">
+            <form class="form-inline filter-form" method="get">
+                <div class="form-group filter">
+                    <select class="form-control" name="filters[companyCode]">
+                        <option value="">{{ 'Company code' | trans() }}</option>
+                        {% for companyCode in companyCodes %}
+                            <option {% if filters.companyCode is defined and filters.companyCode == companyCode.id %}selected{% endif %} value="{{ companyCode.id }}">
+                                {{ companyCode.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+
+                    <input class="form-control" name="filters[code]" placeholder="{{ 'Code' | trans() }}"
+                           value="{% if filters.code is defined %}{{ filters.code }}{% endif %}" />
+
+                    <input class="form-control" name="filters[name]" placeholder="{{ 'title' | trans() }}"
+                           value="{% if filters.name is defined %}{{ filters.name }}{% endif %}" />
+                </div>
+                {% if app.user.canEditProjectCode %}
+                    <button type="button" class="btn btn-primary pull-right start" data-toggle="modal" data-target=".addProjectCodeModal"><i class="fa fa-plus"></i> {{ 'Add project registry' | trans() }}</button>
+                    <button type="button" class="btn btn-success pull-right m-r-1" data-toggle="modal" data-target=".importProjectCodeModal"><i class="fa fa-fw fa-upload"></i> {{ 'Import' | trans() }}</button>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                {% set orderType = order == 'desc' ? 'asc' : 'desc' %}
+                {% set routeParams = { 'filters': filters} %}
+                <th class="v-a-m">
+                    {% set routeParams = routeParams | merge({'orderBy': 'companyCode', 'order': orderBy == 'companyCode' ? orderType : 'asc'}) %}
+                    <a href="{{ path('project_code_list', routeParams) }}">
+                        <strong>{{ 'Company code' | trans() ~ ' ' }}</strong>
+                        <i class="fa fa-sort{{ orderBy == 'companyCode' ? '-' ~ order : '' }}"></i>
+                    </a></th>
+                <th class="v-a-m">
+                    {% set routeParams = routeParams | merge({'orderBy': 'code', 'order': orderBy == 'code' ? orderType : 'asc'}) %}
+                    <a href="{{ path('project_code_list', routeParams) }}">
+                        <strong>{{ 'Designation' | trans() ~ ' ' }}</strong>
+                        <i class="fa fa-sort{{ orderBy == 'code' ? '-' ~ order : '' }}"></i>
+                    </a>
+                </th>
+                <th class="v-a-m">
+                    {% set routeParams = routeParams | merge({'orderBy': 'title', 'order': orderBy == 'title' ? orderType : 'asc'}) %}
+                    <a href="{{ path('project_code_list', routeParams) }}">
+                        <strong>{{ 'title' | trans() ~ ' ' }}</strong>
+                        <i class="fa fa-sort{{ orderBy == 'title' ? '-' ~ order : '' }}"></i>
+                    </a>
+                </th>
+                <th class="v-a-m">
+                    {% set routeParams = routeParams | merge({'orderBy': 'date', 'order': orderBy == 'date' ? orderType : 'asc'}) %}
+                    <a href="{{ path('project_code_list', routeParams) }}">
+                        <strong>{{ 'Created year project code' | trans() ~ ' ' }}</strong>
+                        <i class="fa fa-sort{{ orderBy == 'date' ? '-' ~ order : '' }}"></i>
+                    </a>
+                </th>
+                <th class="v-a-m">
+                    {% set routeParams = routeParams | merge({'orderBy': 'dateOfRegistration', 'order': orderBy == 'dateOfRegistration' ? orderType : 'asc'}) %}
+                    <a href="{{ path('project_code_list', routeParams) }}">
+                        <strong>{{ 'The date of registration of the code' | trans() ~ ' ' }}</strong>
+                        <i class="fa fa-sort{{ orderBy == 'dateOfRegistration' ? '-' ~ order : '' }}"></i>
+                    </a>
+                </th>
+                <th class="v-a-m">
+                    {% set routeParams = routeParams | merge({'orderBy': 'insideCode', 'order': orderBy == 'insideCode' ? orderType : 'asc'}) %}
+                    <a href="{{ path('project_code_list', routeParams) }}">
+                        <strong>{{ 'Inside code' | trans() ~ ' ' }}</strong>
+                        <i class="fa fa-sort{{ orderBy == 'insideCode' ? '-' ~ order : '' }}"></i>
+                    </a>
+                </th>
+                <th class="v-a-m">
+                    {% set routeParams = routeParams | merge({'orderBy': 'responsible', 'order': orderBy == 'responsible' ? orderType : 'asc'}) %}
+                    <a href="{{ path('project_code_list', routeParams) }}">
+                        <strong>{{ 'Responsible' | trans() ~ ' ' }}</strong>
+                        <i class="fa fa-sort{{ orderBy == 'responsible' ? '-' ~ order : '' }}"></i>
+                    </a>
+
+                </th>
+                <th class="v-a-m">{{ 'Set Engineering Document' | trans() ~ ' %' }}</th>
+                <th class="v-a-m">{{ 'Project structure' | trans() ~ ' %' }}</th>
+                {% if app.user.canEditProjectCode() %}
+                    <th class="small text-muted text-uppercase text-right"><strong>{{ 'Actions' | trans() }}</strong></th>
+                {% endif %}
+            </tr>
+        </thead>
+        <tbody>
+        {% set id = 0 %}
+        {% for projectCode in projectCodes %}
+            {% if projectCode.id > id %}
+            {% set id = projectCode.id %}
+            {% endif %}
+            <tr>
+                <td class="v-a-m">{{ projectCode.companyCode.name }}</td>
+                <td class="v-a-m"><a href="{{ path('project_code_details', {'id': projectCode.id}) }}">{{ projectCode.code }}</a></td>
+                <td class="v-a-m">{{ projectCode.name }}</td>
+                <td class="v-a-m">{{ projectCode.createdYear }}</td>
+                <td class="v-a-m">{{ projectCode.dateOfRegistration ? projectCode.dateOfRegistration | date('d.m.Y') : '-' }}</td>
+                <td class="v-a-m">{{ projectCode.insideCode ? : '-' }}</td>
+                <th class="v-a-m">
+                    {% if projectCode.responsible is not null %}
+                    <a href="{{ path('employee_details', {'userName': projectCode.responsible.username}) }}">{{ projectCode.responsible }}</a>
+                    {% elseif projectCode.reserveResponsible is not null %}
+                        <span>{{ projectCode.reserveResponsible }}</span>
+                    {% else %}
+                        <span>-</span>
+                    {% endif %}
+                </th>
+                {% if projectCode.kitEngineeringDocument is not null %}
+                    {% set color = 'success' %}
+                    {% if projectCode.kitEngineeringDocument < 50 %}
+                        {% set color = 'danger' %}
+                    {% elseif projectCode.kitEngineeringDocument < 75 %}
+                        {% set color = 'warning' %}
+                    {% elseif projectCode.kitEngineeringDocument < 100 %}
+                        {% set color = 'primary' %}
+                    {% endif %}
+                    <td class="v-a-m text-{{ color }}">{{ (projectCode.kitEngineeringDocument | number_format(2)) ~ ' %' }}</td>
+                {% else %}
+                    <td class="v-a-m">-</td>
+                {% endif %}
+                {% if projectCode.projectStructure is not null %}
+                    {% set color = 'success' %}
+                    {% if projectCode.projectStructure < 50 %}
+                        {% set color = 'danger' %}
+                    {% elseif projectCode.projectStructure < 75 %}
+                        {% set color = 'warning' %}
+                    {% elseif projectCode.projectStructure < 100 %}
+                        {% set color = 'primary' %}
+                    {% endif %}
+                    <td class="v-a-m text-{{ color }}">{{ (projectCode.projectStructure | number_format(2)) ~ ' %' }}</td>
+                {% else %}
+                    <td class="v-a-m">-</td>
+                {% endif %}
+
+                {% if app.user.canEditProjectCode %}
+                    <td class="text-right v-a-m">
+                        <div class="dropdown">
+                            <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                <i class="fa fa-fw fa-gear"></i> <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-right">
+                                {% include 'development/project_code/partial/project_code_actions.html.twig' %}
+                            </ul>
+                        </div>
+                    </td>
+                {% endif %}
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    {% set vars = {
+        'route': 'project_code_list',
+        'currentPage': currentPage,
+        'maxPages': maxPages,
+        'filters': filters,
+        'routeParams': {
+            'order': order,
+            'orderBy': orderBy
+        }
+    } %}
+
+    {% include 'partial/paginator.html.twig' with vars %}
+
+    {% import 'development/project_code/partial/form.html.twig' as form %}
+    {% import 'development/project_code/partial/delete_project_code_form.html.twig' as deletedProjectCode %}
+    {% import 'development/project_code/partial/import_form.html.twig' as importProjectCodeForm %}
+
+    {% set addProjectCodeVars = {
+        'class': 'addProjectCodeModal',
+        'formId': 'addProjectCodeForm',
+        'title': 'Add project registry' | trans(),
+        'size': 'large',
+        'formAction': path('project_code_add'),
+        'content': form.inputs(users, companyCodes, statuses, id),
+        'submitTitle': 'Add'
+    } %}
+
+    {% set editProjectCodeVars = {
+        'class': 'editProjectCodeModal',
+        'formId': 'editProjectCodeForm',
+        'title': 'Edit project registry' | trans(),
+        'size': 'large',
+        'content': form.inputs(users, companyCodes, statuses, id),
+        'submitTitle': 'Save'
+    } %}
+
+    {% set deletedProjectCodeVars = {
+        'class': 'deleteProjectCodeModal',
+        'formId': 'deleteProjectCodeForm',
+        'title': 'Delete project registry' | trans(),
+        'content': deletedProjectCode.inputs(),
+        'submitTitle': 'Delete'
+    } %}
+
+    {% set importProjectCodeVars = {
+        'class': 'importProjectCodeModal',
+        'formId': 'importProjectCodeForm',
+        'title': 'Import project code',
+        'content': importProjectCodeForm.inputs(),
+        'submitTitle': 'Import',
+        'formAction': path('project_code_import')
+    }
+    %}
+
+    {% include 'partial/modal.html.twig' with addProjectCodeVars %}
+    {% include 'partial/modal.html.twig' with editProjectCodeVars %}
+    {% include 'partial/modal.html.twig' with deletedProjectCodeVars %}
+    {% include 'partial/modal.html.twig' with importProjectCodeVars %}
+
+{% endblock %}
+

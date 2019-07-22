@@ -1,0 +1,144 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ "Rent" | trans() }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ breadcrumb( 'Rent' | trans(), path('rent_list') ) }}
+{% endblock %}
+
+{% block body %}
+
+    <div class="panel panel-default no-bg  b-gray-dark">
+        <div class="panel-body">
+            <form class="form-inline filter-form" method="get" action="">
+                {% if app.user.canAddRent() %}
+                <div class="btn-toolbar pull-right">
+                    <button type="button" class="btn btn-primary start" data-toggle="modal" data-target=".addRent"><i class="fa fa-plus"></i> {{ 'Add tenant' | trans() }} </button>
+                </div>
+                {% endif %}
+                {% if app.user.canImportRent() %}
+                    <div class="dropdown pull-right m-l-1">
+                        <button class="btn btn-success dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fa fa-fw fa-file-excel-o"></i> {{ "Import/Export" | trans() }} <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-right">
+                            {% if app.user.canImportRent() %}
+                                <li>
+
+                                        <a data-toggle="modal" data-target=".importRentsModal"><i class="fa fa-fw fa-upload"></i> {{ 'Import' | trans() }}</a>
+
+                                </li>
+                            {% endif %}
+                            {% if app.user.canImportRent() %}
+                                <li>
+
+                                        <a data-toggle="modal" data-target=".exportRentsModal"><i class="fa fa-fw fa-download"></i> {{ 'Export' | trans() }}</a>
+
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+
+    <table class="table table-hover">
+    <thead>
+        <tr>
+            <th>{{ 'Tenant' | trans() }}</th>
+            <th>{{ 'Rent' | trans() ~ ' ' }}<i class="fa fa-rub"></i></th>
+            <th>{{ 'Heating' | trans() ~ ' ' }}<i class="fa fa-rub"></i></th>
+            <th>{{ 'Communal payments' | trans() ~ ' ' }}<i class="fa fa-rub"></i></th>
+            <th>{{ 'Total income' | trans() ~ ' ' }}<i class="fa fa-rub"></i></th>
+            <th>{{ 'Square' | trans() ~ ' м' }}<sup>2</sup></th>
+            <th>{{ 'Payment method' | trans() }}</th>
+            <th>{{ 'Employee' | trans() }}</th>
+            <th>{{ 'Month' | trans() }}</th>
+            <th>{{ 'Year' | trans() }}</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for rent in rents %}
+            <tr>
+                <td>{{ rent.tenement.supplier ~ '(' ~ rent.tenement.title ~ ')' }}</td>
+                <td>{{ rent.rent | number_format(2, '.', ',') ~ ' ' }}<i class="fa fa-rub"></i></td>
+                <td>{{ rent.heating | number_format(2, '.', ',') ~ ' ' }}<i class="fa fa-rub"></i></td>
+                <td>{{ rent.communalPayments | number_format(2, '.', ',') ~ ' ' }}<i class="fa fa-rub"></i></td>
+                <td>{{ rent.total | number_format(2, '.', ',') ~ ' ' }}<i class="fa fa-rub"></i></td>
+                <td>{{ rent.square | number_format(2, '.', ',') }}</td>
+                <td>{{ rent.method | trans() }}</td>
+                <td>{{ rent.employee }}</td>
+                <td>
+                    {% for month, num in months %}
+                        {% if rent.date | date('m') == num %}
+                            {{ month | trans() }}
+                        {% endif %}
+                    {% endfor %}
+                </td>
+                <td>{{ rent.date | date('Y') }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+    </table>
+
+    {% set vars = {
+        'route': 'rent_list',
+        'currentPage': currentPage,
+        'maxPages': maxPages,
+        'filters': filters,
+        'routeParams': {
+            'order': order,
+            'orderBy': orderBy
+        }
+    } %}
+
+    {% include 'partial/paginator.html.twig' with vars %}
+
+    {% import 'rent/partial/form.html.twig' as form %}
+    {% import 'rent/partial/import_rents_form.html.twig' as importTenantForm %}
+    {% import 'rent/partial/export_rents_form.html.twig' as exportTenantForm %}
+
+    {% set addRents = {
+        'class': 'addRent',
+        'formId': 'addRent',
+        'title': 'Add rent' | trans(),
+        'size': 'large',
+        'formAction': path('rent_add'),
+        'content': form.inputs(paymentMethods, users, months, tenements),
+        'submitTitle': 'Add'
+    }%}
+
+    {% set importRentForm = {
+        'class': 'importRentsModal',
+        'formId': 'importRentsForm',
+        'title': 'Import',
+        'content': importTenantForm.inputs(),
+        'submitTitle': 'Import',
+        'formAction': path('import_rent')
+    }
+    %}
+
+    {% set exportRentForm = {
+        'class': 'exportRentsModal',
+        'formId': 'exportRentsForm',
+        'title': 'Export',
+        'content': exportTenantForm.inputs(months),
+        'submitTitle': 'Export',
+        'formAction': path('export_rent')
+    }
+    %}
+
+
+    {% include 'partial/modal.html.twig' with addRents %}
+    {% include 'partial/modal.html.twig' with importRentForm %}
+    {% include 'partial/modal.html.twig' with exportRentForm %}
+    <script>
+        $(document).ready(function () {
+            $('.modal-submit-form').on('submit', function(e){
+                $('.modal-submit-btn').attr('disabled', false);
+                $('.modal-submit-btn').removeClass('btn-disabled');
+            })
+        })
+    </script>
+{% endblock %}

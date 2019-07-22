@@ -1,0 +1,64 @@
+{% macro inputs(types) %}
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ 'Type' | trans() }}</label>
+        <div class="col-lg-9">
+            <select class="form-control select2-modal computer-part-type" name="computerPart[type]" required>
+                <option value="">{{ 'Select type' | trans() }}</option>
+                {% for type in types %}
+                    <option {% if computerPart.type is defined and computerPart.type == type %}selected{% endif %} value="{{ type }}">
+                        {{ type | trans() }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ 'Name' | trans() }}</label>
+        <div class="col-lg-9">
+            <input class="computer-part-name form-control" name="computerPart[name]" placeholder="{{ 'Name' | trans() }}" required>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ 'Inventory number' | trans() }}</label>
+        <div class="col-lg-9">
+            <input class="computer-part-inventory form-control" name="computerPart[inventoryNumber]" placeholder="{{ 'Inventory number' | trans() }}">
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ 'Serial number' | trans() }}</label>
+        <div class="col-lg-9">
+            <input class="computer-part-serial form-control" name="computerPart[serialNumber]" placeholder="{{ 'Serial number' | trans() }}">
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ 'Description' | trans() }}</label>
+        <div class="col-lg-9">
+            <textarea class="computer-part-description form-control" name="computerPart[description]" placeholder="{{ 'Description' | trans() }}"></textarea>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function(){
+            moment.locale('ru');
+
+            $('.edit-computer-part').bind('click', function(){
+
+                var editComputerPartForm = $('#editComputerPartForm');
+                editComputerPartForm.attr('action', $(this).data('href'));
+                editComputerPartForm.find('.computer-part-name').val($(this).data('name'));
+                editComputerPartForm.find('.computer-part-type').val($(this).data('type'));
+                editComputerPartForm.find('.computer-part-description').val($(this).data('description'));
+                editComputerPartForm.find('.computer-part-serial').val($(this).data('serial'));
+                editComputerPartForm.find('.computer-part-inventory').val($(this).data('inventory'));
+
+                $('.select2-modal').select2({ width: '100%' });
+            });
+        });
+    </script>
+
+{% endmacro %}

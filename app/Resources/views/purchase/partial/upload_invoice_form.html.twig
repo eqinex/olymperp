@@ -1,0 +1,23 @@
+{% macro inputs(purchaseRequest) %}
+    <div class="form-group">
+        <label class="col-sm-5 control-label">{{ "Select Invoice" | trans() }}</label>
+        <div class="col-sm-6">
+            <select class="form-control select2-modal" required name="payment[invoice]" required >
+                {% for invoice in purchaseRequest.invoices %}
+                    <option value="{{ invoice.id }}">{{ invoice.invoiceNumber ~ ' (' ~ invoice.supplier ~ ')'}}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    <div class="panel-footer">
+        <!-- START Send Message Input -->
+        <div class="input-group">
+            <span class="input-group-btn">
+                <button class="btn btn-default" type="button"><i class="fa fa-fw fa-paperclip"></i></button>
+            </span>
+            <input type="hidden" name="type" value="financial">
+            <input type="file" class="form-control" name="files[]" required placeholder="{{ 'Upload File' | trans() }}" multiple/>
+        </div>
+        <!-- END Send Message Input -->
+    </div>
+{% endmacro %}

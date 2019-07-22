@@ -1,0 +1,50 @@
+#framework:
+#  workflows:
+#      goods_request:
+#          type: 'state_machine'
+#          marking_store:
+#            type: 'single_state'
+#            arguments:
+#                - 'status'
+#          supports:
+#              - AppBundle\Entity\GoodsRequest
+#          places:
+#              - new
+#              - pm_approve
+#              - purchasing_leader_approve
+#              - ready_to_progress
+#              - in_progress
+#              - on_payment
+#              - shipment
+#              - on_stock
+#              - paid
+#              - done
+#              - declined
+#          transitions:
+#              need_pm_approve:
+#                  from: new
+#                  to: pm_approve
+#              pm_approved:
+#                  from: pm_approve
+#                  to: purchasing_leader_approve
+#              assign_to_manager:
+#                  from: purchasing_leader_approve
+#                  to: ready_to_progress
+#              start_progress:
+#                  from: ready_to_progress
+#                  to: in_progress
+#              needs_payment:
+#                  from: in_progress
+#                  to: on_payment
+#              pay:
+#                  from: on_payment
+#                  to: paid
+#              shipped:
+#                  from: [in_progress, paid]
+#                  to: shipment
+#              arrived:
+#                  from: shipment
+#                  to: on_stock
+#              accepted:
+#                  from: on_stock
+#                  to: done

@@ -1,0 +1,282 @@
+<div class="col-lg-3">
+    <div class="hr-text hr-text-left m-t-0 m-b-1">
+        <h6 class="text-inverse"><strong>{{ 'Details' | trans() }}</strong></h6>
+    </div>
+
+    <table class="table table-condensed">
+        <tbody>
+        {% if computer.employee is not null %}
+            <tr>
+                <td class="v-a-m">
+                    {{ 'Employee' | trans() }}
+                </td>
+                <td class="v-a-m text-right">
+                    <a href="{{ path('employee_details', {'userName': computer.employee.username}) }}">
+                        {{ computer.employee.lastNameWithInitials }}
+                    </a>
+                </td>
+            </tr>
+        {% endif %}
+        {% if computer.type != 'printer' and computer.type != 'commutator' %}
+            <tr>
+                <td class="v-a-m">
+                    {{ 'Type' | trans() }}
+                </td>
+                <td class="v-a-m text-right text-inverse">
+                    {{ computer.type | trans() }}
+                </td>
+            </tr>
+        {% endif %}
+        {% if computer.name != '' %}
+            <tr>
+                <td class="v-a-m">
+                    {{ 'Name' | trans() }}
+                </td>
+                <td class="v-a-m text-right text-inverse">
+                    {{ computer.name }}
+                </td>
+            </tr>
+        {% endif %}
+        {% if computer.model is not null and computer.type != 'desktop_computer' %}
+            <tr>
+                <td class="v-a-m">
+                    {{ 'Model' | trans() }}
+                </td>
+                <td class="v-a-m text-right text-inverse">
+                    {{ computer.model }}
+                </td>
+            </tr>
+        {% endif %}
+        <tr>
+            <td class="v-a-m">
+                {{ 'IP Address' | trans() }}
+            </td>
+            <td class="v-a-m text-right">
+                {% if computer.type == 'desktop_computer' or computer.type == 'laptop' or computer.type == 'monoblock' %}
+                    {% for ipAddress in computer.ipAddressComputer %}
+                        <div class="list-item">{{ ipAddress }}</div>
+                    {% endfor %}
+                {% else %}
+                    {{ computer.ipAddress }}
+                {% endif %}
+            </td>
+        </tr>
+        <tr>
+            <td class="v-a-m">
+                {{ 'Way to get the ip-address' | trans() }}
+            </td>
+            <td class="v-a-m text-right text-inverse">
+                {{ computer.ipType | trans() }}
+            </td>
+        </tr>
+        <tr>
+            <td class="v-a-m">
+                {{ 'MAC Address' | trans() }}
+            </td>
+            <td class="v-a-m text-right ">
+                {% if computer.type == 'desktop_computer' or computer.type == 'laptop' or computer.type == 'monoblock' %}
+                    {% for macAddress in computer.macAddressComputer %}
+                        <div class="list-item">{{ macAddress }}</div>
+                    {% endfor %}
+                {% else %}
+                    {{ computer.macAddress }}
+                {% endif %}
+            </td>
+        </tr>
+        {% if computer.domain is not null %}
+            <tr>
+                <td class="v-a-m">
+                    {{ 'Domain' | trans() }}
+                </td>
+                <td class="v-a-m text-right text-inverse">
+                    {{ computer.domain }}
+                </td>
+            </tr>
+        {% endif %}
+        <tr>
+            <td class="v-a-m">
+                {{ 'Inventory number' | trans() }}
+            </td>
+            <td class="v-a-m text-right text-inverse">
+                {{ computer.inventoryNumber }}
+            </td>
+        </tr>
+        {% if computer.serialNumber is not null %}
+            <tr>
+                <td class="v-a-m">
+                    {{ 'Serial number' | trans() }}
+                </td>
+                <td class="v-a-m text-right text-inverse">
+                    {{ computer.serialNumber }}
+                </td>
+            </tr>
+        {% endif %}
+        {% if computer.installedService is not null %}
+            <tr>
+                <td class="v-a-m">
+                    {{ 'Installed service' | trans() }}
+                </td>
+                <td class="v-a-m text-right text-inverse">
+                    {{ computer.installedService }}
+                </td>
+            </tr>
+        {% endif %}
+        {% if computer.room is not null %}
+            <tr>
+                <td class="v-a-m">
+                    {{ 'Room' | trans() }}
+                </td>
+                <td class="v-a-m text-right text-inverse">
+                    {{ computer.room }}
+                </td>
+            </tr>
+        {% endif %}
+        {% if computer.operationSystem is not null %}
+            <tr>
+                <td class="v-a-m">
+                    {{ 'Operation system' | trans() }}
+                </td>
+                <td class="v-a-m text-right text-inverse">
+                    {{ computer.operationSystem.name }}
+                </td>
+            </tr>
+        {% endif %}
+        {% if computer.legal is not null %}
+            <tr>
+                <td class="v-a-m">
+                    {{ 'Legal' | trans() }}
+                </td>
+                <td class="v-a-m text-right text-inverse">
+                    {{ computer.legal == 1 ? 'Yes' | trans() : 'No' | trans() }}
+                </td>
+            </tr>
+        {% endif %}
+        {% if computer.keyInSystem is not null %}
+            <tr>
+                <td class="v-a-m">
+                    {{ 'Key OS in system' | trans() }}
+                </td>
+                <td class="v-a-m text-right text-inverse">
+                    {{ computer.keyInSystem }}
+                </td>
+            </tr>
+        {% endif %}
+        {% if computer.keyOnSticker is not null %}
+            <tr>
+                <td class="v-a-m">
+                    {{ 'Key OS on sticker' | trans() }}
+                </td>
+                <td class="v-a-m text-right text-inverse">
+                    {{ computer.keyOnSticker }}
+                </td>
+            </tr>
+        {% endif %}
+        {% if computer.keyInSystem is not null %}
+            <tr>
+                <td class="v-a-m">
+                    {{ 'Matching OS keys' | trans() }}
+                </td>
+                <td class="v-a-m text-right text-inverse">
+                    {{ (computer.keyInSystem == computer.keyOnSticker ? 'Matches' : 'Does not match') | trans() }}
+                </td>
+            </tr>
+       {% endif %}
+       {% if computer.cartridgeType is not null %}
+            <tr>
+                <td class="v-a-m">
+                    {{ 'Type cartridge' | trans() }}
+                </td>
+                <td class="v-a-m text-right text-inverse">
+                    {{ computer.cartridgeType }}
+                </td>
+            </tr>
+       {% endif %}
+       {% if computer.quantity != 0 %}
+            <tr>
+                <td class="v-a-m">
+                    {{ 'Quantity' | trans() }}
+                </td>
+                <td class="v-a-m text-right text-inverse">
+                    {{ computer.quantity }}
+                </td>
+            </tr>
+        {% endif %}
+        </tbody>
+    </table>
+    {% if computer.type == 'guest' and host is not null %}
+        <div class="hr-text hr-text-left m-t-0 m-b-1">
+            <h6 class="text-inverse"><strong>{{ 'Host' | trans() }}</strong></h6>
+        </div>
+
+        <table class="table table-condensed">
+            <tbody>
+                <tr>
+                    <td class="v-a-m">
+                        {{ 'IP Address' | trans() }}
+                    </td>
+                    <td class="v-a-m text-right text-inverse">
+                        <a href="{{ path('server_details', {'id': host.id}) }}">
+                            <span>{{ host.ipAddress }}</span>
+                        </a>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="v-a-m">
+                        {{ 'Way to get the ip-address' | trans() }}
+                    </td>
+                    <td class="v-a-m text-right text-inverse">
+                        {{ host.ipType | trans() }}
+                    </td>
+                </tr>
+                <tr>
+                    <td class="v-a-m">
+                        {{ 'MAC Address' | trans() }}
+                    </td>
+                    <td class="v-a-m text-right text-inverse">
+                        {{ host.macAddress }}
+                    </td>
+                </tr>
+                <tr>
+                    <td class="v-a-m">
+                        {{ 'Domain' | trans() }}
+                    </td>
+                    <td class="v-a-m text-right text-inverse">
+                        {{ host.domain }}
+                    </td>
+                </tr>
+                <tr>
+                    <td class="v-a-m">
+                        {{ 'Inventory number' | trans() }}
+                    </td>
+                    <td class="v-a-m text-right text-inverse">
+                        {{ host.inventoryNumber }}
+                    </td>
+                </tr>
+                <tr>
+                    <td class="v-a-m">
+                        {{ 'Serial number' | trans() }}
+                    </td>
+                    <td class="v-a-m text-right text-inverse">
+                        {{ host.serialNumber }}
+                    </td>
+                </tr>
+                <tr>
+                    <td class="v-a-m">
+                        {{ 'Installed service' | trans() }}
+                    </td>
+                    <td class="v-a-m text-right text-inverse">
+                        {{ host.installedService }}
+                    </td>
+                </tr>
+                <tr>
+                    <td class="v-a-m">
+                        {{ 'Room' | trans() }}
+                    </td>
+                    <td class="v-a-m text-right text-inverse">
+                        {{ host.room }}
+                    </td>
+                </tr>
+                </tbody>
+        </table>
+    {% endif %}
+</div>

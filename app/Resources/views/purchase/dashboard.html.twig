@@ -1,0 +1,316 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ "Dashboard" | trans() }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ breadcrumb( 'Dashboard' | trans(), path('requests_dashboard') ) }}
+{% endblock %}
+
+{% block body %}
+    <div class="row p-l-2 p-r-2">
+        <div class="col-lg-3 col-md-12 col-sm-12">
+            <div class="hr-text hr-text-left m-t-0 m-b-0">
+                <h6 class="text-white"><strong>{{ 'Requests' | trans() }}</strong></h6>
+            </div>
+            <table class="table table-condensed table-hover">
+                <tbody>
+                <tr>
+                    <td class="b-a-0">
+                        <a class="text-info m-r-1" href="{{ path('requests_list',  {
+                            'type': 'all-requests',
+                            'filters': {'status': myTasks[0].status}}) }}">
+                            {{ myTasks[0].status | trans() }}
+                        </a>
+                    </td>
+                    <td class="text-right b-a-0">
+                        <span class="label label-info label-outline">{{ myTasks[0].cnt }}</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="b-a-0">
+                        <a class="text-info m-r-1" href="{{ path('requests_list',  {
+                            'type': 'all-requests',
+                            'filters': {'status': myTasks[8].status}}) }}">
+                            {{ myTasks[8].status | trans() }}
+                        </a>
+                    </td>
+                    <td class="text-right b-a-0">
+                        <span class="label label-info label-outline">{{ myTasks[8].cnt }}</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="b-a-0">
+                        <a class="text-warning m-r-1" href="{{ path('requests_list',  {
+                            'type': 'all-requests',
+                            'filters': {'status': myTasks[1].status}}) }}">
+                            {{ myTasks[1].status | trans() }}
+                        </a>
+                    </td>
+                    <td class="text-right b-a-0">
+                        <span class="label label-warning label-outline">{{ myTasks[1].cnt }}</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="b-a-0">
+                        <a class="text-warning m-r-1" href="{{ path('requests_list',  {
+                            'type': 'all-requests',
+                            'filters': {'status': myTasks[2].status}}) }}">
+                            {{ myTasks[2].status | trans() }}
+                        </a>
+                    </td>
+                    <td class="text-right b-a-0">
+                        <span class="label label-warning label-outline">{{ myTasks[2].cnt }}</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="b-a-0">
+                        <a class="text-danger m-r-1" href="{{ path('requests_list',  {
+                            'type': 'all-requests',
+                            'filters': {'status': myTasks[3].status}}) }}">
+                            {{ myTasks[3].status | trans() }}
+                        </a>
+                    </td>
+                    <td class="text-right b-a-0">
+                        <span class="label label-danger label-outline">{{ myTasks[3].cnt }}</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="b-a-0">
+                        <a class="text-danger m-r-1" href="{{ path('requests_list',  {
+                            'type': 'all-requests',
+                            'filters': {'status': myTasks[4].status}}) }}">
+                            {{ myTasks[4].status | trans() }}
+                        </a>
+                    </td>
+                    <td class="text-right b-a-0">
+                        <span class="label label-danger label-outline">{{ myTasks[4].cnt }}</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="b-a-0">
+                        <a class="text-primary m-r-1" href="{{ path('requests_list',  {
+                            'type': 'all-requests',
+                            'filters': {'status': myTasks[5].status}}) }}">
+                            {{ myTasks[5].status | trans() }}
+                        </a>
+                    </td>
+                    <td class="text-right b-a-0">
+                        <span class="label label-primary label-outline">{{ myTasks[5].cnt }}</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="b-a-0">
+                        <a class="text-primary m-r-1" href="{{ path('requests_list',  {
+                            'type': 'all-requests',
+                            'filters': {'status': myTasks[6].status}}) }}">
+                            {{ myTasks[6].status | trans() }}
+                        </a>
+                    </td>
+                    <td class="text-right b-a-0">
+                        <span class="label label-primary label-outline">{{ myTasks[6].cnt }}</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="b-a-0">
+                        <a class="text-success m-r-1" href="{{ path('requests_list',  {
+                            'type': 'all-requests',
+                            'filters': {'status': myTasks[7].status}}) }}">
+                            {{ myTasks[7].status | trans() }}
+                        </a>
+                    </td>
+                    <td class="text-right b-a-0">
+                        <span class="label label-success label-outline">{{ myTasks[7].cnt }}</span>
+                    </td>
+                </tr>
+
+                </tbody>
+            </table>
+
+            <div class="hr-text hr-text-center m-t-0 m-b-0">
+                {% set needsPayment = paymentStat[0] %}
+                <h6 class="text-white"><strong>{{ 'needs_payment' | trans() }} ({{ needsPayment.total.count }}: <i class="fa fa-fw fa-rouble"></i>{{ needsPayment.total.amount | number_format(2, '.', ',') }})</strong></h6>
+            </div>
+
+            <div class="row m-b-2">
+                <div class="col-sm-3 col-xs-6 text-center">
+                    <p class="text-center m-b-0"><i class="fa fa-circle text-danger"></i> A+ ({{ needsPayment[4].count }})</p>
+                    <h5 class="m-t-0 f-w-300 m-b-0" style="white-space: nowrap"><i class="fa fa-fw fa-rouble"></i>{{ needsPayment[4].amount | number_format(2, '.', ',') }}</h5>
+                </div>
+                <div class="col-sm-3  col-xs-6 text-center">
+                    <p class="text-center m-b-0"><i class="fa fa-circle text-warning"></i> A ({{ needsPayment[3].count }})</p>
+                    <h5 class="m-t-0 f-w-300 m-b-0" style="white-space: nowrap"><i class="fa fa-fw fa-rouble"></i>{{ needsPayment[3].amount | number_format(2, '.', ',') }}</h5>
+                </div>
+                <div class="col-sm-3  col-xs-6 text-center">
+                    <p class="text-center m-b-0"><i class="fa fa-circle text-primary"></i> B ({{ needsPayment[2].count }})</p>
+                    <h5 class="m-t-0 f-w-300 m-b-0" style="white-space: nowrap"><i class="fa fa-fw fa-rouble"></i>{{ needsPayment[2].amount | number_format(2, '.', ',') }}</h5>
+                </div>
+                <div class="col-sm-3  col-xs-6 text-center">
+                    <p class="text-center m-b-0"><i class="fa fa-circle text-success"></i> C ({{ needsPayment[1].count }})</p>
+                    <h5 class="m-t-0 f-w-300 m-b-0" style="white-space: nowrap"><i class="fa fa-fw fa-rouble"></i>{{ needsPayment[1].amount | number_format(2, '.', ',') }}</h5>
+                </div>
+            </div>
+
+            <div class="hr-text hr-text-center m-t-0 m-b-0">
+                {% set paymentProcessing = paymentStat[1] %}
+                <h6 class="text-white"><strong>{{ 'payment_processing' | trans() }} ({{ paymentProcessing.total.count }}: <i class="fa fa-fw fa-rouble"></i>{{ paymentProcessing.total.amount | number_format(2, '.', ',') }})</strong></h6>
+            </div>
+
+            <div class="row m-b-2">
+                <div class="col-sm-3 col-xs-6 text-center">
+                    <p class="text-center m-b-0"><i class="fa fa-circle text-danger"></i> A+ ({{ paymentProcessing[4].count }})</p>
+                    <h5 class="m-t-0 f-w-300 m-b-0" style="white-space: nowrap"><i class="fa fa-fw fa-rouble"></i>{{ paymentProcessing[4].amount | number_format(2, '.', ',') }}</h5>
+                </div>
+                <div class="col-sm-3  col-xs-6 text-center">
+                    <p class="text-center m-b-0"><i class="fa fa-circle text-warning"></i> A ({{ paymentProcessing[3].count }})</p>
+                    <h5 class="m-t-0 f-w-300 m-b-0" style="white-space: nowrap"><i class="fa fa-fw fa-rouble"></i>{{ paymentProcessing[3].amount | number_format(2, '.', ',') }}</h5>
+                </div>
+                <div class="col-sm-3  col-xs-6 text-center">
+                    <p class="text-center m-b-0"><i class="fa fa-circle text-primary"></i> B ({{ paymentProcessing[2].count }})</p>
+                    <h5 class="m-t-0 f-w-300 m-b-0" style="white-space: nowrap"><i class="fa fa-fw fa-rouble"></i>{{ paymentProcessing[2].amount | number_format(2, '.', ',') }}</h5>
+                </div>
+                <div class="col-sm-3  col-xs-6 text-center">
+                    <p class="text-center m-b-0"><i class="fa fa-circle text-success"></i> C ({{ paymentProcessing[1].count }})</p>
+                    <h5 class="m-t-0 f-w-300 m-b-0" style="white-space: nowrap"><i class="fa fa-fw fa-rouble"></i>{{ paymentProcessing[1].amount | number_format(2, '.', ',') }}</h5>
+                </div>
+            </div>
+
+            <div class="hr-text hr-text-center m-t-0 m-b-0">
+                {% set paid = paymentStat[2] %}
+                <h6 class="text-white"><strong>{{ 'paid' | trans() }} ({{ paid.total.count }}: <i class="fa fa-fw fa-rouble"></i>{{ paid.total.amount | number_format(2, '.', ',') }})</strong></h6>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-3 col-xs-6 text-center">
+                    <p class="text-center m-b-0"><i class="fa fa-circle text-danger"></i> A+ ({{ paid[4].count }})</p>
+                    <h5 class="m-t-0 f-w-300 m-b-0" style="white-space: nowrap"><i class="fa fa-fw fa-rouble"></i>{{ paid[4].amount | number_format(2, '.', ',') }}</h5>
+                </div>
+                <div class="col-sm-3  col-xs-6 text-center">
+                    <p class="text-center m-b-0"><i class="fa fa-circle text-warning"></i> A ({{ paid[3].count }})</p>
+                    <h5 class="m-t-0 f-w-300 m-b-0" style="white-space: nowrap"><i class="fa fa-fw fa-rouble"></i>{{ paid[3].amount | number_format(2, '.', ',') }}</h5>
+                </div>
+                <div class="col-sm-3  col-xs-6 text-center">
+                    <p class="text-center m-b-0"><i class="fa fa-circle text-primary"></i> B ({{ paid[2].count }})</p>
+                    <h5 class="m-t-0 f-w-300 m-b-0" style="white-space: nowrap"><i class="fa fa-fw fa-rouble"></i>{{ paid[2].amount | number_format(2, '.', ',') }}</h5>
+                </div>
+                <div class="col-sm-3  col-xs-6 text-center">
+                    <p class="text-center m-b-0"><i class="fa fa-circle text-success"></i> C ({{ paid[1].count }})</p>
+                    <h5 class="m-t-0 f-w-300 m-b-0" style="white-space: nowrap"><i class="fa fa-fw fa-rouble"></i>{{ paid[1].amount | number_format(2, '.', ',') }}</h5>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5 col-md-3 col-sm-3">
+            <div class="hr-text hr-text-left">
+                <h6 class="text-inverse"><strong class="m-r-1">{{ "Latest task comments" | trans() }}</strong></h6>
+            </div>
+            <div class="panel panel-default b-gray-dark no-bg scroll-1000" style="min-height: 220px;">
+                <ul class="list-group custom-scrollbar ps-container ps-theme-default">
+                    {% for comment in latestComments %}
+                    <li class="list-group-item no-bg b-t-0">
+                        <div class="media media-auto">
+                            <div class="media-left">
+                                <div class="avatar">
+                                    <div class="avatar-circle">
+                                        <img class="media-object" src="{{ comment.owner.imageUrl ? : '/images/noavatar.png' }}" alt="Avatar">
+                                    </div>
+                                    <i class="avatar-status avatar-status-bottom bg-{{ employee_service.getOnlineStatus(comment.owner).colorBadge }} b-brand-gray-darker"></i>
+                                </div>
+                            </div>
+                            <div class="media-body">
+                                <a class="link-comment" href="{{ path('employee_details', {'userName': comment.owner.username}) }}">
+                                    <span class="media-heading text-inverse">{{ comment.owner.fullname }}</span>
+                                </a>
+                                <br>
+                                <span class="media-heading small">
+                                    <span>
+                                        {{ ((comment.createdAt | date('d')) == ('now' | date('d')) ? 'today at' : 'yesterday at') | trans() }}
+                                        {{ comment.createdAt | date('H:i') }}
+                                    </span>
+                                    {{ 'commented a' | trans() }}
+                                    <a href="{{ path('request_details', {'id': comment.purchaseRequest.project.id, 'requestId': comment.purchaseRequest.id}) }}#commentstab">
+                                        <span>{{ comment.purchaseRequest.code }}</span>
+                                    </a>
+                                </span>
+
+                                <p class="m-t-1 m-b-0">
+                                    <span id="comments">{{ comment.commentText | raw }}</span>
+                                </p>
+                            </div>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    {% if team is not null %}
+        <div class="col-lg-4 col-md-6 col-sm-6 m-b-2">
+            <div class="hr-text hr-text-left">
+                {% if teamProject is not null %}
+                    <h6 class="text-inverse">
+                        <strong class="m-r-1">
+                            <a href="{{ path('project_tasks', {'id': teamProject.id}) }}">{{ team.title }}</a>
+                        </strong>
+                    </h6>
+                {% else %}
+                    <h6 class="text-inverse"><strong class="m-r-1">{{ team.title }} </strong></h6>
+                {% endif %}
+            </div>
+            <!-- START Panel Sessions -->
+            <div class="panel panel-default b-gray-dark no-bg">
+                <div class="scrollable">
+                <table class="table employee-tasks-table">
+                    <tbody>
+                        {% set rowDark = 'table-row-dark' %}
+                        {% set rowLight = 'table-row-light' %}
+                        {% set color = rowLight %}
+
+                        {% for employeeInfo in teamInfo %}
+                            {% set color = color == rowLight ? rowDark : rowLight %}
+                            {% if employeeInfo.requests | length > 1 %}
+                                <tr class="{{ color }}">
+                                    <td style="width: 115px;" rowspan="{{ (employeeInfo.requests | length) + 1}}">{{ employeeInfo.user.lastNameWithInitials }}</td>
+                                </tr>
+                            {% elseif not (employeeInfo.requests | length) %}
+                                <tr class="{{ color }}">
+                                    <td style="width: 115px;" rowspan="{{ (employeeInfo.requests | length) + 1}}">{{ employeeInfo.user.lastNameWithInitials }}</td>
+                                    <td>-</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                            {% endif %}
+
+                            {% for request in employeeInfo.requests %}
+                                <tr class="{{ color }}" style="border-top: none;">
+                                    {% if employeeInfo.requests | length == 1 %}
+                                        <td style="width: 115px;">{{ employeeInfo.user.lastNameWithInitials }}</td>
+                                    {% endif %}
+                                    <td><a class="text-inverse" href="{{ path('request_details', {'id': request.project.id, 'requestId': request.id}) }}"><span>{{ request.code }}</span></a></td>
+                                    {#<td>#}
+                                        {#<span {% if task.Active and task.expired %}style="color:orangered;"{% endif %}>{{ task.endAt | date('d.m.y') }}</span>#}
+                                    {#</td>#}
+                                    <td style="width: 150px;">
+                                        <a  href="{{ path('project_tasks', {'id': request.project.id}) }}">{{ request.project.name }}</a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+                </div>
+            </div>
+
+
+        </div>
+        {% endif %}
+    </div>
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    {#<script src="{{ asset('js/jquery.peity.min.js') }}"></script>#}
+    <script>
+        $(document).ready(function(){
+//            $('.data-attributes span').peity('donut');
+        })
+    </script>
+{% endblock %}

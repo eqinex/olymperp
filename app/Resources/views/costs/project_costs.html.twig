@@ -1,0 +1,206 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ project.name }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ breadcrumb( 'Projects' | trans(), path('projects_list') ) }}
+    {{ breadcrumb( project.name, path('project_details', {'id': project.id}) ) }}
+    {{ breadcrumb( 'Costs' | trans(), path('project_costs_list', {'id': project.id}) ) }}
+{% endblock %}
+
+{% block body %}
+
+    {% set vars = {'project': project} %}
+    {% include 'projects/partial/info_sidebar.html.twig' with vars %}
+
+    <div class="col-lg-9">
+
+        <!-- START Header with Option -->
+        <div class="row m-b-2">
+
+            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                <!-- START Header -->
+                <h3 class="f-w-300 m-t-1">{{ project.name }}</h3>
+            </div>
+            <div class="col-lg-6 col-md-6 col-xs-12">
+                <div class="btn-toolbar pull-right">
+                    <div class="btn-group" role="group" aria-label="...">
+                        {% set vars = {'active_page': 'project_costs_list'} %}
+                        {% include 'projects/partial/nav.html.twig' with vars %}
+                    </div>
+                </div>
+                <!-- END Toolbar -->
+            </div>
+
+        </div>
+        <!-- END Header with Option -->
+        <div class="panel panel-default no-bg  b-gray-dark">
+            <div class="panel-body">
+
+                <form class="form-inline filter-form" method="get" action="{{ path('project_tasks', {'id': project.id}) }}">
+                    <div class="form-group">
+                        <h2 class="m-t-0 m-b-0 f-w-300">
+                            <span><i class="fa fa-fw fa-rouble"></i> {{ totalCost ? (totalCost | number_format(2, '.', ',')): '0' }}</span>
+                        </h2>
+                    </div>
+                    <div class="form-group pull-right">
+                        <div class="btn-toolbar">
+                            <a class="btn btn-primary" data-toggle="modal" data-target=".addCostModal"><i class="fa fa-plus"></i> {{ "Add new cost" | trans() }}</a>
+                        </div>
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+        <!-- START Panel Sessions -->
+        <div>
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th class="small text-uppercase">
+                        <strong>{{ "Title" | trans() }}</strong>
+                    </th>
+                    <th class="small text-uppercase" style="width:150px;">
+                        <strong>{{ "Owner" | trans() }}</strong>
+                    </th>
+                    <th class="small text-uppercase">
+                        <strong>{{ "Payment Type" | trans() }}</strong>
+                    </th>
+                    <th class="small text-uppercase">
+                        <strong>{{ "Category" | trans() }}</strong>
+                    </th>
+                    <th class="small text-uppercase">
+                        <strong>{{ "Amount" | trans() }}</strong>
+                    </th>
+                    <th class="small text-uppercase">
+                        <strong>{{ "Actions" | trans() }}</strong>
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td class="v-a-m">
+                        {{ 'Purchasing, Movement, Production' | trans()  }}
+                    </td>
+                    <td class="v-a-m">
+                        -
+                    </td>
+                    <td class="v-a-m">
+                        -
+                    </td>
+                    <td class="v-a-m">
+                        {{ 'Requests' | trans() }}
+                    </td>
+                    <td class="v-a-m">
+                        {{ requestCosts ? (requestCosts | number_format(2, '.', ',') ~ 'р'): '-' }}
+                    </td>
+                    <td class="v-a-m">
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="v-a-m">
+                        {{ 'HR Costs' | trans()  }}
+                    </td>
+                    <td class="v-a-m">
+                        -
+                    </td>
+                    <td class="v-a-m">
+                        -
+                    </td>
+                    <td class="v-a-m">
+                        {{ 'HR Costs' | trans() }}
+                    </td>
+                    <td class="v-a-m">
+                        {{ HRCosts ? (HRCosts | number_format(2, '.', ',') ~ 'р'): '-' }}
+                    </td>
+                    <td class="v-a-m">
+
+                    </td>
+                </tr>
+                {% for cost in costs %}
+                <!-- START ROW Task -->
+                <tr>
+                    <td class="v-a-m">
+                        {{ cost.title }}
+                    </td>
+                    <td class="v-a-m">
+                        {% if cost.owner is not null %}
+                            <a href="{{ path('employee_details', {'userName': cost.owner.username}) }}"
+                               title="{{ cost.owner.fullName }}">
+                                {% if cost.owner.imageUrl is not null %}
+                                    <img class="img-circle avatar avatar-sm" src="{{ cost.owner.imageUrl }}" />
+                                {% else %}
+                                    <img class="img-circle avatar avatar-sm" src="/images/noavatar.png" alt="Avatar">
+                                {% endif %}
+                                {{ cost.owner.lastNameWithInitials }}
+                            </a>
+
+                        {% endif %}
+                    </td>
+                    <td class="v-a-m">
+                        {{ cost.paymentType | trans() }}
+                    </td>
+                    <td class="v-a-m">
+                        {{ cost.category | trans() | capitalize }}
+                    </td>
+                    <td class="v-a-m">
+                        {{ cost.amount ? (cost.amount | number_format(2, '.', ',') ~ 'р'): '-' }}
+                    </td>
+                    <td class="v-a-m">
+                        {% if cost.canDelete(app.user) %}
+                            <div class="btn-group">
+                                <a
+                                    title="{{ 'Delete cost' | trans() }}"
+                                    class="btn btn-sm btn-danger delete-cost"
+                                    data-form-action="{{ path('project_delete_cost', {'id': project.id, 'costId': cost.id}) }}"
+                                    data-target=".deleteCostModal"
+                                    data-toggle="modal"
+                                    href=""><i class="fa fa-minus"></i></a>
+                            </div>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% set vars = {
+                'route': 'project_costs_list',
+                'currentPage': currentPage,
+                'maxPages': maxPages,
+                'filters': filters,
+                'routeParams': {
+                    'id': project.id
+                }
+            }
+        %}
+
+        {% include 'partial/paginator.html.twig' with vars %}
+
+        {% import 'costs/partial/form.html.twig' as form %}
+        {% import 'costs/partial/delete_cost_form.html.twig' as deleteCostForm %}
+
+        {% set addCostVars = {
+                'class': 'addCostModal',
+                'formId': 'addCostForm',
+                'title': 'Add new cost',
+                'content': form.inputs(project),
+                'submitTitle': 'Save',
+                'formAction': path('project_add_cost', {'id': project.id}),
+            }
+        %}
+        {% set deleteCostFormVars = {
+                'class': 'deleteCostModal',
+                'formId': 'deleteCostForm',
+                'title': 'Delete cost',
+                'content': deleteCostForm.inputs(),
+                'submitTitle': 'Delete'
+            }
+        %}
+
+        {% include 'partial/modal.html.twig' with addCostVars %}
+        {% include 'partial/modal.html.twig' with deleteCostFormVars %}
+    </div>
+{% endblock %}

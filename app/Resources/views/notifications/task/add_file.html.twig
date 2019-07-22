@@ -1,0 +1,22 @@
+{% extends 'notifications/base_notification_template.html.twig' %}
+
+{% block template_title %}
+    <tr>
+        <td>
+            <a href="{{ path('project_task_details', {'id': task.project.id, 'taskId': task.id}) ~ "#attachmentstab"}}"> {{ '#' ~ task.id }}: {{ task.title }}</a>
+        </td>
+    </tr>
+{% endblock %}
+{% block template_description %}
+    <tr class="hide slide-row">
+        <td>
+            <p>
+                <a id="notification-file" href="{{ path('task_download_file', {'id': projectFile.project.id, 'fileId': projectFile.id, 'taskId': projectFile.task.id}) }}">
+                    {{ projectFile.fileName | raw }}
+                </a>
+            </p>
+        </td>
+    </tr>
+{% endblock %}
+{% block template_table %}
+{% endblock %}

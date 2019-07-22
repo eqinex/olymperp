@@ -1,0 +1,48 @@
+services:
+    app.admin.project:
+        class: AppBundle\Admin\ProjectAdmin
+        arguments: [~, AppBundle\Entity\Project, AppBundle:ProjectAdmin]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: admin, label: Project }
+
+    app.admin.project_category:
+        class: AppBundle\Admin\ProjectCategoryAdmin
+        arguments: [~, AppBundle\Entity\ProjectCategory, AppBundle:ProjectCategoryAdmin]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: admin, label: ProjectCategory }
+
+    app.admin.project_role:
+        class: AppBundle\Admin\ProjectRoleAdmin
+        arguments: [~, AppBundle\Entity\ProjectRole, AppBundle:ProjectRoleAdmin]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: admin, label: ProjectRole }
+
+    app.admin.project_member:
+        class: AppBundle\Admin\ProjectMemberAdmin
+        arguments: [~, AppBundle\Entity\ProjectMember, SonataAdminBundle:CRUD]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: admin, label: ProjectMember }
+
+    app.admin.project_status:
+        class: AppBundle\Admin\ProjectStatusAdmin
+        arguments: [~, AppBundle\Entity\ProjectStatus, SonataAdminBundle:CRUD]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: admin, label: ProjectStatus }
+
+    app.admin.project_flow:
+        class: AppBundle\Admin\ProjectFlowAdmin
+        arguments: [~, AppBundle\Entity\ProjectFlow, SonataAdminBundle:CRUD]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: admin, label: ProjectFlow }
+
+    app.admin.project_stage:
+        class: AppBundle\Admin\ProjectStageAdmin
+        arguments: [~, AppBundle\Entity\ProjectStage, SonataAdminBundle:CRUD]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: admin, label: ProjectStage }
+
+    app.admin.team:
+        class: AppBundle\Admin\TeamAdmin
+        arguments: [~, AppBundle\Entity\Team, SonataAdminBundle:CRUD]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: admin, label: Team }

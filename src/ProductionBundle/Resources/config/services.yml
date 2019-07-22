@@ -1,0 +1,21 @@
+services:
+#    production.example:
+#        class: ProductionBundle\Example
+#        arguments: ["@service_id", "plain_value", "%parameter%"]
+    production.admin.tool:
+        class: ProductionBundle\Admin\ToolAdmin
+        arguments: [~, ProductionBundle\Entity\Tool, SonataAdminBundle:CRUD]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: admin, label: Tool }
+
+    production.admin.ware:
+        class: ProductionBundle\Admin\WareAdmin
+        arguments: [~, ProductionBundle\Entity\Ware, SonataAdminBundle:CRUD]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: Production, label: Ware }
+
+    production.admin.serial_category:
+        class: ProductionBundle\Admin\SerialCategoryAdmin
+        arguments: [~, ProductionBundle\Entity\SerialCategory, SonataAdminBundle:CRUD]
+        tags:
+        - { name: sonata.admin, manager_type: orm, group: Production, label: Serial Category }

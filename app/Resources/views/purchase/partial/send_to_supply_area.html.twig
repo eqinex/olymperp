@@ -1,0 +1,19 @@
+{% macro inputs() %}
+    <div class="form-group">
+        <label class="col-sm-9 control-label">{{ 'Send a request to the supply area?' | trans() }}</label>
+    </div>
+
+    <script>
+        $(document).ready(function(){
+            $('.send-to-supply-area').click(function(){
+                var sendToSupplyAreaForm = $('.sendToSupplyAreaModal');
+
+                var title = $(this).data('modal-title');
+                var formAction = $(this).data('form-action');
+
+                sendToSupplyAreaForm.find('.modal-title').text(title);
+                sendToSupplyAreaForm.find('#sendToSupplyAreaForm').attr('action', formAction);
+            });
+        });
+    </script>
+{% endmacro %}

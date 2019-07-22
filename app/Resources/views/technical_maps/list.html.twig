@@ -1,0 +1,101 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'Technical solution maps' | trans() }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ breadcrumb( 'Technical solution maps' | trans(), path('technical_maps_list') ) }}
+{% endblock %}
+
+{% block body %}
+    <div class="panel panel-default no-bg  b-gray-dark">
+        <div class="panel-body">
+            <form class="form-inline filter-form" method="get" action="{{ path(app.request.attributes.get('_route')) }}">
+                <div class="form-group filter">
+                    <select name="filters[project]" class="form-control select2-modify filter" tabindex="-1" aria-hidden="true">
+                        <option value="">{{ 'Select project' | trans() }}</option>
+                        {% for project in projects %}
+                            <option {% if filters.project is defined and filters.project == project.id %}selected{% endif %} value="{{ project.id }}">{{ project.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group filter">
+                    <select class="form-control select2-modify filter" name="filters[owner]">
+                        <option value="">{{ 'Select owner' | trans() }}</option>
+                        {% for team, members in users %}
+                            <optgroup label="{{ team | trans() }}">
+                                {% for member in members %}
+                                    <option value="{{ member.id }}"
+                                            {% if filters.owner is defined and filters.owner == member.id %}selected{% endif %}>{{ member.fullName }}</option>
+                                {% endfor %}
+                            </optgroup>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% if app.request.attributes.get('_route') == 'technical_maps_list' %}
+                    <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target=".addTechnicalMapModal"><i class="fa fa-plus"></i> {{ 'New map' | trans() }}</button>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th class="small text-muted text-uppercase"><strong>{{ 'Code' | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ 'Status' | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ 'Task' | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ 'Goal' | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ 'Project' | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ 'Owner' | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ 'Created At' | trans() }}</strong></th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for technicalMap in technicalMaps %}
+            <tr>
+                <td class="v-a-m">
+                    <a href="{{ path('technical_maps_details', {'id': technicalMap.id}) }}"><span>{{ technicalMap.code }}</span></a>
+                </td>
+                <td class="v-a-m">
+                    <span>{{ technicalMap.statusList[technicalMap.status] | trans() }}</span>
+                </td>
+                <td class="v-a-m">
+                    <span>{{ technicalMap.task }}</span>
+                </td>
+                <td class="v-a-m">
+                    <span>{{ technicalMap.goal }}</span>
+                </td>
+                <td class="v-a-m">
+                    {% if technicalMap.project is not null %}
+                        <a href="{{ path('project_tasks', {'id': technicalMap.project.id }) }}">{{ technicalMap.project }}</a>
+                    {% endif %}
+                </td>
+                <td class="v-a-m">
+                    <a class="link-comment" href="{{ path('employee_details', {'userName': technicalMap.owner.username}) }}">{{ technicalMap.owner.lastNameWithInitials }}</a>
+                </td>
+                <td class="v-a-m">
+                    {{ technicalMap.createdAt | date('d.m.Y') }}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    {% set vars = {'route': app.request.attributes.get('_route'), 'currentPage': currentPage, 'maxPages': maxPages, 'filters': filters} %}
+    {% include 'partial/paginator.html.twig' with vars %}
+
+    {% import 'technical_maps/partial/form.html.twig' as form %}
+
+    {% set addTechnicalMapVars = {
+        'class': 'addTechnicalMapModal',
+        'formId': 'addTechnicalMapForm',
+        'title': 'New technical solution maps',
+        'size': 'large',
+        'content': form.inputs(),
+        'formAction': path('add_technical_map'),
+        'submitTitle': 'Create'
+    } %}
+
+    {% include 'partial/modal.html.twig' with addTechnicalMapVars %}
+
+{% endblock %}

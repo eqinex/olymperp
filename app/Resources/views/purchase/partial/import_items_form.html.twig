@@ -1,0 +1,16 @@
+{% macro inputs() %}
+    <div class="text-center m-b-2"><a href="/import_example.xlsx">import_example.xlsx</a></div>
+    <div class="panel-footer">
+        <!-- START Send Message Input -->
+        <div class="input-group">
+            <span class="input-group-btn">
+                <button class="btn btn-default" type="button"><i class="fa fa-fw fa-paperclip"></i></button>
+            </span>
+            <input type="file" class="form-control" name="import_items_file" required placeholder="Прикрепить файл"/>
+            <span class="input-group-btn ">
+                <button type="submit" class="btn btn-primary">Загрузить файл</button>
+            </span>
+        </div>
+        <!-- END Send Message Input -->
+    </div>
+{% endmacro %}

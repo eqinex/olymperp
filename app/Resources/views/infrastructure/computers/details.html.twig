@@ -1,0 +1,149 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ computer.name }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ breadcrumb( 'Computers' | trans(), path('computers_list') ) }}
+    {{ breadcrumb( computer.name, path('computer_details', {'id': computer.id}) ) }}
+{% endblock %}
+
+{% block body %}
+    {% set vars = {'computer': computer} %}
+    {% include 'infrastructure/partial/info_sidebar.html.twig' with vars %}
+
+    <div class="col-lg-9">
+        <div class="row">
+            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                <h3 class="f-w-300 m-t-1">{{ computer.name }}</h3>
+            </div>
+            <div class="dropdown pull-right m-t-1 m-r-1">
+                <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                    <i class="fa fa-fw fa-gear"></i>{{ "Actions" | trans() }}<span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-right">
+                    <li>
+                        {% include 'infrastructure/computers/partial/computer_actions.html.twig' %}
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="tabbable-line tabs">
+            <ul class="nav nav-tabs">
+                <li class="tab-computer active" role="presentation" data-target="computer">
+                    <a href="#computertab">{{ 'Accessories' | trans() }}</a>
+                </li>
+                <li class="tab-history" role="presentation" data-target="history"><a href="#historytab">{{ 'History' | trans() }}
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="tab" id="computer">
+            <table class="table table-striped table-right">
+                <thead>
+                <tr>
+                    <th class="small text-muted text-uppercase">{{ 'Type' | trans() }}</th>
+                    <th class="small text-muted text-uppercase">{{ 'Name' | trans() }}</th>
+                    <th class="small text-muted text-uppercase">{{ 'Inventory number' | trans() }}</th>
+                    <th class="small text-muted text-uppercase">{{ 'Serial number' | trans() }}</th>
+                    <th class="small text-muted text-uppercase">{{ 'Description' | trans() }}</th>
+                    <th class="small text-muted text-uppercase text-right">{{ 'Actions' | trans() }}</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% set vars = [
+                    {'computerPart': computer.operationSystem},
+                    {'computerPart': computer.processor},
+                    {'computerPart': computer.ram},
+                    {'computerPart': computer.motherboard},
+                    {'computerPart': computer.hddFirst},
+                    {'computerPart': computer.hddSecond},
+                    {'computerPart': computer.videoCard},
+                    {'computerPart': computer.keyboard},
+                    {'computerPart': computer.mouse}
+                ] %}
+
+                {% for part in computer.computerParts %}
+                    {% set vars = vars | merge([{'computerPart' : part.part }]) %}
+                {% endfor %}
+
+                {% for var in vars %}
+                    {% include 'infrastructure/computers/partial/computer_part_template.html.twig' with var %}
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="hidden tab" id="history">
+            {% if computerChanges | length %}
+                <table class="table table-striped table-hover">
+                    <thead>
+                    <tr>
+                        <th class="small text-muted text-uppercase">{{ 'Field' | trans() }}</th>
+                        <th class="small text-muted text-uppercase">{{ 'Old value' | trans() }}</th>
+                        <th class="small text-muted text-uppercase">{{ 'New value' | trans() }}</th>
+                        <th class="small text-muted text-uppercase">{{ 'Changed by' | trans() }}</th>
+                        <th class="small text-muted text-uppercase">{{ 'Changed at' | trans() }}</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for changes in computerChanges %}
+                        <tr>
+                            <td>{{ (changes.field | capitalize) | trans() }}</td>
+                            <td><strike>{{ changes.oldValue | trans() }}</strike></td>
+                            <td class="text-inverse">{{ changes.newValue | trans() }}</td>
+                            <td>{{ changes.changedBy.fullName }}</td>
+                            <td>{{ changes.updatedAt | date('d.m.Y H:i') }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <div class="panel-body">
+                    <span class="v-a-m text-muted">{{ "There's no changes yet" | trans() }}</span>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    {% import 'infrastructure/computers/partial/form.html.twig' as form %}
+    {% import 'infrastructure/computer_parts/partial/form.html.twig' as editComputerPartFormVars %}
+
+    {% set editComputerFormVars = {
+        'class': 'editComputerModal',
+        'formId': 'editComputerForm',
+        'title': 'Edit computer',
+        'size': 'large',
+        'content': form.inputs(users, types, ipTypes, operationSystems, processors, videoCards, rams, mouses, motherboards, monitors, keyboards, hdds),
+        'submitTitle': 'Save'
+    } %}
+
+    {% set editComputerPartFormVars = {
+        'class': 'editComputerPartModal',
+        'formId': 'editComputerPartForm',
+        'title': 'Edit computer part',
+        'content': editComputerPartFormVars.inputs(partsTypes),
+        'submitTitle': 'Save'
+    } %}
+
+    {% include 'partial/modal.html.twig' with editComputerFormVars %}
+    {% include 'partial/modal.html.twig' with editComputerPartFormVars %}
+
+
+    <script>
+        $(document).ready(function() {
+            $('.tabs .nav a').bind('click', function(){
+                $('.tabs .nav li').removeClass('active');
+                $('.tab').addClass('hidden');
+
+                $('#' + $(this).parent().data('target')).removeClass('hidden');
+                $(this).parent().addClass('active')
+            });
+
+            var url = window.location.href;
+            var hash = url.substring(url.indexOf('#')+1);
+
+            if (hash == 'computertab' || hash == 'historytab') {
+                $('.tab-' + hash + ' a').click();
+            }
+        });
+    </script>
+{% endblock %}

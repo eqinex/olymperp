@@ -1,0 +1,421 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ document.code }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ breadcrumb( 'Contracts' | trans(), path('documents_list') ) }}
+    {{ breadcrumb( document.code, path('document_details', {'id': document.id}) ) }}
+{% endblock %}
+
+{% block body %}
+    {% set vars = {'document': document} %}
+    {% set filesCount = documentFiles | length %}
+
+    <div>
+        <div class="tabbable-line tabs">
+            {% include 'documents/partial/document_actions.html.twig' %}
+            <div class="dropdown pull-right m-l-1">
+                {% if document.owner.id != app.user.id %}
+                    {% if document.isUserSubscribed(app.user) %}
+                        {% set icon = 'eye-slash' %}
+                        {% set link = path('document_unsubscribe', {'id': document.id}) %}
+                        {% set titleSubscribe = 'Unsubscribe' %}
+                    {% else %}
+                        {% set icon = 'eye' %}
+                        {% set link = path('document_subscribe', {'id': document.id}) %}
+                        {% set titleSubscribe = 'Subscribe' %}
+                    {% endif %}
+                    <a class="btn btn-default" href="{{ link }}"><i class="fa fa-{{ icon }}"></i> {{ titleSubscribe | trans() }} </a>
+                {% endif %}
+                <button class="btn btn-success dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i class="fa fa-fw fa-file-word-o"></i> {{ "Export" | trans() }} <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-right">
+                    <li>
+                        <a target="_blank" href="{{ path('export_document_card', {'id': document.id}) }}"><i class="fa fa-fw fa-download text-inverse"></i> {{ 'Export card' | trans() }}</a>
+                    </li>
+                    {% if document.revisions | length and document.canExportDocument(app.user) %}
+                        <li>
+                            <a target="_blank" href="{{ path('export_document', {'id': document.id}) }}"><i class="fa fa-fw fa-download text-inverse"></i> {{ 'Export document' | trans() }}</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+            <ul class="nav nav-tabs">
+                <li class="tab-cardstab active" role="presentation" data-target="cards">
+                    <a href="#cardstab">{{ 'Contract card' | trans() }}</a>
+                </li>
+                <li class="tab-signatoriestab" role="presentation" data-target="signatories">
+                    <a href="#signatoriestab">{{ 'Signatories' | trans() }}
+                            <span class="badge">{{ document.signatories  | length }}</span>
+                    </a>
+                </li>
+                <li class="tab-contentstab" role="presentation" data-target="contents">
+                    <a id="contentstab" href="#contentstab">{{ 'Document' | trans() }}</a>
+                </li>
+                <li class="tab-attachmentstab" role="presentation" data-target="attachments">
+                    <a class="tab-attachments" href="#attachmentstab">{{ 'attachments' | trans() | capitalize }} {% if filesCount %}<span class="badge">{{ filesCount }}</span>{% endif %}</a>
+                </li>
+                <li class="tab-commentstab" role="presentation" data-target="comments">
+                    <a href="#commentstab">{{ 'Comments' | trans() }}
+                        {% if documentComments | length != 0 %}
+                            <span class="badge">{{ documentComments | length }}</span>
+                        {% endif %}
+                    </a>
+                </li>
+                <li class="tab-revisionstab" role="presentation" data-target="revisions">
+                    <a href="#revisionstab">{{ 'Revisions' | trans() }}
+                        {% if document.revisions | length != 0 %}
+                            <span class="badge">{{ document.revisions | length }}</span>
+                        {% endif %}
+                    </a>
+                </li>
+                <li class="tab-historytab" role="presentation" data-target="history"><a href="#historytab">{{ 'History' | trans() }}
+                    </a>
+                </li>
+                <li class="tab-subscriberstab" role="presentation" data-target="subscribers">
+                    <a href="#subscriberstab">{{ 'Subscribers' | trans() }}
+                        {% if document.subscribers | length != 0 %}
+                            <span class="badge">{{ document.subscribers | length }}</span>
+                        {% endif %}
+                    </a>
+                </li>
+                {% for user in document.signatories %}
+                    {% if user.signatory == app.user %}
+                        <li class="tab-remarkstab" role="presentation" data-target="remarks">
+                            <a id="remarkstab" href="#remarks">{{ user.approved ? 'Remarks for document' | trans() : 'Reason for disapproval' | trans() }}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="no-bg b-gray-dark tab" id="cards">
+            {% include 'documents/partial/info_sidebar.html.twig' with vars %}
+        </div>
+
+        <div class="panel-default no-bg b-gray-dark hidden tab" style="margin-top: -17px;width: 40%;" id="signatories">
+            <table class="table table-hover" >
+                <thead>
+                <tr>
+                    <th class="small text-muted text-uppercase"><strong>{{ "Employee Role" | trans() }}</strong></th>
+                    <th class="small text-muted text-uppercase"><strong>{{ "Fullname" | trans() }}</strong></th>
+                    <th class="small text-muted text-uppercase"><strong>{{ "Approved" | trans() }}</strong></th>
+                    <th class="small text-muted text-uppercase"><strong>{{ "Action" | trans() }}</strong></th>
+                </tr>
+                </thead>
+                <tbody>
+                    {% for user in document.signatories %}
+                        <tr>
+                            <td class="v-a-m">
+                                <span>{{ user.signatory.employeeRole ?: '-' }}</span>
+                            </td>
+                            <td class="v-a-m">
+                                <a href="{{ path('employee_details', {'userName': user.signatory.userName}) }}"><span>{{ user.signatory.getFullName(true) }}</span></a>
+                            </td>
+                            <td class="v-a-m">
+                                {% if user.approved %}
+                                    <i class="fa fa-check-square-o text-success"></i>
+                                {% else %}
+                                    <i class="fa fa-square-o"></i>
+                                {% endif %}
+                            </td>
+                            <td class="v-a-m">
+                                {% if document.canRemoveSignatories(app.user) and user.approved == false %}
+                                    <a class="remove-signatory" href="{{ path('document_remove_signatory', {'id': document.id, 'signatoryId': user.id}) }}">
+                                        <i class="fa fa-fw fa-minus-square-o text-danger"></i> {{ 'Remove signatory' | trans() }}
+                                    </a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="panel-default no-bg b-gray-dark hidden tab" style="margin-top: -17px;" id="contents">
+            <form action="{{ path('document_edit_content', { 'id': document.id }) }}" method="POST">
+                <div class="document-comment-form">
+                    {% if document.canEditTextDocument() %}
+                        <textarea name="content" id="content-input" required class="form-control" cols="10" rows="20" placeholder="{{ 'Document contents' | trans() }}">{{ document.lastRevision is defined and document.lastRevision is not null ? document.lastRevision.content : '' }}</textarea>
+                        <span class="input-group-btn text-right">
+                            <button class="btn btn-primary" type="submit">{{ 'Save' | trans() }}</button>
+                        </span>
+                    {% else %}
+                        <div class="panel panel-default no-bg b-gray-dark" style="margin-top: 17px;">
+                            <div class="panel-body">
+                                <div id="output">
+                                    {{ document.lastRevision is defined and document.lastRevision is not null ? document.lastRevision.content | raw() : '' }}
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+
+        <div class="panel panel-default no-bg b-gray-dark hidden tab" id="attachments">
+            <div class="panel-body">
+                {% if filesCount | length %}
+                    <table class="table table-hover m-b-0">
+                        <tbody>
+                        {% for file in documentFiles %}
+                            {% set vars = {
+                                'downloadFilePath': path('document_download_file', {'fileId': file.id}),
+                                'deleteFilePath' : path('document_delete_file', {'id': document.id, 'fileId': file.id})
+                            } %}
+                            {% if file.format == 'jpg' or file.format == 'jpeg' or file.format == 'png' %}
+                                {% set vars = vars | merge({ 'previewImage': path('document_download_file', {'fileId': file.id, 'preview': true }) }) %}
+                            {% endif %}
+                            {% include 'partial/upload_files_list.html.twig' with vars %}
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <span class="v-a-m b-t-0 text-muted">{{ "There's no files yet" | trans() }} </span>
+                {% endif %}
+            </div>
+            {% set vars = {'uploadFilePath' : path('document_upload_file', {'id': document.id})} %}
+            {% include 'partial/upload_files_form.html.twig' with vars %}
+        </div>
+        <!-- START Panel Sessions -->
+        <div class="panel panel-default no-bg b-gray-dark hidden tab" id="comments">
+            {% set vars = {
+                'comments': documentComments,
+                'action': path('document_add_comment', { 'id': document.id })
+            } %}
+            {% include 'partial/comments.html.twig' with vars %}
+        </div>
+        <div class="panel panel-default no-bg b-gray-dark hidden tab" id="revisions">
+            <div class="panel-body">
+                {% if document.revisions | length %}
+                    <table class="table table-hover">
+                        <thead>
+                            <th class="small text-muted text-uppercase">{{ 'Revision' | trans() }}</th>
+                            <th class="small text-muted text-uppercase">{{ 'Owner' | trans() }}</th>
+                            <th class="small text-muted text-uppercase">{{ 'Updated at' | trans() }}</th>
+                            <th class="small text-muted text-uppercase text-right">{{ 'View' | trans() }}</th>
+                        </thead>
+                        {% for revision in document.revisions %}
+                        <tr>
+                            <td class="v-a-m">{{ revision.version }}</td>
+                            <td class="v-a-m">{{ revision.owner.lastNameWithInitials }}</td>
+                            <td class="v-a-m">{{ revision.createdAt | date('d.m.Y H:i:s') }}</td>
+                            <td class="text-right v-a-m">
+                                <a class="btn btn-default btn-sm" href="{{ path('version_changes', {'id': revision.document.id, 'versionId': revision.version }) }}">
+                                    <i class="fa fa-fw fa-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                {% else %}
+                    <span class="v-a-m b-t-0 text-muted">{{ "There's no versions yet" | trans() }}</span>
+                {% endif %}
+            </div>
+        </div>
+        <div class="panel panel-default no-bg b-gray-dark hidden tab" id="history">
+            <div class="panel-body">
+                <div>
+                    {% if documentChanges | length %}
+                        <table class="table table-sm table-hover">
+                            <thead>
+                            <tr>
+                                <th class="small text-muted text-uppercase">{{ 'Field' | trans() }}</th>
+                                <th class="small text-muted text-uppercase">{{ 'Old value' | trans() }}</th>
+                                <th class="small text-muted text-uppercase">{{ 'New value' | trans() }}</th>
+                                <th class="small text-muted text-uppercase">{{ 'Changed by' | trans() }}</th>
+                                <th class="small text-muted text-uppercase">{{ 'Changed at' | trans() }}</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for changes in documentChanges %}
+                                <tr>
+                                    <td>{{ (changes.field | capitalize) | trans() }}</td>
+                                    <td><strike>{{ changes.oldValue | trans() }}</strike></td>
+                                    <td class="text-inverse">{{ changes.newValue | trans() }}</td>
+                                    <td>{{ changes.changedBy.fullName }}</td>
+                                    <td>{{ changes.updatedAt | date('d.m.Y H:i') }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <span class="v-a-m b-t-0 text-muted">{{ "There's no changes yet" | trans() }}</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="panel-default no-bg b-gray-dark hidden tab" style="margin-top: -17px;width: 40%;" id="subscribers">
+            <table class="table table-hover" >
+                <thead>
+                <tr>
+                    <th class="small text-muted text-uppercase"><strong>{{ "Fullname" | trans() }}</strong></th>
+                    <th class="small text-muted text-uppercase"><strong>{{ "Employee Role" | trans() }}</strong></th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for subscriber in document.subscribers %}
+                    <tr>
+                        <td class="v-a-m">
+                            <a href="{{ path('employee_details', {'userName': subscriber.userName}) }}"><span>{{ subscriber.getFullName(true) }}</span></a>
+                        </td>
+                        <td class="v-a-m">
+                            <span>{{ subscriber.employeeRole ?: '-' }}</span>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="panel-default no-bg b-gray-dark hidden tab" style="margin-top: -17px;" id="remarks">
+            <form action="{{ path('edit_remarks', { 'id': document.id }) }}" method="POST">
+                <div class="document-remarks-form">
+                    {% for user in document.signatories %}
+                        {% if user.signatory == app.user %}
+                            <textarea name="remarks" id="remarks-input" required class="form-control" cols="10" rows="20" placeholder="{{ user.approved ? 'Enter your remarks' | trans() : 'Enter your reason for disapproval' | trans() }}">
+                                {{ user.remarks ?? user.remarks }}
+                            </textarea>
+                            <span class="input-group-btn text-right">
+                                <button class="btn btn-primary" type="submit">{{ 'Save' | trans() }}</button>
+                            </span>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {% import 'documents/partial/form.html.twig' as form %}
+    {% import 'documents/partial/document_approve_form.html.twig' as documentApproveForm %}
+    {% import 'documents/partial/return_fixing_prompt.html.twig' as returnFixingForm %}
+    {% import 'documents/partial/document_cancel_form.html.twig' as documentCancelForm %}
+    {% import 'documents/partial/delete_file_form.html.twig' as deleteFileForm %}
+    {% import 'partial/preview_form.html.twig' as previewForm %}
+    {% import 'documents/partial/document_add_debtreceivaible.html.twig' as addDebtreceivaibleForm %}
+    {% import 'documents/partial/add_remarks_form.html.twig' as addRemarksForm %}
+
+    {% set previewFormVars = {
+        'class': 'previewModal',
+        'formId': 'previewForm',
+        'size': 'large',
+        'title': 'Image preview',
+        'content': previewForm.inputs(),
+    } %}
+    {% set editDocumentVars = {
+        'class': 'editDocumentModal',
+        'formId': 'editDocumentForm',
+        'title': 'Edit document' | trans(),
+        'size': 'large',
+        'content': form.inputs(document, documentTemplates, supplementaryDocumentTemplates, suppliers, documentCategories, users),
+        'submitTitle': 'Save'
+    } %}
+    {% set addAgreementVars = {
+        'class': 'addAgreementModal',
+        'formId': 'addAgreementForm',
+        'title': 'Add supplementary agreement' | trans(),
+        'size': 'large',
+        'content': form.inputs(document, documentTemplates, supplementaryDocumentTemplates, suppliers, documentCategories, users),
+        'submitTitle': 'Create'
+    } %}
+    {% set documentApproveVars = {
+        'class': 'documentApproveModal',
+        'formId': 'documentApproveForm',
+        'formAction': path('document_change_state', {'id': document.id, 'state': 4}),
+        'title': 'Document approve',
+        'content': documentApproveForm.inputs(users, document.getSignatoryUsers()),
+        'submitTitle': 'Send'
+    } %}
+    {% set addSignatoriesVars = {
+        'class': 'addSignatoriesModal',
+        'formId': 'addSignatoriesForm',
+        'formAction': path('document_add_signatories', {'id': document.id}),
+        'title': 'Add signatories',
+        'content': documentApproveForm.inputs(users, document.getSignatoryUsers()),
+        'submitTitle': 'Add'
+    } %}
+    {% set documentCancelVars = {
+        'class': 'documentCancelModal',
+        'formId': 'documentCancelForm',
+        'formAction': path('document_change_state', {'id': document.id, 'state': 7}),
+        'title': 'Cancel',
+        'content': documentCancelForm.inputs(),
+        'submitTitle': 'Cancel'
+    } %}
+    {% set documentFixingVars = {
+        'class': 'returnFixingModal',
+        'formId': 'returnFixingForm',
+        'formAction': path('document_change_state', {'id': document.id, 'state': 3}),
+        'title': 'Return fixing',
+        'content': returnFixingForm.inputs(),
+        'submitTitle': 'Return fixing'
+    } %}
+    {% set deleteFileFormVars = {
+        'class': 'deleteFileModal',
+        'formId': 'deleteFileForm',
+        'title': 'Delete file',
+        'content': deleteFileForm.inputs(),
+        'submitTitle': 'Delete'
+    } %}
+    {% set addDebtreceivaibleVars = {
+        'class': 'addDebtreceivaibleModal',
+        'formId': 'addDebtreceivaibleForm',
+        'title': 'Add debtreceivable' | trans(),
+        'content': addDebtreceivaibleForm.inputs(),
+        'submitTitle': 'Add'
+    } %}
+    {% set addRemarksVars = {
+        'class': 'addRemarksModal',
+        'formId': 'addRemarksForm',
+        'title': 'Add remarks' | trans(),
+        'size': 'large',
+        'content': addRemarksForm.inputs('Enter your remarks'),
+        'submitTitle': 'Add'
+    } %}
+    {% set addReasonVars = {
+        'class': 'addReasonModal',
+        'formId': 'addReasonForm',
+        'title': 'Reason for disapproval' | trans(),
+        'size': 'large',
+        'content': addRemarksForm.inputs('Enter your reason for disapproval'),
+        'submitTitle': 'Save'
+    } %}
+
+    {% include 'partial/modal.html.twig' with previewFormVars %}
+    {% include 'partial/modal.html.twig' with editDocumentVars %}
+    {% include 'partial/modal.html.twig' with addAgreementVars %}
+    {% include 'partial/modal.html.twig' with documentApproveVars %}
+    {% include 'partial/modal.html.twig' with documentFixingVars %}
+    {% include 'partial/modal.html.twig' with documentCancelVars %}
+    {% include 'partial/modal.html.twig' with deleteFileFormVars %}
+    {% include 'partial/modal.html.twig' with addSignatoriesVars %}
+    {% include 'partial/modal.html.twig' with addDebtreceivaibleVars %}
+    {% include 'partial/modal.html.twig' with addRemarksVars %}
+    {% include 'partial/modal.html.twig' with addReasonVars %}
+    
+    <script>
+        $(document).ready(function() {
+            $('.tabs .nav a').bind('click', function(){
+                $('.tabs .nav li').removeClass('active');
+                $('.tab').addClass('hidden');
+
+                $('#' + $(this).parent().data('target')).removeClass('hidden');
+                $(this).parent().addClass('active')
+            });
+
+            var url = window.location.href;
+            var hash = url.substring(url.indexOf('#')+1);
+
+            if (hash == 'cardstab' || hash == 'signatoriestab' || hash == 'contentstab' || hash == 'attachmentstab' || hash == 'commentstab' || hash == 'revisionstab' || hash == 'historytab' || hash == 'subscriberstab' || hash == 'remarkstab') {
+                $('.tab-' + hash + ' a').click();
+            }
+        });
+
+        $(document).submit(function(){
+            $('.send-comment-button').attr("disabled", "disabled");
+        });
+
+    </script>
+{% endblock %}

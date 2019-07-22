@@ -1,0 +1,55 @@
+{% extends 'emails/base_email_template.html.twig' %}
+
+{% block template_title %}
+    {{ task.reporter.fullName }} <strong>{{ 'created a new task' | trans() }}</strong> <a href="{{ base_url ~ path('project_task_details', {'id': task.project.id, 'taskId': task.id}) }}" style="color:#3b73af;text-decoration:none;" target="_blank" rel="noopener noreferrer"><img height="16" width="16" border="0" align="absmiddle" alt="Task" src="../message_part/?_uid=1130000023966733&amp;hid=1.4&amp;ids=162974011515471407&amp;name=&amp;yandex_class=yandex_inline_content_320.mail:1130000023966733.E370834:26556666355730289872878139301_1.4_162974011515471407"> {{ '#' ~ task.id }}: {{ task.title }}</a>
+{% endblock %}
+{% block template_description %}
+    {% if task.description %}
+        <tr>
+            <td id="text-paragraph-pattern-top5e634c7a1fe62023f286d757c8e489bd" style="padding:0;border-collapse:collapse;border-left:1px solid #cccccc;border-right:1px solid #cccccc;border-top:0;border-bottom:0;padding:0 15px 0 16px;background-color:#ffffff;" bgcolor="#ffffff">
+                <table cellspacing="0" cellpadding="0" border="0" width="100%" style="border-collapse:collapse;font-family:Arial,sans-serif;font-size:14px;line-height:20px;">
+                    <tbody>
+                    <tr>
+                        <td style="padding:0;border-collapse:collapse;padding:0 0 10px;">
+                            <p style="margin:10px 0 0;margin-top:0;"></p>
+                            <p style="margin:10px 0 0;">
+                                {{ task.description | raw }}</p><p style="margin:10px 0 0;">
+                            </p>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+    {% endif %}
+{% endblock %}
+{% block template_table %}
+    <table style="border-collapse:collapse;">
+        <tbody>
+        <tr>
+            <th style="color:#707070;font:normal 14px/20px Arial,sans-serif;text-align:left;vertical-align:top;padding:2px 0;"> {{ 'Project' | trans() }}: </th>
+            <td style="padding:0;border-collapse:collapse;font:normal 14px/20px Arial,sans-serif;padding:2px 0 2px 5px;vertical-align:top;">
+                <a rel="noopener noreferrer" href="{{ base_url ~ path('project_tasks', {'id': task.project.id}) }}" style="color:#3b73af;text-decoration:none;" target="_blank">{{ task.project.name }}</a>
+            </td>
+        </tr>
+        <tr>
+            <th style="color:#707070;font:normal 14px/20px Arial,sans-serif;text-align:left;vertical-align:top;padding:2px 0;">{{ 'Responsible' | trans() }}:</th>
+            <td style="padding:0;border-collapse:collapse;font:normal 14px/20px Arial,sans-serif;padding:2px 0 2px 5px;vertical-align:top;">
+                <a rel="noopener noreferrer" style="color:#3b73af;color:#3b73af;text-decoration:none;" class="daria-goto-anchor" target="_blank">{{ task.responsibleUser.fullName }}</a>
+            </td>
+        </tr>
+        <tr>
+            <th style="color:#707070;font:normal 14px/20px Arial,sans-serif;text-align:left;vertical-align:top;padding:2px 0;">{{ 'Start At' | trans() }}:</th>
+            <td style="padding:0;border-collapse:collapse;font:normal 14px/20px Arial,sans-serif;padding:2px 0 2px 5px;vertical-align:top;">
+                <a rel="noopener noreferrer" style="color:#3b73af;color:#3b73af;text-decoration:none;" class="daria-goto-anchor" target="_blank">{{ task.startAt | date('d.m.Y H:i') }}</a>
+            </td>
+        </tr>
+        <tr>
+            <th style="color:#707070;font:normal 14px/20px Arial,sans-serif;text-align:left;vertical-align:top;padding:2px 0;">{{ 'End At' | trans() }}:</th>
+            <td style="padding:0;border-collapse:collapse;font:normal 14px/20px Arial,sans-serif;padding:2px 0 2px 5px;vertical-align:top;">
+                <a rel="noopener noreferrer" style="color:#3b73af;color:#3b73af;text-decoration:none;" class="daria-goto-anchor" target="_blank">{{ task.endAt | date('d.m.Y H:i') }}</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+{% endblock %}

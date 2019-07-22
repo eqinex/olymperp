@@ -1,0 +1,283 @@
+<div>
+    <table class="table table-bordered table-inverse">
+        <thead>
+        <tr>
+            <th class="title-card"><strong>{{ 'Supplier short name' | trans() }}</strong></th>
+            <th>
+                <strong class="variable-card-padding">
+                    {{ supplier.title }}
+                </strong>
+            </th>
+        </tr>
+        <tr>
+            <th scope="row" class="title-card"><strong>{{ 'Supplier full name' | trans() }}</strong></th>
+            <td class="variable-card-width">
+                <strong class="variable-card-padding">
+                    {{ supplier.fullTitle }}
+                </strong>
+            </td>
+        </tr>
+        <tr>
+            <th class="title-card"><strong>{{ 'Legal form' | trans() }}</strong></th>
+            <td>
+                <strong class="variable-card-padding">
+                    {{ supplier.legalForm.name }}
+                </strong>
+            </td>
+        </tr>
+        <tr>
+            <th class="title-card"><strong>{{ 'Supplies Categories' | trans() }}</strong></th>
+            <th>
+                <strong class="variable-card-padding">
+                    {{ supplier.supplierCategories | join(',')  }}
+                </strong>
+            </th>
+        </tr>
+        <tr>
+            <th class="title-card"><strong>{{ 'Created by' | trans() }}</strong></th>
+            <th>
+                <strong class="variable-card-padding">
+                    {{ supplier.createdBy }}
+                </strong>
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <th scope="row" class="title-card"><strong>{{ 'Legal Address' | trans() }}</strong></th>
+            <td>
+                <strong class="variable-card-padding">
+                    {{ supplier.legalAddress }}
+                </strong>
+            </td>
+        </tr>
+        <tr>
+            <th scope="row" class="title-card"><strong>{{ 'Actual Address' | trans() }}</strong></th>
+            <td class="variable-card-width">
+                <strong class="variable-card-padding">
+                    {{ supplier.actualAddress }}
+                </strong>
+            </td>
+        </tr>
+        <tr>
+            <th scope="row" class="title-card"><strong>{{ 'Postal Address' | trans() }}</strong></th>
+            <td class="variable-card-width">
+                <strong class="variable-card-padding">
+                    {{ supplier.postalAddress }}
+                </strong>
+            </td>
+        </tr>
+        <tr>
+            <th scope="row" class="title-card"><strong>{{ 'Mailing Address' | trans() ~ ', ' ~ 'Site' | trans() }}</strong></th>
+            <td class="variable-card-width">
+                <strong class="variable-card-padding">
+                    {% if supplier.email is not empty and supplier.site is not empty %}
+                        {{ supplier.email ~ ', '}}<a href="{{ 'http://' ~ supplier.site}}">{{ supplier.site }}</a>
+                    {% elseif supplier.email and supplier.site is empty %}
+                        {{ supplier.email }}
+                    {% elseif supplier.site and supplier.email is empty %}
+                        <a href="{{ 'http://' ~ supplier.site }}">{{ supplier.site }}</a>
+                    {% else %}
+
+                    {% endif %}
+                </strong>
+            </td>
+        </tr>
+        <tr>
+            <th scope="row" class="title-card"><strong>{{ 'Phone' | trans() ~ '/' ~ 'Fax' | trans() }}</strong></th>
+            <td class="variable-card-width">
+                <strong class="variable-card-padding">
+                    {% if supplier.phone is not empty and supplier.fax is not empty %}
+                        {{ supplier.phone ~ ', ' ~ supplier.fax }}
+                    {% elseif supplier.phone and supplier.fax is empty %}
+                        {{ supplier.phone }}
+                    {% elseif supplier.fax and supplier.phone is empty %}
+                        {{ supplier.fax }}
+                    {% else %}
+
+                    {% endif %}
+                </strong>
+            </td>
+        </tr>
+        <tr>
+            <th scope="row" class="title-card"><strong>{{ 'Ogrn' | trans() }}</strong></th>
+            <td class="variable-card-width">
+                <strong class="variable-card-padding">
+                    {{ supplier.ogrn }}
+                </strong>
+            </td>
+        </tr>
+        <tr>
+            <th scope="row" class="title-card"><strong>{{ 'ITN' | trans() ~ '/' ~ 'Kpp' | trans() }}</strong></th>
+            <td class="variable-card-width">
+                <strong class="variable-card-padding">
+                    {{ (supplier.itn ? supplier.itn : '-') ~ ' / ' ~ (supplier.kpp ? supplier.kpp : '-') }}
+                </strong>
+            </td>
+        </tr>
+        <tr>
+            <th scope="row" class="title-card"><strong>{{ 'Supplier registered at' | trans() }}</strong></th>
+            <td class="variable-card-width">
+                <strong class="variable-card-padding">
+                    {{ supplier.registeredAt ? supplier.registeredAt | date('d.m.Y г.') : '' }}
+                </strong>
+            </td>
+        </tr>
+        <tr>
+            <th scope="row" class="title-card"><strong>{{ 'Okpo' | trans() }}</strong></th>
+            <td class="variable-card-width">
+                <strong class="variable-card-padding">
+                    {{ supplier.okpo }}
+                </strong>
+            </td>
+        </tr>
+        <tr>
+            <th scope="row" class="title-card"><strong>{{ 'Okved' | trans() }}</strong></th>
+            <td class="variable-card-width">
+                <strong class="variable-card-padding">
+                    {{ supplier.okved }}
+                </strong>
+            </td>
+        </tr>
+        <tr>
+            <th scope="row" class="title-card"><strong>{{ 'Okfs' | trans() }}</strong></th>
+            <td class="variable-card-width">
+                <strong class="variable-card-padding">
+                    {{ supplier.okfs }}
+                </strong>
+            </td>
+        </tr>
+        <tr>
+            <th scope="row" class="title-card"><strong>{{ 'Okopf' | trans() }}</strong></th>
+            <td class="variable-card-width">
+                <strong class="variable-card-padding">
+                    {{ supplier.okopf }}
+                </strong>
+            </td>
+        </tr>
+        <tr>
+            <th scope="row" class="title-card"><strong>{{ 'Okato' | trans() }}</strong></th>
+            <td class="variable-card-width">
+                <strong class="variable-card-padding">
+                    {{ supplier.okato }}
+                </strong>
+            </td>
+        </tr>
+        <tr>
+            <th colspan="2" class="title-card">{{ 'Bank details' | trans() }}</th>
+        </tr>
+        <tr>
+            <th scope="row" class="title-card"><strong>{{ 'Checking Account' | trans() }}</strong></th>
+            <td class="variable-card-width">
+                <strong class="variable-card-padding">
+                    {{ supplier.checkingAccount }}
+                </strong>
+            </td>
+        </tr>
+        <tr>
+            <th scope="row" class="title-card"><strong>{{ 'Bank Short Name' | trans() }}</strong></th>
+            <td class="variable-card-width">
+                <strong class="variable-card-padding">
+                    {{ supplier.bankShortName }}
+                </strong>
+            </td>
+        </tr>
+        <tr>
+            <th scope="row" class="title-card"><strong>{{ 'Bank Full Name' | trans() }}</strong></th>
+            <td class="variable-card-width">
+                <strong class="variable-card-padding">
+                    {{ supplier.bankFullName }}
+                </strong>
+            </td>
+        </tr>
+        <tr>
+            <th scope="row" class="title-card"><strong>{{ 'Correspondent Account' | trans() }}</strong></th>
+            <td class="variable-card-width">
+                <strong class="variable-card-padding">
+                    {{ supplier.correspondentAccount }}
+                </strong>
+            </td>
+        </tr>
+        <tr>
+            <th scope="row" class="title-card"><strong>{{ 'Bic' | trans() }}</strong></th>
+            <td class="variable-card-width">
+                <strong class="variable-card-padding">
+                    {{ supplier.bic }}
+                </strong>
+            </td>
+        </tr>
+        <tr>
+            <th scope="row" class="title-card"><strong>{{ 'Bank Mailing Address' | trans() }}</strong></th>
+            <td class="variable-card-width">
+                <strong class="variable-card-padding">
+                    {{ supplier.bankMailingAddress }}
+                </strong>
+            </td>
+        </tr>
+        <tr>
+            <th scope="row" class="title-card"><strong>{{ 'Bank Legal Address' | trans() }}</strong></th>
+            <td class="variable-card-width">
+                <strong class="variable-card-padding">
+                    {{ supplier.bankLegalAddress }}
+                </strong>
+            </td>
+        </tr>
+        <tr>
+            <th scope="row" class="title-card"><strong>{{ 'Bank Actual Address' | trans() }}</strong></th>
+            <td class="variable-card-width">
+                <strong class="variable-card-padding">
+                    {{ supplier.bankActualAddress }}
+                </strong>
+            </td>
+        </tr>
+        <tr>
+            <th scope="row" class="title-card"><strong>{{ 'ITN' | trans() ~ '/' ~ 'Bank Kpp' | trans() }}</strong></th>
+            <td class="variable-card-width">
+                <strong class="variable-card-padding">
+                    {% if supplier.bankItn is not empty and supplier.bankKpp is not empty %}
+                        {{ supplier.bankItn ~ ' / ' ~ supplier.bankKpp }}
+                    {% else %}
+
+                    {% endif %}
+                </strong>
+            </td>
+        </tr>
+        <tr>
+            <th scope="row" class="title-card"><strong>{{ 'Director' | trans() }}</strong></th>
+            <td class="variable-card-width">
+                <strong class="variable-card-padding">
+                    {{ supplier.director }}
+                </strong>
+            </td>
+        </tr>
+        <tr>
+            <th scope="row" class="title-card"><strong>{{ 'Director based' | trans() }}</strong></th>
+            <td class="variable-card-width">
+                <strong class="variable-card-padding">
+                    {{ supplier.basis }}
+                </strong>
+            </td>
+        </tr>
+        <tr>
+            <th scope="row" class="title-card"><strong>{{ 'Chief Accountant' | trans() }}</strong></th>
+            <td class="variable-card-width">
+                <strong class="variable-card-padding">
+                    {{ supplier.accountant }}
+                </strong>
+            </td>
+        </tr>
+        <tr>
+            <th scope="row" class="title-card"><strong>{{ 'Client' | trans() }}</strong></th>
+            <td class="variable-card-width">
+                <strong class="variable-card-padding">
+                    {% if supplier.client %}
+                        <span>{{ supplier.client.shortName | trans() }}</span>
+                    {% else %}
+                        -
+                    {% endif %}
+                </strong>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>

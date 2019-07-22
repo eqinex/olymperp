@@ -1,0 +1,36 @@
+{% macro inputs(project) %}
+    <div class="form-group">
+        <label class="col-lg-3 control-label"><span class="text-danger">*</span> {{ 'Title' | trans() }}</label>
+        <div class="col-lg-8">
+            <input type="text" class="form-control task-title" required placeholder="{{ 'Title' | trans() }}" value="" name="cost[title]">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-3 control-label"><span class="text-danger">*</span> {{ "Category" | trans() }}</label>
+        <div class="col-sm-8">
+            <select class="form-control task-project select2-modal" name="cost[category]" required>
+                    <option value="" >{{ 'Select category type' | trans() }}</option>
+                    <option value="service" >{{ 'service' | trans() | capitalize }}</option>
+                    <option value="material" >{{ 'material' | trans() | capitalize }}</option>
+                    <option value="consumables" >{{ 'consumables' | trans() | capitalize }}</option>
+                    <option value="other" >{{ 'other' | trans() | capitalize }}</option>
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-3 control-label"><span class="text-danger">*</span> {{ "Payment Type" | trans() }}</label>
+        <div class="col-sm-8">
+            <select class="form-control task-project select2-modal" name="cost[payment_type]" required>
+                    <option value="" >{{ 'Select payment type' | trans() }}</option>
+                    <option value="cash" >{{ 'Cash' | trans() }}</option>
+                    <option value="card" >{{ 'Card' | trans() }}</option>
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-lg-3 control-label"><span class="text-danger">*</span> {{ 'Amount' | trans() }}</label>
+        <div class="col-lg-8">
+            <input type="text" class="form-control task-title" required placeholder="{{ 'Amount' | trans() }}" value="" name="cost[amount]">
+        </div>
+    </div>
+{% endmacro %}

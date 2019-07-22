@@ -1,0 +1,14 @@
+{% macro inputs() %}
+    <input type="hidden" class="form-control itt-id" value="" name="itt[id]">
+    <div class="text-center">{{ "Are you sure you want to delete ITT?" | trans() }}</div>
+
+    <script>
+        $(document).ready(function(){
+            $('.remove-itt').bind('click', function() {
+                var removeIttForm = $('#removeIttForm');
+                removeIttForm.attr('action', $(this).data('href'));
+                removeIttForm.find('.itt-id').val($(this).data('id'));
+            });
+        });
+    </script>
+{% endmacro %}

@@ -1,0 +1,17 @@
+{% macro inputs() %}
+    <div class="form-group">
+        <label class="col-lg-2 control-label">{{ "Notice" | trans() }}</label>
+        <div class="col-lg-9">
+            <textarea class="form-control item-notice" rows="4" placeholder="{{ "Notice" | trans() }}" name="item[notice]"></textarea>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function(){
+            $('.add-item-notice').bind('click', function() {
+                var itemNoticeForm = $('#noticeForm');
+                itemNoticeForm.attr('action', $(this).data('form-action'));
+            });
+        });
+    </script>
+{% endmacro %}

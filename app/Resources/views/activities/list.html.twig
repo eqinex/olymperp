@@ -1,0 +1,173 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'Activity map' | trans() }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ breadcrumb( 'Activity map' | trans(), path('activities_list') ) }}
+{% endblock %}
+
+{% block body %}
+    {% if app.request.attributes.get('_route') == 'activities_list' %}
+        <div class="panel panel-default no-bg  b-gray-dark">
+            <div class="panel-body">
+                <form class="form-inline filter-form" method="get" action="{{ path('activities_list') }}">
+                    <div class="form-group filter">
+                        <input type="text" required class="form-control daterange-picker"
+                               name="filters[endAt]" placeholder="{{ 'End At' | trans() }}"
+                               value="{% if filters.endAt is defined %}{{ filters.endAt }}{% endif %}">
+                    </div>
+                    <div class="form-group filter">
+                        <select name="filters[project]" class="form-control select2-modify filter" tabindex="-1" aria-hidden="true">
+                            <option value="">{{ 'Select project' | trans() }}</option>
+                            {% for project in projects %}
+                                <option {% if filters.project is defined and filters.project == project.id %}selected{% endif %} value="{{ project.id }}">{{ project.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% if app.user.canViewAllActivity %}
+                        <div class="form-group filter">
+                            <select class="form-control select2-modify filter" name="filters[responsible]">
+                                <option value="">{{ 'Select responsible' | trans() }}</option>
+                                {% for team, members in users %}
+                                    <optgroup label="{{ team | trans() }}">
+                                        {% for member in members %}
+                                            <option value="{{ member.id }}"
+                                                    {% if filters.responsible is defined and filters.responsible == member.id %}selected{% endif %}>{{ member.fullName }}</option>
+                                        {% endfor %}
+                                    </optgroup>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    {% endif %}
+                    {% if app.user.canViewAllActivity or app.user.canViewActivity %}
+                        <div class="form-group filter">
+                            <select class="form-control select2-modify filter" name="filters[result]">
+                                {% for key, result in results %}
+                                    <option {% if filters.result is defined and filters.result is not same as('') and filters.result == key %}selected{% endif %} value="{{ key }}">
+                                        {{ result | trans() }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    {% endif %}
+                    {% if app.user.canViewAllActivity %}
+                        <div class="form-group filter">
+                            <span class="col-align col-align--center">{{ 'Display only high-risk' | trans() }}</span>
+                            <input style="margin-left: 5px;" class="col-align col-align--center" type="checkbox" name="filters[highRisk]" {{ filters.highRisk is defined and filters.highRisk is not null ? 'checked' : '' }}>
+                        </div>
+                    {% endif %}
+                    {% if app.user.canViewAllActivity or app.user.canViewActivity %}
+                        <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target=".addActivityModal"><i class="fa fa-plus"></i> {{ 'New activity' | trans() }}</button>
+                        {% set routeParams = {'filters': filters} %}
+                        <a class="btn btn-success pull-right m-r-1" target="_blank" href="{{ path('export_activities', routeParams) }}">
+                            <i class="fa fa-file-excel-o text-inverse"></i>
+                            {{ 'Download activity' | trans() }}
+                        </a>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+    {% endif %}
+
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th class="small text-muted text-uppercase"><strong>{{ 'Code' | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ 'Project' | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ 'Activity' | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ 'Availability TEO, profitability' | trans() ~ ' %' }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ 'Plan' | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ 'Fact' | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ 'Received' | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ 'Remaining amount' | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ 'Success events' | trans() ~ ' / ' ~ 'Additional events' | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ 'Result' | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ 'End At' | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ 'Responsible' | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ 'Action' | trans() }}</strong></th>
+        </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <th class="text-white activities-category " colspan="14">
+                    {{ 'Current projects (under the concluded contracts)' | trans() }}
+                </th>
+                {% set vars = {'activities': currentProjectsActivities } %}
+                {% include 'activities/partial/activity_categories.html.twig' with vars %}
+            </tr>
+            <tr>
+                <th class="text-white activities-category " colspan="14">
+                    {{ 'Precontractual projects' | trans() }}
+                </th>
+                {% set vars = {'activities': preContractualProjects } %}
+                {% include 'activities/partial/activity_categories.html.twig' with vars %}
+            </tr>
+            <tr>
+                <th class="text-white activities-category" colspan="14">
+                    {{ 'Other Activities' | trans() }}
+                </th>
+                {% set vars = {'activities': otherActivities } %}
+                {% include 'activities/partial/activity_categories.html.twig' with vars %}
+            </tr>
+            <tr>
+                <th class="text-white activities-category " colspan="14">
+                    {{ 'Deferred projects (weekly changes)' | trans() }}
+                </th>
+                {% set vars = {'activities': deferredProjectsActivities } %}
+                {% include 'activities/partial/activity_categories.html.twig' with vars %}
+            </tr>
+        </tbody>
+    </table>
+
+    {% set vars = {'route': 'activities_list', 'filters': filters} %}
+
+    {% import 'activities/partial/form.html.twig' as form %}
+
+    {% set addActivityVars = {
+        'class': 'addActivityModal',
+        'formId': 'addActivityForm',
+        'title': 'New activity',
+        'size': 'large',
+        'content': form.inputs(users, categories),
+        'formAction': path('add_activity'),
+        'submitTitle': 'Create'
+    } %}
+
+    {% set editActivityVars = {
+        'class': 'editActivityModal',
+        'formId': 'editActivityForm',
+        'title': 'Edit activity',
+        'size': 'large',
+        'content': form.inputs(users, categories),
+        'submitTitle': 'Save'
+    } %}
+
+    {% include 'partial/modal.html.twig' with addActivityVars %}
+    {% include 'partial/modal.html.twig' with editActivityVars %}
+
+    <script>
+        $(document).ready(function() {
+            moment.locale('ru');
+            $('.daterange-picker').daterangepicker({
+                timePickerIncrement: 30,
+                timePicker24Hour: true,
+                autoUpdateInput: false,
+                locale: {
+                    format: 'DD.MM.YYYY', applyLabel: "Выбрать", cancelLabel: "Отменить"
+                }
+            });
+
+            $('.daterange-picker').on('apply.daterangepicker', function(ev, picker) {
+                $(this).val(picker.startDate.format('DD.MM.YYYY') + ' - ' + picker.endDate.format('DD.MM.YYYY'));
+
+                $(this).trigger('change');
+            });
+
+            $('.daterange-picker').on('cancel.daterangepicker', function(ev, picker) {
+                $(this).val('');
+                $(this).trigger('change');
+            });
+        });
+    </script>
+
+{% endblock %}

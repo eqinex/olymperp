@@ -1,0 +1,227 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ "Tasks" | trans() }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ breadcrumb('Scheduled tasks' | trans(), path('scheduled_tasks')) }}
+{% endblock %}
+
+{% block body %}
+
+    <form class="form-inline filter-form" method="get" action="{{ path('scheduled_tasks') }}">
+        <div class="panel panel-default no-bg  b-gray-dark">
+            <input type="hidden" class="form-control" name="filters[scheduler]" value="1" />
+            <div class="panel-body">
+                <div class="form-group filter">
+                    <input class="form-control" name="filters[title]" placeholder="{{ 'Search by title' | trans() }}"
+                           value="{% if filters.title is defined %}{{ filters.title }}{% endif %}" />
+                </div>
+                <div class="form-group filter">
+                    <select class="form-control" required name="filters[scheduledPeriod]">
+                        <option value="">{{ 'Select scheduled period' | trans() }}</option>
+                        {% for key, type in schedulerTypes %}
+                            <option value="{{ key }}"
+                                    {% if filters.scheduledPeriod is defined and filters.scheduledPeriod == key %}selected{% endif %}>{{ type | trans()}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group filter">
+                    <select class="form-control" name="filters[project]">
+                        <option value="">{{ 'Select project' | trans() }}</option>
+                        {% for project in project_service.getAvailableProjects(app.user) %}
+                            <option {% if filters.project is defined and filters.project == project.id %}selected{% endif %} value="{{ project.id }}">
+                                {{ project.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group filter">
+                    <select class="form-control" name="filters[status]">
+                        <option value="">{{ 'Select status' | trans() }}</option>
+                        {% for key, status in statuses %}
+                            <option {% if filters.status is defined and filters.status is not same as('') and filters.status == key %}selected{% endif %} value="{{ key }}">
+                                {{ ('status_' ~ status) | trans() }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group filter">
+                    <select class="form-control" name="filters[priority]">
+                        <option value="">{{ 'Select priority' | trans() }}</option>
+                        {% for key, priority in priorities %}
+                            <option {% if filters.priority is defined and filters.priority is not same as('') and filters.priority == key %}selected{% endif %} value="{{ key }}">
+                                {{ ('priority_' ~ priority) | trans() }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% if teamMembers | length %}
+                    <select class="form-control filter" id="filter-leader" name="filters[responsible]">
+                        <option selected value>{{ 'Select responsible' | trans() }}</option>
+                        {% for team, members in teamMembers %}
+                            <optgroup label="{{ team | trans() }}">
+                                {% for member in members %}
+                                    {% if filters.responsible is defined and filters.responsible == member.id %}
+                                        {% set selected = "selected" %}
+                                    {% else %}
+                                        {% set selected = "" %}
+                                    {% endif %}
+                                    <option {{ selected }} value="{{ member.id }}">{{ member.fullName }} ({{ member.employeeRole }})</option>
+                                {% endfor %}
+                            </optgroup>
+                        {% endfor %}
+                    </select>
+                {% endif %}
+                <div class="form-group pull-right">
+                    <div class="btn-toolbar">
+                        <a href="" class="btn btn-primary add-scheduled-task" data-toggle="modal" data-target=".addScheduledTaskModal"><i class="fa fa-plus"></i> {{ "Schedule a task" | trans() }}</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th></th>
+                <th></th>
+                <th class="small text-uppercase">
+                    <strong>{{ "Status" | trans() }}</strong>
+                </th>
+                <th class="small text-uppercase">
+                    <strong>{{ "Scheduled period" | trans() }}</strong>
+                </th>
+                <th class="small text-uppercase">
+                    <strong>{{ "Type" | trans() }}</strong>
+                </th>
+                <th class="small text-uppercase">
+                    <strong>{{ "Title" | trans() }}</strong>
+                </th>
+                <th class="small text-uppercase">
+                    <strong>{{ "Controlling user" | trans() }}</strong>
+                </th>
+                <th class="small text-uppercase">
+                    <strong>{{ "Responsible" | trans() }}</strong>
+                </th>
+                <th class="small text-uppercase">
+                    <strong>{{ "Project" | trans() }}</strong>
+                </th>
+                <th class="small text-uppercase">
+                    <strong>{{ "Task Result" | trans() }}</strong>
+                </th>
+                <th class="small text-uppercase">
+                    <strong>{{ "Time" | trans() }}</strong>
+                </th>
+                <th class="small text-uppercase text-right">
+                    <strong>{{ 'Actions' | trans() }}</strong>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+
+        {% for task in scheduledTasks %}
+            <!-- START ROW Task -->
+            <tr>
+                <td class="v-a-m">{{ ((currentPage - 1) * perPage) + loop.index }}</td>
+                <td class="v-a-m">
+                    <i class="fa fa-fw fa fa-circle text-{{ task.priorityLabels[task.priority] }}"></i>
+                </td>
+                <td class="v-a-m">
+                    {% if task.status is not null %}
+                        <span class="text-{{ task.priorityLabels[task.status] }}">{{
+                            ("status_" ~ task.schedulerStatusList[task.status]) | trans() }}</span>
+                    {% endif %}
+                </td>
+                <td class="v-a-m">
+                    {% if task.scheduledPeriod is not null %}
+                        <span>{{ task.scheduledPeriod | trans() }}</span>
+                    {% endif %}
+                </td>
+                <td class="v-a-m">
+                    <span>{{ task.type | trans() }}</span>
+                </td>
+                <td class="v-a-m">
+                    <a  href="{{ path('project_edit_task', {'id': task.project.id, 'taskId': task.id}) }}">
+                        <span>{{ task.title }}</span>
+                    </a>
+                </td>
+                <td class="v-a-m">
+                    {% if task.controllingUser is not null %}
+                        <a class="link-comment" href="{{ path('employee_details', {'userName': task.controllingUser.username}) }}">{{ task.controllingUser.lastNameWithInitials }}</a>
+                    {% endif %}
+                </td>
+                <td class="v-a-m no-wrap visible-lg visible-xl">
+                    {% if task.responsibleUser is not null %}
+                        <a class="link-comment" href="{{ path('employee_details', {'userName': task.responsibleUser.username}) }}">{{ task.responsibleUser.lastNameWithInitials }}</a>
+                    {% endif %}
+                </td>
+                <td class="v-a-m">
+                    <a  href="{{ path('project_tasks', {'id': task.project.id}) }}">{{ task.project.name }}</a>
+                </td>
+                <td class="v-a-m visible-lg visible-xl">
+                    <span>{{ task.result ? task.result.name : '-' }}</span>
+                </td>
+                <td class="v-a-m visible-lg visible-xl">
+                    <span>
+                        {{ task.getFormattedTime(task.timeSpent) ~ '/' ~ task.getFormattedTime(task.originalEstimate) }}
+                    </span>
+                </td>
+                <td class="v-a-m pull-right">
+                    {% set vars = {'task': task, 'class': ''} %}
+                    {% include 'tasks/partial/task_actions.html.twig' with vars %}
+                </td>
+            </tr>
+        {% endfor %}
+        <!-- END ROW Task -->
+        </tbody>
+    </table>
+    {% set vars = {
+            'route': 'scheduled_tasks',
+            'currentPage': currentPage,
+            'perPage': perPage,
+            'maxPages': maxPages,
+            'filters': filters
+        }
+    %}
+
+    {% include 'partial/paginator.html.twig' with vars %}
+
+    {% import 'tasks/partial/scheduler_task_form.html.twig' as schedulerTaskForm %}
+    {% import 'tasks/partial/cancel_task_form.html.twig' as cancelTaskForm %}
+
+    {% set addScheduledTaskVars = {
+        'class': 'addScheduledTaskModal',
+        'formId': 'addScheduledTaskForm',
+        'title': 'Schedule a task',
+        'size': 'large',
+        'content': schedulerTaskForm.inputs(newTask, taskResults),
+        'formAction': path('add_scheduled_task'),
+        'submitTitle': 'Create'
+    }
+    %}
+
+    {% set editScheduledTaskVars = {
+        'class': 'editScheduledTaskModal',
+        'formId': 'editScheduledTaskForm',
+        'title': 'Edit scheduled task',
+        'size': 'large',
+        'content': schedulerTaskForm.inputs(newTask, taskResults),
+        'submitTitle': 'Save'
+    }
+    %}
+
+    {% set cancelTaskVars = {
+        'class': 'cancelTaskModal',
+        'formId': 'cancelTaskForm',
+        'title': 'Cancel',
+        'content': cancelTaskForm.inputs(),
+        'submitTitle': 'Cancel'
+    }
+    %}
+
+    {% include 'partial/modal.html.twig' with addScheduledTaskVars %}
+    {% include 'partial/modal.html.twig' with editScheduledTaskVars %}
+    {% include 'partial/modal.html.twig' with cancelTaskVars %}
+
+{% endblock %}

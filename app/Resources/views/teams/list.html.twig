@@ -1,0 +1,84 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'Teams' | trans() }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ breadcrumb( 'Teams' | trans(), path('team_spaces_list') ) }}
+{% endblock %}
+
+{% block body %}
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th class="small text-muted text-uppercase"><strong>#</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ "Name" | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ 'Vacation calendar' | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ 'Job report' | trans() }}</strong></th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for project in projects %}
+            <tr>
+                <td class="v-a-m" style="width: 50px;">
+                    <span>{{ project.team.id }}</span>
+                </td>
+                <td class="v-a-m">
+                    <a href="{{ path('project_tasks', { 'id': project.id }) }}"><span>{{ project.team.title }}</span></a>
+                </td>
+                <td class="v-a-m">
+                    {% if app.user == project.team.leader or app.user.canExportVacationCalendar() %}
+                        <a class="btn btn-success export-calendar"
+                           target="_blank"
+                           title="{{ 'download' | trans() }}"
+                           href=""
+                           data-href="{{ path('export_calendar', {'id': project.team.id}) }}"
+                           data-id="{{ project.team.id }}"
+                           data-toggle="modal"
+                           data-target=".exportCalendarModal">
+                            <i class="fa fa-fw fa-file-excel-o text-inverse"></i> <span>{{ 'Download' | trans() }}</span>
+                        </a>
+                    {% endif %}
+                </td>
+                <td class="v-a-m">
+                    {% if app.user == project.team.leader or app.user.canExportJobReport() %}
+                        <a class="btn btn-success export-job-report"
+                           target="_blank"
+                           title="{{ 'download' | trans() }}"
+                           href=""
+                           data-href="{{ path('export_job_report', {'id': project.team.id}) }}"
+                           data-id="{{ project.team.id }}"
+                           data-toggle="modal"
+                           data-target=".exportJobReportModal">
+                            <i class="fa fa-fw fa-file-excel-o text-inverse"></i> <span>{{ 'Download' | trans() }}</span>
+                        </a>
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    {% import 'teams/partial/export_calendar.html.twig' as form %}
+    {% import 'teams/partial/export_job_report.html.twig' as jobReportForm %}
+
+    {% set exportCalendarFormVars = {
+        'class': 'exportCalendarModal',
+        'formId': 'exportCalendarForm',
+        'title': 'Select year',
+        'content': form.inputs(endYear),
+        'submitTitle': 'Select'
+    } %}
+
+    {% set exportJobReportFormVars = {
+        'class': 'exportJobReportModal',
+        'formId': 'exportJobReportForm',
+        'title': 'Select period of execution',
+        'content': jobReportForm.inputs(),
+        'submitTitle': 'Select'
+    } %}
+
+
+    {% include 'partial/modal.html.twig' with exportCalendarFormVars %}
+    {% include 'partial/modal.html.twig' with exportJobReportFormVars %}
+
+{% endblock %}

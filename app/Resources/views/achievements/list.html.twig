@@ -1,0 +1,51 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ "Achievements" | trans() }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ breadcrumb( 'Achievements' | trans(), path('achievements_list') ) }}
+{% endblock %}
+
+{% block body %}
+    <div class="col-lg-6">
+        <table class="table table-hover">
+            <tbody>
+            {% for achievement in achievementsBasic %}
+                <tr>
+                    <td class="v-a-m" style="width: 175px; height:116px;">
+                        <div class="col-lg-3 center-block">
+                            <div class="basic-achievement">
+                                <img src="/images/achievements/{{ achievement.id }}.png" alt="Achievement">
+                            </div>
+                        </div>
+                    </td>
+                    <td class="v-a-m">
+                        <a href="{{ path('achievements_details', {'id': achievement.id}) }}"><span>{{ achievement.title }}</span></a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="col-lg-6">
+        <table class="table table-hover">
+            <tbody>
+            {% for achievement in achievementsProject %}
+                <tr>
+                    <td class="v-a-m" style="width: 175px; height:116px;">
+                        <div class="col-lg-3 center-block">
+                            <div  class="project-achievement">
+                                <img src="/images/achievements/{{ achievement.id }}.png" alt="Achievement">
+                            </div>
+                        </div>
+                    </td>
+                    <td class="v-a-m">
+                        <a href="{{ path('achievements_details', {'id': achievement.id}) }}"><span>{{ achievement.title }}</span></a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+{% endblock %}

@@ -1,0 +1,284 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ "Protocols" | trans() }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ breadcrumb( 'Protocols' | trans(), path('protocols_list') ) }}
+{% endblock %}
+
+{% block body %}
+
+    <div class="panel panel-default no-bg  b-gray-dark">
+        <div class="panel-body">
+            <form class="form-inline filter-form" method="get" action="{{ path('protocols_list') }}">
+                <div class="form-group filter">
+                    <input class="form-control" name="filters[title]" placeholder="{{ 'Search by number' | trans() }}"
+                           value="{% if filters.title is defined %}{{ filters.title }}{% endif %}">
+                </div>
+                <div class="form-group filter">
+                    <input type="text" required class="form-control daterange-picker"
+                           name="filters[startAt]" placeholder="{{ 'Protocol Date' | trans() }}"
+                           value="{% if filters.startAt is defined %}{{ filters.startAt }}{% endif %}">
+                </div>
+                <div class="form-group filter">
+                    <select class="form-control" name="filters[status]">
+                        <option value="">{{ 'Select status' | trans() }}</option>
+                        {% for key, status in statuses %}
+                            <option {% if filters.status is defined and filters.status is not same as('') and filters.status == key %}selected{% endif %} value="{{ key }}">
+                                {{ status | trans() }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group filter">
+                    <select class="form-control" name="filters[responsible]" required>
+                        {% for team, members in employee_service.getUsersGroupedByTeams() %}
+                            <option value="">{{ 'Select secretary' | trans() }}</option>
+                            <optgroup label="{{ team | trans() }}">
+                                {% for member in members %}
+                                    <option value="{{ member.id }}"
+                                        {% if filters.responsible is defined and filters.responsible == member.id %}
+                                            {{ "selected" }}
+                                        {% endif %}
+                                    >{{ member.fullName }} ({{ member.employeeRole }})</option>
+                                {% endfor %}
+                            </optgroup>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group filter">
+                    <select class="form-control" name="filters[controllingUser]" required>
+                        {% for team, members in employee_service.getUsersGroupedByTeams() %}
+                            <option value="">{{ 'Select controlling user' | trans() }}</option>
+                            <optgroup label="{{ team | trans() }}">
+                                {% for member in members %}
+                                    <option value="{{ member.id }}"
+                                        {% if filters.controllingUser is defined and filters.controllingUser == member.id %}
+                                            {{ "selected" }}
+                                        {% endif %}
+                                    >{{ member.fullName }} ({{ member.employeeRole }})</option>
+                                {% endfor %}
+                            </optgroup>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group pull-right">
+                    <div class="btn-toolbar">
+                        <a class="btn btn-primary add-protocol" data-toggle="modal" data-target=".addProtocolModal"><i class="fa fa-plus"></i> {{ "New protocol" | trans() }}</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th></th>
+            <th></th>
+            <th class="small text-muted text-uppercase">
+                <strong>{{ "Status" | trans() }}</strong>
+            </th>
+            <th class="small text-muted text-uppercase">
+                <strong>{{ "Number" | trans() }}</strong>
+            </th>
+            <th class="small text-muted text-uppercase  visible-lg visible-xl"><strong>{{ "Files" | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ "Secretary" | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ "Controlling user" | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase">
+                <strong>{{ "Project" | trans() }}</strong>
+            </th>
+            <th class="small text-muted text-uppercase"><strong>{{ "Task Result" | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase">
+                <strong>{{ "Protocol Date" | trans() }}</strong>
+            </th>
+            <th class="small text-muted text-uppercase">
+                <strong>{{ "Deadline" | trans() }}</strong>
+            </th>
+            <th class="small text-right text-muted text-uppercase"><strong>{{ "Actions" | trans() }}</strong></th>
+        </tr>
+        </thead>
+        <tbody>
+        {% import 'tasks/partial/protocol_form.html.twig' as protocolForm %}
+        {% for task in tasks %}
+            <!-- START ROW Task -->
+            <tr>
+                <td class="v-a-m">{{ ((currentPage - 1) * perPage) + loop.index }}</td>
+                <td class="v-a-m">
+                    {% if task.type == 'epic' %}
+                        <i class="fa fa-fw fa fa-object-group text-{{ task.priorityLabels[task.priority] }}"></i>
+                    {% else %}
+                        <i class="fa fa-fw fa fa-circle text-{{ task.priorityLabels[task.priority] }}"></i>
+                    {% endif %}
+                </td>
+                <td class="v-a-m">
+                    {% if task.status is not null %}
+                        <span class="text-{{ task.priorityLabels[task.status] }}">{{
+                            ("status_" ~ task.statusList[task.status]) | trans() }}</span>
+                    {% endif %}
+                </td>
+                <td class="v-a-m">
+                    {% if task.epic is not null %}
+                        {#{{ task.epic.id }}#}
+                        <a class="label m-r-1 label-{{ task_service.getEpicLabel(task.epic) }}" href="{{ path('project_task_details', {'id': task.project.id, 'taskId': task.epic.id}) }}">
+                            <span>{{ task.epic.title | upper }}</span>
+                        </a>
+                    {% endif %}
+                    <a  href="{{ path('project_edit_task', {'id': task.project.id, 'taskId': task.id}) }}">
+                        <span>{{ task.title }}</span>
+                    </a>
+                </td>
+                <td class="v-a-m visible-lg visible-xl">
+                    {% if task.attachments | length %}
+                        <a class="text-inverse" href="{{ path('project_edit_task', {'id': task.project.id, 'taskId': task.id}) }}#attachmentstab">
+                            <i class="fa fa-fw fa-paperclip"></i></a>
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+                <td class="v-a-m">
+                    {% if task.responsibleUser is not null %}
+                        <a class="link-comment" href="{{ path('employee_details', {'userName': task.responsibleUser.username}) }}">{{ task.responsibleUser.lastNameWithInitials }}</a>
+                    {% endif %}
+                </td>
+                <td class="v-a-m no-wrap">
+                    {% if task.controllingUser is not null %}
+                        <a class="link-comment" href="{{ path('employee_details', {'userName': task.controllingUser.username}) }}">{{ task.controllingUser.lastNameWithInitials }}</a>
+                    {% endif %}
+                </td>
+                <td class="v-a-m">
+                    <a  href="{{ path('project_tasks', {'id': task.project.id}) }}">{{ task.project.name }}</a>
+                </td>
+                <td class="v-a-m">
+                    <span>{{ task.result ? task.result.name : '-' }}</span>
+                </td>
+                <td class="v-a-m">
+                    {{ task.startAt | date('d.m.Y') }}
+                </td>
+                <td class="v-a-m">
+                    <span {% if task.Active and task.expired %}style="color:orangered;"{% endif %}>
+                        {{ task.endAt | date('d.m.Y') }}</span>
+                </td>
+
+                <td class="text-right v-a-m">
+                    {% set vars = {'protocolForm': protocolForm, 'task': task, 'class': ''} %}
+                    {% include 'tasks/partial/task_actions.html.twig' with vars %}
+                </td>
+            </tr>
+        {% endfor %}
+        <!-- END ROW Task -->
+        </tbody>
+    </table>
+
+    {% set vars = {
+        'route': 'protocols_list',
+        'currentPage': currentPage,
+        'perPage': perPage,
+        'maxPages': maxPages,
+        'filters': filters
+    }
+    %}
+
+    {% include 'partial/paginator.html.twig' with vars %}
+
+    {% import 'tasks/partial/start_progress_form.html.twig' as startProgressForm %}
+    {% import 'tasks/partial/finish_task_form.html.twig' as finishTaskForm %}
+    {% import 'tasks/partial/cancel_task_form.html.twig' as cancelTaskForm %}
+    {% import 'tasks/partial/request_approve_task_form.html.twig' as requestApproveTaskForm %}
+
+    {% set addProtocolVars = {
+        'class': 'addProtocolModal',
+        'formId': 'protocolForm',
+        'title': 'New protocol',
+        'size': 'large',
+        'content': protocolForm.inputs(newTask, taskResults),
+        'formAction': path('project_add_task', {'id': app.user.team.id }),
+        'submitTitle': 'Create'
+    }
+    %}
+    {% set editProtocolVars = {
+        'class': 'editProtocolModal',
+        'formId': 'editProtocolForm',
+        'title': 'Edit protocol',
+        'size': 'large',
+        'content': protocolForm.inputs(newTask, taskResults),
+        'submitTitle': 'Save'
+    }
+    %}
+    {% set requestApproveTaskVars = {
+        'class': 'requestApproveTaskModal',
+        'formId': 'requestApproveTaskForm',
+        'title': 'Request approve',
+        'content': requestApproveTaskForm.inputs(),
+        'submitTitle': 'Send'
+    }
+    %}
+    {% set startProgressVars = {
+        'class': 'startProgressModal',
+        'formId': 'startProgressForm',
+        'title': 'Start progress',
+        'content': startProgressForm.inputs(),
+        'submitTitle': 'Start'
+    }
+    %}
+    {% set finishTaskVars = {
+        'class': 'finishTaskModal',
+        'formId': 'finishTaskForm',
+        'title': 'Done',
+        'size': 'large',
+        'content': finishTaskForm.inputs(),
+        'submitTitle': 'Done'
+    }
+    %}
+    {% set resultApproveTaskVars = {
+        'class': 'resultApproveTaskModal',
+        'formId': 'resultApproveTaskForm',
+        'title': 'Request result approve',
+        'size': 'large',
+        'content': finishTaskForm.inputs(),
+        'submitTitle': 'Send'
+    }
+    %}
+    {% set cancelTaskVars = {
+        'class': 'cancelTaskModal',
+        'formId': 'cancelTaskForm',
+        'title': 'Cancel',
+        'content': cancelTaskForm.inputs(),
+        'submitTitle': 'Cancel'
+    }
+    %}
+
+    {% include 'partial/modal.html.twig' with addProtocolVars %}
+    {% include 'partial/modal.html.twig' with editProtocolVars %}
+    {% include 'partial/modal.html.twig' with startProgressVars %}
+    {% include 'partial/modal.html.twig' with finishTaskVars %}
+    {% include 'partial/modal.html.twig' with resultApproveTaskVars %}
+    {% include 'partial/modal.html.twig' with cancelTaskVars %}
+    {% include 'partial/modal.html.twig' with requestApproveTaskVars %}
+
+    <script>
+        $(document).ready(function() {
+            moment.locale('ru');
+            $('.daterange-picker').daterangepicker({
+                timePickerIncrement: 30,
+                timePicker24Hour: true,
+                autoUpdateInput: false,
+                locale: {
+                    format: 'DD.MM.YYYY', applyLabel: "Выбрать", cancelLabel: "Отменить"
+                }
+            });
+
+            $('.daterange-picker').on('apply.daterangepicker', function(ev, picker) {
+                $(this).val(picker.startDate.format('DD.MM.YYYY') + ' - ' + picker.endDate.format('DD.MM.YYYY'));
+
+                $(this).trigger('change');
+            });
+
+            $('.daterange-picker').on('cancel.daterangepicker', function(ev, picker) {
+                $(this).val('');
+                $(this).trigger('change');
+            });
+        });
+    </script>
+
+{% endblock %}

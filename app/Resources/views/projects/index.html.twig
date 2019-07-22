@@ -1,0 +1,229 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ app.request.attributes.get('_route') | trans() }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ breadcrumb( 'Projects' | trans(), path('projects_list') ) }}
+{% endblock %}
+
+{% block body %}
+
+    {% if app.request.attributes.get('_route') == 'projects_list' %}
+    <div class="panel panel-default no-bg  b-gray-dark">
+        <div class="panel-body">
+            <form class="form-inline filter-form" method="get" action="">
+                <div class="form-group">
+                    <input type="hidden" name="order" value="{{ order }}" />
+                    <input type="hidden" name="orderBy" value="{{ orderBy }}" />
+                    <select class="form-control filter" id="filter-project" name="filters[project]">
+                        <option selected value>{{ 'Select project' | trans() }}</option>
+                        {% for project in allowedProjects %}
+                            {% if filters.project is defined and filters.project == project.id %}
+                                {% set selected = "selected" %}
+                            {% else %}
+                                {% set selected = "" %}
+                            {% endif %}
+                            <option {{ selected }} value="{{ project.id }}">{{ project.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <select class="form-control filter" id="filter-status" name="filters[status]">
+                        <option selected value>{{ 'Select status' | trans() }}</option>
+                        {% for state in states %}
+                            {% if filters.status is defined and filters.status == state.id %}
+                                {% set selected = "selected" %}
+                            {% else %}
+                                {% set selected = "" %}
+                            {% endif %}
+                            <option {{ selected }} value="{{ state.id }}">{{ state.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <select class="form-control filter" id="filter-category" name="filters[category]">
+                        <option selected value>{{ 'Select category' | trans() }}</option>
+                        {% for category in categories %}
+                            {% if filters.category is defined and filters.category == category.id %}
+                                {% set selected = "selected" %}
+                            {% else %}
+                                {% set selected = "" %}
+                            {% endif %}
+                            <option {{ selected }} value="{{ category.id }}">{{ category.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <select class="form-control filter" id="filter-leader" name="filters[priority]">
+                        <option selected value>{{ 'Select priority' | trans() }}</option>
+                        {% for key, priority in priorities %}
+                            {% if filters.priority is defined and filters.priority == key %}
+                                {% set selected = "selected" %}
+                            {% else %}
+                                {% set selected = "" %}
+                            {% endif %}
+                            <option {{ selected }}  value="{{ key }}">{{ priority }}</option>
+                        {% endfor %}
+                    </select>
+                    {% if leaders | length %}
+                    <select class="form-control filter" id="filter-leader" name="filters[leader]">
+                        <option selected value>{{ 'Select leader' | trans() }}</option>
+                        {% for leader in leaders %}
+                            {% if filters.leader is defined and filters.leader == leader.id %}
+                                {% set selected = "selected" %}
+                            {% else %}
+                                {% set selected = "" %}
+                            {% endif %}
+                            <option {{ selected }}  value="{{ leader.id }}">{{ leader.fullName }}</option>
+                        {% endfor %}
+                    </select>
+                    {% endif %}
+                    {#<div class="checkbox m-l-1 m-r-1">#}
+                        {#<label>#}
+                            {#<input class="filter" type="checkbox" name="filters[show_archived]"#}
+                                {#{% if filters.show_archived is defined and filters.show_archived %}#}
+                                   {#checked="checked"#}
+                                {#{% endif %}> {{ 'Display archive' | trans() }}#}
+                        {#</label>#}
+                    {#</div>#}
+                </div>
+                <div class="dropdown pull-right m-l-1 pull-right">
+                    <button class="btn btn-success dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fa fa-fw fa-file-excel-o"></i> {{ "Export" | trans() }} <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-right">
+                        <li>
+                            <a target="_blank" href="{{ path('project_list_export') ~ '?' ~ ({'filters':filters} | url_encode) }}"><i class="fa fa-fw fa-download text-inverse"></i> {{ 'Download report' | trans() }}</a>
+                        </li>
+                        <li>
+                            <a target="_blank" href="{{ path('export_project_requests') }}"><i class="fa fa-fw fa-download text-inverse"></i> {{ 'Export projects requests' | trans() }}</a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+
+        </div>
+    </div>
+    {% endif %}
+    {% set orderType = order == 'desc' ? 'asc' : 'desc' %}
+    {% set routeParams = { 'filters': filters} %}
+
+    <table class="table mt-3">
+        <thead class="thead-inverse">
+        <tr>
+            <th>#</th>
+            {% if app.request.attributes.get('_route') == 'projects_list' %}
+                <th></th>
+            {% endif %}
+            <th>
+                {% set routeParams = routeParams | merge({'orderBy': 'name', 'order': orderBy == 'name' ? orderType : 'asc'}) %}
+                <a href="{{ path('projects_list', routeParams) }}">
+                    <strong>{{ "Name" | trans() ~ ' '}}</strong>
+                    <i class="fa fa-sort{{ orderBy == 'name' ? '-' ~ order : '' }}"></i>
+                </a>
+            </th>
+            {% if app.request.attributes.get('_route') == 'projects_list' %}
+                    <th>
+                        {% set routeParams = routeParams | merge({'orderBy': 'priority', 'order': orderBy == 'priority' ? orderType : 'asc'}) %}
+                        <a href="{{ path('projects_list', routeParams) }}">
+                            <strong>{{ "Priority" | trans() ~ ' '}}</strong>
+                            <i class="fa fa-sort{{ orderBy == 'priority' ? '-' ~ order : '' }}"></i>
+                        </a>
+                    </th>
+                    <th>
+                        {% set routeParams = routeParams | merge({'orderBy': 'leader', 'order': orderBy == 'leader' ? orderType : 'asc'}) %}
+                        <a href="{{ path('projects_list', routeParams) }}">
+                            <strong>{{ "leader" | trans() ~ ' '}}</strong>
+                            <i class="fa fa-sort{{ orderBy == 'leader' ? '-' ~ order : '' }}"></i>
+                        </a>
+                    </th>
+                    <th>{{ 'Time against deadline' | trans() }}</th>
+                    <th style="width: 132px;">{{ 'team' | trans() }}</th>
+                    <th>{{ 'Board' | trans() }}</th>
+                    <th>
+                        <strong>{{ "Edit" | trans() }}</strong>
+                    </th>
+            {% endif %}
+        </tr>
+        </thead>
+        <tbody>
+        {% set id = 1 %}
+        {% for project in projects %}
+            <tr>
+                <td scope="row" style="width: 25px;">{{ id }}</td>
+                {% if app.request.attributes.get('_route') == 'projects_list' %}
+                    <td scope="row" style="width: 25px;"><i class="fa fa-{{ project.status.icon }} text-{{ project.status.label }}"></i></td>
+                {% endif %}
+                <td scope="row">
+                    <a href="{{ path('project_tasks', { 'id': project.id }) }}">{{ project.name }}</a>
+                </td>
+                {% if app.request.attributes.get('_route') == 'projects_list' %}
+                    <td scope="row">
+                        {% if project.priority is not null %}
+                            <span class="label label-pill label-{{ project.priorityLabels[project.priority] }} label-outline">{{ project.priorityChoices[project.priority] }}</span>
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td scope="row">
+                        <a class="link-comment" href="{{ path('employee_details', {'userName': project.leader.username}) }}">{{ project.leader.lastNameWithInitials }}</a>
+                    </td>
+                    <td scope="row">
+                            {% if project.status is not null and not project.status.archived %}
+
+                                <div class="progress">
+                                    {% if project.daysPassed < 30 %}
+                                        {% set bar = "progress-bar-success" %}
+                                    {% elseif project.daysPassed < 50 %}
+                                        {% set bar = "" %}
+                                    {% elseif project.daysPassed < 75 %}
+                                        {% set bar = "progress-bar-warning" %}
+                                    {% else %}
+                                        {% set bar = "progress-bar-danger" %}
+                                    {% endif %}
+                                    <div class="progress-bar {{ bar }}" role="progressbar"
+                                         aria-valuenow="{{ project.daysPassed }}"
+                                         aria-valuemin="0"
+                                         aria-valuemax="100"
+                                         style="width: {% if project.daysPassed <= 100 %}{{ project.daysPassed }}{% else %}100{% endif %}%;"><span style="padding-left: 10px;">{{ project.daysPassed }}%</span>
+                                    </div>
+                                </div>
+                            {% endif %}
+                    </td>
+                    <td scope="row">
+                        {{ project.projectMembers | length }} чел.
+                    </td>
+                    <td>
+                        <a class="btn btn-success" href="{{ path('project_requests_board', { 'id': project.id }) }}">
+                            <i class="fa fa-bar-chart"></i>
+                        </a>
+                    </td>
+                    <td>
+                        {% if app.user == project.leader or app.user.isProjectLeader() %}
+                            <a href=""
+                               class="btn btn-primary edit-project"
+                               data-form-action="{{ path('edit_project', {"id": project.id}) }}"
+                               data-name="{{ project.name }}"
+                               data-code="{{ project.code }}"
+                               data-leader="{{ project.leader.id }}"
+                               data-priority="{{ project.priority }}"
+                               data-description="{{ project.description }}"
+                               data-goal="{{ project.goal }}"
+                               data-target=".editProjectModal"
+                               data-toggle="modal"
+                               title="{{ 'Edit project' | trans() }}"><i class="fa fa-pencil"></i></a>
+                        {% endif %}
+                    </td>
+                {% endif %}
+            </tr>
+            {% set id = id + 1 %}
+        {% endfor %}
+        </tbody>
+    </table>
+    {% import 'projects/partial/edit_project_form.html.twig' as editProjectForm %}
+
+    {% set editProjectFormVars = {
+        'class': 'editProjectModal',
+        'formId': 'editProjectForm',
+        'title': 'Edit project',
+        'size': 'large',
+        'content': editProjectForm.inputs(priorities),
+        'submitTitle': 'Save'
+    } %}
+
+    {% include 'partial/modal.html.twig' with editProjectFormVars %}
+{% endblock %}

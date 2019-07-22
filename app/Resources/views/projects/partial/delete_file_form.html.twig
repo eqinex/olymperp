@@ -1,0 +1,12 @@
+{% macro inputs() %}
+    <div class="text-center">{{ "Are you sure you want to delete file?" | trans() }}</div>
+
+    <script>
+        $(document).ready(function(){
+            $('.delete-file').bind('click', function() {
+                var deleteFileNoticeForm = $('#deleteFileForm');
+                deleteFileNoticeForm.attr('action', $(this).data('form-action'));
+            });
+        });
+    </script>
+{% endmacro %}

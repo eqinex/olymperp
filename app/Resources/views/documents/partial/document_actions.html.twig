@@ -1,0 +1,181 @@
+{% if document.owner.id == app.user.id and document.isRegistered() is empty %}
+    <div class="dropdown pull-right m-l-1">
+        <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <i class="fa fa-fw fa-gear"></i> {{ "Actions" | trans() }} <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-right">
+            {% if document.canEditDocument(app.user) %}
+            <li>
+                <a href=""
+                   class="edit-document"
+                   data-href="{{ path('edit_document', {'id': document.id}) }}"
+                        {% if document.project is not null %}
+                            data-project="{{ document.project.id }}"
+                        {% endif %}
+                        {% if document.curator is not null %}
+                            data-curator="{{ document.curator.id }}"
+                        {% endif %}
+                        {% if document.documentTemplate is defined and document.documentTemplate is not null %}
+                            data-template="{{ document.documentTemplate.id }}"
+                        {% endif %}
+                        {% if document.documentTemplateSupplementary is defined and document.documentTemplateSupplementary is not null %}
+                            data-supplementary-template="{{ document.documentTemplateSupplementary.id }}"
+                        {% endif %}
+                   data-type="{{ document.type }}"
+                        {% if document.category is not null %}
+                            data-category="{{ document.category.id }}"
+                        {% endif %}
+                        {% if document.supplier is not null %}
+                            data-supplier="{{ document.supplier.id }}"
+                        {% endif %}
+                   data-supplier-contract-code="{{ document.supplierContractCode }}"
+                   data-start-at="{{ document.startAt | date('d.m.Y') }}"
+                   data-end-at="{{ document.endAt | date('d.m.Y') }}"
+                   data-period="{{ document.period }}"
+                   data-unlimited="{{ document.unlimited ? '1' : '0' }}"
+                   data-amount="{{ document.amount }}"
+                   data-extension="{{ document.contractExtension ? '1' : '0' }}"
+                   data-vat="{{ document.vat }}"
+                   data-subject="{{ document.subject }}"
+                   data-measure="{{ document.measureOfResponsibility }}"
+                   data-security="{{ document.security }}"
+                   data-debt-receivable="{{ document.debtReceivable | date('d.m.Y') }}"
+                   data-act="{{ document.act }}"
+                   data-comment="{{ document.comment }}"
+                   data-toggle="modal"
+                   data-target=".editDocumentModal"
+                ><i class="fa fa-fw fa-pencil"></i> {{ 'Edit' | trans() }}</a>
+            </li>
+            {% endif %}
+            <li>
+                {% include 'documents/partial/document_add_agreement.html.twig' %}
+            </li>
+            {% if document.canRequestApprove(app.user) %}
+                <li>
+                    <a href=""
+                       class="document-approve"
+                       data-href="{{ path('document_change_state', {'id': document.id, 'state': 4}) }}"
+                       data-toggle="modal"
+                       data-target=".documentApproveModal"
+                    ><i class="fa fa-fw fa-thumbs-o-up text-primary"></i> {{ 'Document approve' | trans() }}</a>
+                </li>
+            {% endif %}
+            {% if document.isApproved() and app.user.canRegisterDocuments() %}
+                <li>
+                    <a href="{{ path('document_change_state', {'id': document.id, 'state': 6}) }}">
+                        <i class="fa fa-fw fa-thumbs-up text-success"></i> {{ 'To register' | trans() }}
+                    </a>
+                </li>
+            {% endif %}
+            {% if document.isNeedsApprove() %}
+                {% include 'documents/partial/document_add_signatories.html.twig' %}
+            {% endif %}
+            {% if document.canApprove(app.user) %}
+                <li>
+                    <a href=""
+                       class="signatory-remarks"
+                       data-href="{{ path('approve_contract', {'id':document.id}) }}"
+                       data-toggle="modal"
+                       data-target=".addRemarksModal"
+                    ><i class="fa fa-fw fa-thumbs-up text-success"></i> {{ 'Approved' | trans() }}</a>
+                </li>
+            {% endif %}
+            {% if document.canDisapprove(app.user) %}
+                <li>
+                    <a href=""
+                       class="signatory-reason"
+                       data-href="{{ path('disapprove_contract', {'id':document.id}) }}"
+                       data-toggle="modal"
+                       data-target=".addReasonModal"
+                    ><i class="fa fa-fw fa-thumbs-up text-danger"></i> {{ 'Not approved' | trans() }}</a>
+                </li>
+            {% endif %}
+            {% if document.canCancelled() %}
+                <li>
+                    <a href=""
+                       class="document-cancel"
+                       data-href="{{ path('document_change_state', {'id': document.id, 'state': 7}) }}"
+                       data-toggle="modal"
+                       data-target=".documentCancelModal"
+                    ><i class="fa fa-fw fa-minus-square-o text-danger"></i> {{ 'Cancel' | trans() }}</a>
+                </li>
+            {% endif %}
+            {% if document.canReturnFixing(app.user) %}
+                <li>
+                    <a href=""
+                       class="document-fixing"
+                       data-href="{{ path('document_change_state', {'id': document.id, 'state': 3}) }}"
+                       data-toggle="modal"
+                       data-target=".returnFixingModal"
+                    ><i class="fa fa-fw fa-fast-backward text-warning"></i> {{ 'Return to fixing' | trans() }}</a>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+{% endif %}
+{% if (document.owner.id == app.user.id or document.owner.team.id == app.user.team.id) and document.isRegistered() %}
+    <div class="dropdown pull-right m-l-1">
+        <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <i class="fa fa-fw fa-gear"></i> {{ "Actions" | trans() }} <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-right">
+            <li>
+                {% include 'documents/partial/document_add_agreement.html.twig' %}
+            </li>
+            <li>
+                <a href=""
+                   class="document-add-debtreceivaible"
+                   data-href="{{ path('add_debreceivable', {'id': document.id}) }}"
+                   data-toggle="modal"
+                   data-target=".addDebtreceivaibleModal"
+                   data-debt-receivable="{{ document.debtReceivable | date('d.m.Y') }}"
+                ><i class="fa fa-fw fa-plus text-danger"></i> {{ 'Add debtreceivable' | trans() }}</a>
+            </li>
+        </ul>
+    </div>
+{% endif %}
+{% if ((document.canApprove(app.user) or document.canDisapprove(app.user)) and document.owner.id != app.user.id) %}
+    <div class="dropdown pull-right m-l-1">
+        <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <i class="fa fa-fw fa-gear"></i> {{ "Actions" | trans() }} <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-right">
+            {% if document.isApproved() and app.user.canRegisterDocuments() %}
+                <li>
+                    <a href="{{ path('document_change_state', {'id': document.id, 'state': 6}) }}"
+                    ><i class="fa fa-fw fa-thumbs-up text-success"></i> {{ 'To register' | trans() }}</a>
+                </li>
+            {% endif %}
+            {% if document.canApprove(app.user) %}
+                <li>
+                    <a href=""
+                       class="signatory-remarks"
+                       data-href="{{ path('approve_contract', {'id':document.id}) }}"
+                       data-toggle="modal"
+                       data-target=".addRemarksModal"
+                    ><i class="fa fa-fw fa-thumbs-up text-success"></i> {{ 'Approved' | trans() }}</a>
+                </li>
+            {% endif %}
+            {% if document.canDisapprove(app.user) %}
+                <li>
+                    <a href=""
+                       class="signatory-reason"
+                       data-href="{{ path('disapprove_contract', {'id':document.id}) }}"
+                       data-toggle="modal"
+                       data-target=".addReasonModal"
+                    ><i class="fa fa-fw fa-thumbs-up text-danger"></i> {{ 'Not approved' | trans() }}</a>
+                </li>
+            {% endif %}
+            {% if document.canReturnFixing(app.user) %}
+                <li>
+                    <a href=""
+                       class="document-fixing"
+                       data-href="{{ path('document_change_state', {'id': document.id, 'state': 3}) }}"
+                       data-toggle="modal"
+                       data-target=".returnFixingModal"
+                    ><i class="fa fa-fw fa-fast-backward text-warning"></i> {{ 'Return to fixing' | trans() }}</a>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+{% endif %}

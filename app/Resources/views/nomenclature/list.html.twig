@@ -1,0 +1,104 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'Nomenclature' | trans() }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ breadcrumb( 'Nomenclature' | trans(), path('nomenclature_list') ) }}
+{% endblock %}
+
+{% block body %}
+    <form class="form-inline filter-form" method="get" action="{{ path('nomenclature_list') }}">
+        <div class="panel panel-default no-bg b-gray-dark">
+            <div class="panel-body">
+                <div class="form-group filter">
+                    <select name="filters[group]" class="form-control select2-modify filter" tabindex="-1" aria-hidden="true">
+                        <option value="">{{ 'Select group' | trans() }}</option>
+                        {% for group in groups %}
+                            <option {% if filters.group is defined and filters.group == group.id %}selected{% endif %} value="{{ group.id }}">{{ group.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group filter">
+                    <input class="form-control" name="filters[code]" placeholder="{{ 'Search by code product' | trans() }}"
+                           value="{% if filters.code is defined %}{{ filters.code }}{% endif %}" />
+                </div>
+                <div class="form-group filter">
+                    <input class="form-control" name="filters[name]" placeholder="{{ 'Search by name' | trans() }}"
+                           value="{% if filters.name is defined %}{{ filters.name }}{% endif %}" />
+                </div>
+                <div class="form-group filter">
+                    <input class="form-control" name="filters[vendorCode]" placeholder="{{ 'Search by vendor code' | trans() }}"
+                           value="{% if filters.vendorCode is defined %}{{ filters.vendorCode }}{% endif %}" />
+                </div>
+                <div class="form-group filter">
+                    <input class="form-control" name="filters[barcode]" placeholder="{{ 'Search by barcode' | trans() }}"
+                           value="{% if filters.barcode is defined %}{{ filters.barcode }}{% endif %}" />
+                </div>
+                {% if app.user.canEditNomenclature %}
+                    <button type="button" class="btn btn-success pull-right m-r-1" data-toggle="modal" data-target=".importNomenclatureModal"><i class="fa fa-fw fa-upload"></i> {{ 'Import' | trans() }}</button>
+                {% endif %}
+            </div>
+        </div>
+    </form>
+
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th class="small text-muted text-uppercase">#</th>
+            <th class="small text-muted text-uppercase"><strong>{{ 'Group' | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ 'Code' | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ 'Name' | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ 'Vendor code' | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ 'Barcode' | trans() }}</strong></th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for product in products %}
+            <tr>
+                <td class="v-a-m" style="width: 35px;">
+                    <span>{{ product.id }}</span>
+                </td>
+                <td class="v-a-m">
+                    <span>{{ product.group ? product.group.name : '-'}}</span>
+                </td>
+                <td class="v-a-m">
+                    <span>{{ product.code }}</span>
+                </td>
+                <td class="v-a-m">
+                    <span>{{ product.name }}</span>
+                </td>
+                <td class="v-a-m">
+                    <span>{{ product.vendorCode }}</span>
+                </td>
+                <td class="v-a-m">
+                    <span>{{ product.barcode ? : '-' }}</span>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    {% set vars = {
+        'route': 'nomenclature_list',
+        'currentPage': currentPage,
+        'maxPages': maxPages,
+        'filters': filters
+    }
+    %}
+    {% include 'partial/paginator.html.twig' with vars %}
+
+    {% import 'nomenclature/partial/import_form.html.twig' as importNomenclatureForm %}
+
+    {% set importNomenclatureVars = {
+        'class': 'importNomenclatureModal',
+        'formId': 'importNomenclatureForm',
+        'title': 'Import nomenclature',
+        'content': importNomenclatureForm.inputs(),
+        'submitTitle': 'Import',
+        'formAction': path('nomenclature_import')
+    }
+    %}
+
+    {% include 'partial/modal.html.twig' with importNomenclatureVars %}
+
+{% endblock %}

@@ -1,0 +1,218 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'Programming Document Catalog' | trans() }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ breadcrumb( 'Programming Document Catalog' | trans(), path('programming_document_list') ) }}
+{% endblock %}
+
+{% block body %}
+    <div class="panel panel-default no-bg  b-gray-dark">
+        <div class="panel-body">
+            <form class="form-inline filter-form" method="get" action="{{ path('programming_document_list') }}">
+                <input type="hidden" name="order" value="{{ order }}"/>
+                <input type="hidden" name="orderBy" value="{{ orderBy }}"/>
+                <div class="form-group filter">
+                    <select name="filters[project]" class="form-control select2-modify filter" tabindex="-1" aria-hidden="true">
+                        <option value="">{{ 'Select project' | trans() }}</option>
+                        {% for project in projects %}
+                            <option {% if filters.project is defined and filters.project == project.id %}selected{% endif %} value="{{ project.id }}">{{ project.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group filter">
+                    <select class="form-control" name="filters[owner]">
+                        <option value="">{{ 'Select owner' | trans() }}</option>
+                        {% for team, members in employee_service.getUsersGroupedByTeams() %}
+                            <optgroup label="{{ team | trans() }}">{{ programmingDocument.owner.id is defined ? programmingDocument.owner.id }}
+                                {% for member in members %}
+                                    <option {% if filters.owner is defined and filters.owner == member.id %}selected{% endif %} value="{{ member.id }}">
+                                        {{ member.fullName }} ({{ member.employeeRole }})</option>
+                                {% endfor %}
+                            </optgroup>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% if app.user.canEditProgrammingDocument() %}
+                    <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target=".addProgrammingDocumentModal"><i class="fa fa-plus"></i> {{ 'Add Programming Document' | trans() }}</button>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            {% set orderType = order == 'desc' ? 'asc' : 'desc' %}
+            {% set routeParams = { 'filters': filters} %}
+
+            <th class="small text-muted text-uppercase">
+                {% set routeParams = routeParams | merge({'orderBy': 'designation', 'order': orderBy == 'designation' ? orderType : 'asc'}) %}
+                <a href="{{ path('programming_document_list', routeParams) }}">
+                    <strong>{{ "Designation" | trans() ~ ' ' }}</strong>
+                    <i class="fa fa-sort{{ orderBy == 'designation' ? '-' ~ order : '' }}"></i>
+                </a>
+            </th>
+            <th class="small text-muted text-uppercase">
+                {% set routeParams = routeParams | merge({'orderBy': 'createdAt', 'order': orderBy == 'createdAt' ? orderType : 'asc'}) %}
+                <a href="{{ path('programming_document_list', routeParams) }}">
+                    <strong>{{ "Registration Date" | trans() ~ ' ' }}</strong>
+                    <i class="fa fa-sort{{ orderBy == 'createdAt' ? '-' ~ order : '' }}"></i>
+                </a>
+            </th>
+            <th class="small text-muted text-uppercase">
+                {% set routeParams = routeParams | merge({'orderBy': 'type', 'order': orderBy == 'type' ? orderType : 'asc'}) %}
+                <a href="{{ path('programming_document_list', routeParams) }}">
+                    <strong>{{ "Type" | trans() ~ ' ' }}</strong>
+                    <i class="fa fa-sort{{ orderBy == 'type' ? '-' ~ order : '' }}"></i>
+                </a>
+            </th>
+            <th class="small text-muted text-uppercase">
+                {% set routeParams = routeParams | merge({'orderBy': 'project', 'order': orderBy == 'project' ? orderType : 'asc'}) %}
+                <a href="{{ path('programming_document_list', routeParams) }}">
+                    <strong>{{ "Project" | trans() ~ ' ' }}</strong>
+                    <i class="fa fa-sort{{ orderBy == 'project' ? '-' ~ order : '' }}"></i>
+                </a>
+            </th>
+            <th class="small text-muted text-uppercase">
+                {% set routeParams = routeParams | merge({'orderBy': 'owner', 'order': orderBy == 'owner' ? orderType : 'asc'}) %}
+                <a href="{{ path('programming_document_list', routeParams) }}">
+                    <strong>{{ "Owner" | trans() ~ ' ' }}</strong>
+                    <i class="fa fa-sort{{ orderBy == 'owner' ? '-' ~ order : '' }}"></i>
+                </a>
+            </th>
+            <th class="small text-muted text-uppercase">
+                {% set routeParams = routeParams | merge({'orderBy': 'numberOfPages', 'order': orderBy == 'numberOfPages' ? orderType : 'asc'}) %}
+                <a href="{{ path('programming_document_list', routeParams) }}">
+                    <strong>{{ "Number of pages" | trans() ~ ' ' }}</strong>
+                    <i class="fa fa-sort{{ orderBy == 'numberOfPages' ? '-' ~ order : '' }}"></i>
+                </a>
+            </th>
+            <th class="small text-muted text-uppercase">
+                {% set routeParams = routeParams | merge({'orderBy': 'inventoryNumber', 'order': orderBy == 'inventoryNumber' ? orderType : 'asc'}) %}
+                <a href="{{ path('programming_document_list', routeParams) }}">
+                    <strong>{{ "Inventory number" | trans() ~ ' ' }}</strong>
+                    <i class="fa fa-sort{{ orderBy == 'inventoryNumber' ? '-' ~ order : '' }}"></i>
+                </a>
+            </th>
+            <th class="small text-muted text-uppercase"><strong>{{ "Notice" | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ "attachment" | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase text-right"><strong>{{ "Actions" | trans() }}</strong></th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for programmingDocument in programmingDocuments %}
+            <!-- START ROW Task -->
+            <tr>
+                <td class="v-a-m">{{ programmingDocument.designation }}</td>
+                <td class="v-a-m">{{ programmingDocument.createdAt | date('d.m.Y') }}</td>
+                <td class="v-a-m">{{ programmingDocument.type ? programmingDocument.type.name : '-' }}</td>
+                <td class="v-a-m"><a href="{{ path('project_details', {'id': programmingDocument.project.id}) }}">{{ programmingDocument.project.name }}</a></td>
+                <td class="v-a-m"><a href="{{ path('employee_details', {'userName': programmingDocument.owner.username}) }}">{{ programmingDocument.owner.lastNameWithInitials }}</a></td>
+                <td class="v-a-m">{{ programmingDocument.numberOfPages != null ? programmingDocument.numberOfPages : '-' }}</td>
+                <td class="v-a-m">{{ programmingDocument.inventoryNumber != null ? programmingDocument.inventoryNumber : '-' }}</td>
+                <td class="v-a-m">{{ programmingDocument.notice }}</td>
+                <td class="v-a-m">
+                    {% if programmingDocument.file %}
+                        {% if app.user.canEditProgrammingDocument() or (programmingDocument.owner is not null and app.user.id == programmingDocument.owner.id) %}
+                            <a href="{{ path('programming_document_download_file', {'id': programmingDocument.id, 'fileId': programmingDocument.file.id}) }}">
+                                {{ programmingDocument.file.fileName }}
+                            </a>
+                        {% else %}
+                            {{ programmingDocument.file.fileName }}
+                        {% endif %}
+                    {% endif %}
+                </td>
+                <td class="text-right v-a-m">
+                    {% if app.user.canEditProgrammingDocument() or (programmingDocument.owner is not null and app.user.id == programmingDocument.owner.id) %}
+                        <div class="dropdown">
+                            <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                <i class="fa fa-fw fa-gear"></i> <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-right">
+                                <li>
+                                    <a href=""
+                                       data-href="{{ path('programming_document_edit', {'id': programmingDocument.id}) }}"
+                                       class="edit-programming-document"
+                                       data-type="{{ programmingDocument.type ? programmingDocument.type.id : '-' }}"
+                                       data-created-at="{{ programmingDocument.createdAt | date('d.m.Y') }}"
+                                       data-number-of-pages="{{ programmingDocument.numberOfPages }}"
+                                       data-code="{{ programmingDocument.code }}"
+                                       data-edition-number="{{ programmingDocument.editionNumber }}"
+                                       data-register-number="{{ programmingDocument.registerNumber }}"
+                                       data-document-number="{{ programmingDocument.documentNumber }}"
+                                       data-inventory-number="{{ programmingDocument.inventoryNumber }}"
+                                       data-owner="{{ programmingDocument.owner ? programmingDocument.owner.id : '-' }}"
+                                       data-project="{{ programmingDocument.project ? programmingDocument.project.id : '-' }}"
+                                       data-notice="{{ programmingDocument.notice }}"
+                                       data-toggle="modal"
+                                       data-target=".editProgrammingDocumentModal"
+                                    ><i class="fa fa-fw fa-pencil"></i> {{ 'Edit' | trans() }}</a>
+                                    <a href=""
+                                       data-href="{{ path('programming_document_upload_file', {'programmingDocumentId': programmingDocument.id, 'fileId': programmingDocument.file ? programmingDocument.file.id }) }}"
+                                       class="upload-programming-document-file"
+                                       data-id="{{ programmingDocument.id }}"
+                                       data-toggle="modal"
+                                       data-target=".uploadProgrammingDocumentFileModal"
+                                    ><i class="fa fa-fw fa-upload"></i> {{ 'Upload File' | trans() }}</a></a>
+                                </li>
+                            </ul>
+                        </div>
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+        <!-- END ROW Task -->
+        </tbody>
+    </table>
+
+
+    {% set vars = {
+        'route': 'programming_document_list',
+        'currentPage': currentPage,
+        'maxPages': maxPages,
+        'filters': filters,
+        'routeParams': {
+            'order': order,
+            'orderBy': orderBy
+        }
+    } %}
+
+    {% include 'partial/paginator.html.twig' with vars %}
+
+    {% import 'development/programming_document/partial/form.html.twig' as form %}
+    {% import 'development/programming_document/partial/upload_form.html.twig' as uploadProgrammingDocumentFileForm %}
+
+    {% set addProgrammingDocumentVars = {
+        'class': 'addProgrammingDocumentModal',
+        'formId': 'addProgrammingDocumentForm',
+        'title': 'Add Programming Document',
+        'size': 'large',
+        'content': form.inputs(types, codes),
+        'formAction': path('programming_document_add'),
+        'submitTitle': 'Add'
+    } %}
+
+    {% set editProgrammingDocumentVars = {
+        'class': 'editProgrammingDocumentModal',
+        'formId': 'editProgrammingDocumentForm',
+        'title': 'Edit Programming Document',
+        'size': 'large',
+        'content': form.inputs(types, codes),
+        'submitTitle': 'Save'
+    } %}
+
+    {% set uploadProgrammingDocumentFileVars = {
+        'class': 'uploadProgrammingDocumentFileModal',
+        'formId': 'uploadProgrammingDocumentFileForm',
+        'title': 'Upload File',
+        'content': uploadProgrammingDocumentFileForm.inputs(),
+        'submitTitle': 'Upload File',
+        'formAction': path('programming_document_upload_file')
+    } %}
+
+    {% include 'partial/modal.html.twig' with addProgrammingDocumentVars %}
+    {% include 'partial/modal.html.twig' with editProgrammingDocumentVars %}
+    {% include 'partial/modal.html.twig' with uploadProgrammingDocumentFileVars %}
+
+{% endblock %}
+

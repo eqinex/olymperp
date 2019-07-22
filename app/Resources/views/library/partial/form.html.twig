@@ -1,0 +1,77 @@
+{% macro inputs(genreList) %}
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ 'Title' | trans() }}</label>
+        <div class="col-lg-3">
+            <input type="text" class="book-title form-control" name="book[title]" placeholder="{{ 'Title' | trans() }}" value="" required>
+        </div>
+        <label class="col-sm-3 control-label">{{ 'Author' | trans() }}</label>
+        <div class="col-lg-3">
+            <input type="text" class="book-author form-control" name="book[author]" placeholder="{{ 'Author' | trans() }}" value="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ 'Editor' | trans() }}</label>
+        <div class="col-lg-3">
+            <input type="text" class="book-editor form-control" name="book[editor]" placeholder="{{ 'Editor' | trans() }}" value="">
+        </div>
+        <label class="col-sm-3 control-label">{{ 'Year of issue' | trans() }}</label>
+        <div class="col-lg-3">
+            <input type="text" class="book-year-of-issue form-control" name="book[yearOfIssue]" placeholder="{{ 'Year of issue' | trans() }}" value="" required>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ 'Publishing house' | trans() }}</label>
+        <div class="col-lg-3">
+            <input type="text" class="book-publishing-house form-control" name="book[publishingHouse]" placeholder="{{ 'Publishing house' | trans() }}" value="">
+        </div>
+        <label class="col-sm-3 control-label">{{ 'Select genre' | trans() }}</label>
+        <div class="col-lg-3">
+            <select class="form-control book-genre select2-modal" name="book[genre][]" multiple required>
+                {% for genre in genreList %}
+                    <option value="{{ genre.id }}"
+                        {% if genresGroupedByBook is defined and genre in genresGroupedByBook[book.id] %}
+                            {{ "selected" }}
+                        {% elseif bookGenres is defined and genre in bookGenres %}
+                            {{ "selected" }}
+                        {% endif %}
+                    >{{ genre.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-lg-2 control-label">{{ 'Add description' | trans() }}</label>
+        <div class="col-lg-9">
+            <textarea class="book-description form-control" rows="4" placeholder="{{ 'Description' | trans() }}" name="book[description]"></textarea>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="checkbox col-sm-5">
+            <label>
+                <input type="checkbox" class="book-paper-version"  name="book[paperVersion]"> {{ 'Paper version' | trans() }}
+            </label>
+        </div>
+    </div>
+
+<script>
+    $(document).ready(function (){
+        $('.editBook').bind('click', function () {
+            var editBookForm = $('#editBookForm');
+            editBookForm.attr('action', $(this).data('href'));
+            editBookForm.find('.book-title').val($(this).data('title'));
+            editBookForm.find('.book-author').val($(this).data('author'));
+            editBookForm.find('.book-editor').val($(this).data('editor'));
+            editBookForm.find('.book-year-of-issue').val($(this).data('year-of-issue'));
+            editBookForm.find('.book-publishing-house').val($(this).data('publishing-house'));
+            editBookForm.find('.book-genre').val($(this).data('genre'));
+            editBookForm.find('.book-paper-version').prop('checked', $(this).data('paper-version'));
+            editBookForm.find('.book-description').val($(this).data('description'));
+
+            $('.select2-modal').select2({width: '100%'});
+        });
+    })
+</script>
+
+{% endmacro %}

@@ -1,0 +1,124 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ "Monitoring Dashboard" | trans() }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ breadcrumb( 'Monitoring Dashboard' | trans(), path('manager_stats_dashboard') ) }}
+{% endblock %}
+
+{% block body %}
+    <div class="row p-l-2 p-r-2">
+        <div class="col-lg-4 col-md-12 col-sm-12">
+            <div>
+                <canvas id="canvas-1"></canvas>
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-12 col-sm-12">
+            <div>
+                <canvas id="canvas-2"></canvas>
+            </div>
+        </div>
+
+    </div>
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+
+    <script>
+        $(document).ready(function() {
+            var color = Chart.helpers.color;
+            var horizontalBarChartData = {
+                labels: ['Заявки'],
+                datasets: [
+                    {% for stat in inQueueRequests %}
+                    {
+                        label: "{{ stat.manager.lastnameWithInitials }}",
+                        backgroundColor: color(window.chartColors["{{ stat.manager.badgeColor ?: 'default' }}"]).alpha(0.5).rgbString(),
+                        borderColor: window.chartColors["{{ stat.manager.badgeColor ?: 'default' }}"],
+                        borderWidth: 1,
+                        data: [{{ stat.assignedRequests }}]
+                    },
+                    {% endfor %}
+                ]
+            };
+
+            var horizontalBarChartData2 = {
+                labels: ['Заявки'],
+                datasets: [
+                    {% for stat in inQueueRequests %}
+                    {
+                        label: "{{ stat.manager.lastnameWithInitials }}",
+                        backgroundColor: color(window.chartColors["{{ stat.manager.badgeColor ?: 'default' }}"]).alpha(0.5).rgbString(),
+                        borderColor: window.chartColors["{{ stat.manager.badgeColor ?: 'default' }}"],
+                        borderWidth: 1,
+                        data: [{{ stat.requestsInprogress }}]
+                    },
+                    {% endfor %}
+                ]
+            };
+
+            window.onload = function() {
+                var ctx = document.getElementById('canvas-1').getContext('2d');
+                window.myHorizontalBar = new Chart(ctx, {
+                    type: 'bar',
+                    data: horizontalBarChartData,
+                    options: {
+                        // Elements options apply to all of the options unless overridden in a dataset
+                        // In this case, we are setting the border of each horizontal bar to be 2px wide
+                        elements: {
+                            rectangle: {
+                                borderWidth: 2,
+                            }
+                        },
+                        responsive: true,
+                        legend: {
+                            position: 'right',
+                        },
+                        title: {
+                            display: true,
+                            text: 'Кол-во заявок в очереди'
+                        },
+                        scales: {
+                            yAxes: [{
+                                ticks: {
+                                    beginAtZero: true
+                                }
+                            }]
+                        }
+                    }
+                });
+
+                var ctx2 = document.getElementById('canvas-2').getContext('2d');
+                window.myHorizontalBar = new Chart(ctx2, {
+                    type: 'bar',
+                    data: horizontalBarChartData2,
+                    options: {
+                        // Elements options apply to all of the options unless overridden in a dataset
+                        // In this case, we are setting the border of each horizontal bar to be 2px wide
+                        elements: {
+                            rectangle: {
+                                borderWidth: 2,
+                            }
+                        },
+                        responsive: true,
+                        legend: {
+                            position: 'right',
+                        },
+                        title: {
+                            display: true,
+                            text: 'Кол-во заявок в работе'
+                        },
+                        scales: {
+                            yAxes: [{
+                                ticks: {
+                                    beginAtZero: true
+                                }
+                            }]
+                        }
+                    }
+                });
+
+            };
+        })
+    </script>
+{% endblock %}

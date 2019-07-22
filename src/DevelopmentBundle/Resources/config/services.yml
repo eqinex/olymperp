@@ -1,0 +1,24 @@
+services:
+#    development.example:
+#        class: DevelopmentBundle\Example
+#        arguments: ["@service_id", "plain_value", "%parameter%"]
+  development.admin.programming_document_type:
+    class: DevelopmentBundle\Admin\ProgrammingDocumentTypeAdmin
+    arguments: [~, DevelopmentBundle\Entity\ProgrammingDocumentType, SonataAdminBundle:CRUD]
+    tags:
+    - { name: sonata.admin, manager_type: orm, group: Programming documents, label: ProgrammingDocumentType }
+  development.admin.company:
+    class: DevelopmentBundle\Admin\CompanyAdmin
+    arguments: [~, DevelopmentBundle\Entity\Company, SonataAdminBundle:CRUD]
+    tags:
+    - { name: sonata.admin, manager_type: orm, group: Company, label: Companies }
+  app.admin.applicant:
+    class: AppBundle\Admin\ApplicantStatusAdmin
+    arguments: [~, AppBundle\Entity\ApplicantStatus, SonataAdminBundle:CRUD]
+    tags:
+      - { name: sonata.admin, manager_type: orm, group: Applicant, label: Statuses }
+  app.admin.book_genre:
+    class: AppBundle\Admin\GenreAdmin
+    arguments: [~, AppBundle\Entity\Genre, SonataAdminBundle:CRUD]
+    tags:
+      - { name: sonata.admin, manager_type: orm, group: Book, label: Genre }

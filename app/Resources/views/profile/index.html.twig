@@ -1,0 +1,235 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ "Profile" | trans() }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ breadcrumb( 'Profile' | trans(), path('profile') ) }}
+{% endblock %}
+
+{% block body %}
+    <div class="media m-b-3 m-l-3">
+        <div class="media-left media-middle p-r-2">
+            <div class="avatar">
+                <div class="avatar-circle">
+                    <img class="img-circle" src="{{ user.imageUrl }}" alt="Avatar">
+                </div>
+            </div>
+        </div>
+        <div class="media-body">
+            <h3 class="f-w-300 m-b-0 m-t-1"><a href="{{ path('employee_details', {'userName': user.userName}) }}"><span>{{ user.fullname }}</span></a> <span class="text-muted"> <span class="m-r-1 m-l-1">/</span></span> Редактировать профиль</h3>
+            <p class="m-t-0"> <span class="label label-success label-outline text-uppercase m-r-1">Online</span> Изменить имя, фотографию</p>
+        </div>
+    </div>
+
+    <div class="col-lg-2 m-b-2">
+        <ul class="nav nav-pills nav-stacked">
+            <li role="presentation" data-target="edit-profile" class="active tab-edittab"><a href="#edittab">{{ 'Editing' | trans() }}</a></li>
+            <li role="presentation" data-target="calendar-profile" class="tab-calendartab"><a href="#calendartab">{{ 'Absence calendar' | trans() }}</a></li>
+        </ul>
+    </div>
+
+    <div class="col-lg-10">
+        <form action="{{ path('profile') }}" class="form-horizontal pill" method="post" enctype="multipart/form-data" id="edit-profile">
+            <div class="panel panel-default no-bg b-gray-dark">
+                <div class="panel-body">
+                    <div class="form-group">
+                        <label class="col-lg-1 control-label">{{ 'Avatar' | trans() }}</label>
+                        <div class="col-lg-5">
+                            <div class="panel panel-default no-bg  b-gray b-dashed m-b-0">
+                                <div class="panel-body">
+                                    <p class="text-center">
+                                        {% if user.imageUrl is not null %}
+                                            <img src="{{ user.imageUrl }}" style="width: 125px" />
+                                        {% else %}
+                                            <i class="fa fa-3x fa-user text-gray-light text-center m-t-2"></i>
+                                            <br>
+                                        {% endif %}
+                                    </p>
+                                    <h5 class="text-center" style="margin-bottom: 27px">{{ 'Download photo' | trans() }}</h5>
+                                    <p class="text-center">
+                                        <a href="javascript: void(0)">
+                                            <input style="margin-left: 30px" type="file" name="user_image"/>
+                                        </a>
+                                    </p>
+                                    <p class="small text-center" style="margin-top: 40px">JPG, GIF, PNG. Файл не более 10MB и размером 400 x 300px.</p>
+                                    <p></p>
+                                </div>
+                            </div>
+                        </div>
+                        <label for="profile-edit-telegram-username" class="col-sm-2 control-label">{{ 'Telegram Username' | trans() }}</label>
+                        <div class="col-lg-4 m-b-2">
+                            <input type="text" class="form-control" id="profile-edit-telegram-username" value="{{ user.telegramUsername }}"  name="profile[telegram_username]">
+                        </div>
+                        <label for="profile-edit-phone" class="col-sm-2 control-label">{{ 'Phone' | trans() }}</label>
+                        <div class="col-lg-4 m-b-2">
+                            <input type="tel" class="form-control" id="profile-edit-phone" value="{{ user.phone }}"  name="profile[phone]">
+                        </div>
+                        <label for="profile-edit-olymp-theme" class="col-sm-2 control-label">{{ 'Olymp theme' | trans() }}</label>
+                        <div class="col-lg-4 m-b-2">
+                            <select class="form-control" name="profile[theme]" id="profile-edit-olymp-theme">
+                                <option {% if app.user.theme == 'dark' %}selected{% endif %} value="dark">{{ 'Dark' | trans() }}</option>
+                                <option {% if app.user.theme == 'light' %}selected{% endif %} value="light">{{ 'Light' | trans() }}</option>
+                            </select>
+                        </div>
+                        <label for="showMenu" class="col-sm-2 control-label">{{ 'Hide menu' | trans() }}</label>
+                        <div class="col-lg-4 m-b-2 form-check">
+                            <input type="hidden" name="profile[showMenu]" id="hiddenCheckShowMenu">
+                            <input type="checkbox" name="profile[showMenu]" id="showMenu" {{ user.showMenu is defined and user.showMenu == 'on' ? 'checked' : ''}}>
+                        </div>
+                    </div>
+                    <!-- END Form Avatar -->
+                    <div class="form-group">
+                        <label for="profile-edit-first-name" class="col-lg-1 control-label"><span class="text-danger">*</span> {{ 'First name' | trans() }}</label>
+                        <div class="col-lg-5">
+                            <input type="text" class="form-control" id="profile-edit-first-name" placeholder="{{ 'First name' | trans() }}" value="{{ user.firstname }}" name="profile[firstname]">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="profile-edit-middle-name" class="col-lg-1 control-label">{{ 'Middle name' | trans() }}</label>
+                        <div class="col-lg-5">
+                            <input type="text" class="form-control" id="profile-edit-middle-name" placeholder="{{ 'Middle name' | trans() }}" value="{{ user.middleName }}" name="profile[middlename]">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="profile-edit-last-name" class="col-lg-1 control-label">{{ 'Last name' | trans() }}</label>
+                        <div class="col-lg-5">
+                            <input type="text" class="form-control" id="profile-edit-last-name" placeholder="{{ 'Last name' | trans() }}" value="{{ user.lastname }}"  name="profile[lastname]">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="profile-edit-profile" class="col-sm-1 control-label">О себе</label>
+                        <div class="col-sm-5">
+                            <textarea class="form-control" rows="4" placeholder="Please Describe Your Profile..." id="profile-edit-profile" name="profile[biography]">{{ user.biography }}</textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel-footer text-right">
+                    <button type="submit" class="btn btn-primary">Обновить профиль</button>
+                </div>
+            </div>
+        </form>
+
+        <form action="{{ path('add_days_off') }}" class="form-horizontal pill hidden" method="post" enctype="multipart/form-data" id="calendar-profile">
+            <div class="panel panel-default no-bg b-gray-dark">
+                <div class="panel-body">
+                    <div class="form-group">
+                        <div class="col-lg-6 m-b-2">
+                            <div id="full-calendar"></div>
+                        </div>
+
+                        <label for="profile-edit-telegram-username" class="col-sm-2 control-label">{{ 'Type of absence' | trans() }}</label>
+                        <div class="col-lg-4 m-b-2">
+                            <select class="form-control" name="dayOff[type]" required>
+                                <option value="">{{ 'Select type' | trans() }}</option>
+                                {% for type in types %}
+                                    <option value="{{ type }}">
+                                        {{ type | trans() }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <label for="profile-edit-telegram-username" class="col-sm-2 control-label">{{ 'Date' | trans() }}</label>
+                        <div class="col-lg-4 m-b-2">
+                            <input name="dayOff[date]" type="text" class="form-control daterange-picker"
+                                   placeholder="" value="{{ 'now' | date('d.m.Y') ~ ' - ' ~ 'now' | date('d.m.Y') }}">
+                        </div>
+                    </div>
+                    <div class="panel-footer text-right">
+                        <button type="submit" class="btn btn-primary">{{ 'Add a date of absence' | trans() }}</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <script>
+        $(document).ready(function() {
+            $('.nav li').on('click', function () {
+               $('.nav li').removeClass('active');
+               $('.pill').addClass('hidden');
+
+                $('#' + $(this).data('target')).removeClass('hidden');
+                $(this).addClass('active');
+
+                var Colors = Dashboard.Helpers.Colors;
+                $('#full-calendar').fullCalendar({
+                    locale: 'ru',
+                    monthNames: ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль',
+                        'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'],
+                    dayNamesShort: ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'],
+                    buttonText: {
+                        today: 'Cегодня',
+                    },
+                    events: [
+                        {% for dayOff in dayOffs %}
+                            {{ "{" }}
+                            {{ ("title: '" ~ dayOff.type | trans() ~ "',") | raw  }}
+                            {{ ("start: '" ~ (dayOff.dateStart | date('Y-m-d')) ~ "',") | raw }}
+                            {{ ("end: \'" ~ (dayOff.dateEnd |date_modify("+1 day") | date('Y-m-d')) ~ "\',") | raw }}
+                            {% if dayOff.type == 'vacations' %}
+                                {{ ("color: Colors.brandSuccess") | raw }}
+                            {% elseif dayOff.type == 'overtime' %}
+                                {{ ("color: Colors.brandPrimary") | raw }}
+                            {% elseif dayOff.type == 'businessTrip' %}
+                                {{ ("color: Colors.brandInfo") | raw }}
+                            {% elseif dayOff.type == 'miss' %}
+                                {{ ("color: Colors.brandDanger") | raw }}
+                            {% elseif dayOff.type == 'illness' %}
+                                {{ ("color: Colors.brandWarning") | raw }}
+                            {% endif %}
+                                {{ "}," }}
+                        {% endfor %}
+                    ],
+                });
+            });
+
+            moment.locale('ru');
+
+            $('.daterange-single-date-picker').daterangepicker({
+                singleDatePicker: true,
+                showDropdowns: true,
+                locale: {
+                    format: 'DD.MM.YYYY', applyLabel: "Применить", cancelLabel: "Отменить"
+                }
+            });
+
+            $('.daterange-picker').daterangepicker({
+                timePickerIncrement: 30,
+                timePicker24Hour: true,
+                autoUpdateInput: false,
+                opens: "left",
+                drops: "down",
+                locale: {
+                    format: 'DD.MM.YYYY', applyLabel: "Выбрать", cancelLabel: "Отменить"
+                }
+            });
+
+            $('.daterange-picker').on('apply.daterangepicker', function(ev, picker) {
+                $(this).val(picker.startDate.format('DD.MM.YYYY') + ' - ' + picker.endDate.format('DD.MM.YYYY'));
+
+                $(this).trigger('change');
+            });
+
+            $('.daterange-picker').on('cancel.daterangepicker', function(ev, picker) {
+                $(this).val('');
+                $(this).trigger('change');
+            });
+
+            var url = window.location.href;
+            var hash = url.substring(url.indexOf('#')+1);
+
+            if (hash == 'edittab' || hash == 'calendartab') {
+                $('.tab-' + hash + ' a').click();
+            }
+        });
+
+        $('#showMenu').change(function() {
+            $('#hiddenCheckShowMenu').val($(this).prop('checked') ? 'on' : 'off');
+        });
+
+    </script>
+
+{% endblock %}

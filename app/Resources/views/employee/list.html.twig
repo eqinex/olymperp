@@ -1,0 +1,249 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ "Employees" | trans() }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ breadcrumb( 'Employees' | trans(), path('employees_list') ) }}
+{% endblock %}
+
+{% block body %}
+    <div class="panel panel-default no-bg  b-gray-dark">
+        <div class="panel-body">
+
+            <form class="form-inline filter-form" method="get" action="{{ path('employees_list') }}">
+                <input type="hidden" name="order" value="{{ order }}"/>
+                <input type="hidden" name="orderBy" value="{{ orderBy }}"/>
+                <div class="form-group filter">
+                    <select class="form-control" name="filters[user]" required>
+                        <option value="">{{ 'Search by name' | trans() }}</option>
+                        {% for team, members in employeeTeams %}
+                            <optgroup label="{{ team | trans() }}">
+                                {% for member in members %}
+                                    <option value="{{ member.id }}"
+                                            {% if filters.user is defined and filters.user == member.id %}
+                                                {{ "selected" }}
+                                            {% endif %}
+                                    >{{ member.fullName }} ({{ member.employeeRole }})</option>
+                                {% endfor %}
+                            </optgroup>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group filter">
+                    <select class="form-control" name="filters[team]">
+                        <option value="">{{ 'Select team' | trans() }}</option>
+                        {% for team in teams %}
+                            <option {% if filters.team is defined and filters.team == team.id %}selected{% endif %} value="{{ team.id }}">
+                                {{ team.title }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group filter">
+                    <select class="form-control" name="filters[employeeStatus]">
+                        <option value="">{{ 'Select status' | trans() }}</option>
+                        {% for key, status in employeeStatuses %}
+                            <option {% if filters.employeeStatus is defined and filters.employeeStatus == key %}selected{% endif %} value="{{ key }}">
+                                {{ status | trans() }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group filter">
+                    <select class="form-control" name="filters[employeeRole]">
+                        <option value="">{{ 'Select role' | trans() }}</option>
+                        {% for employeeRole in employeeRoles %}
+                            <option {% if filters.employeeRole is defined and filters.employeeRole == employeeRole.id %}selected{% endif %} value="{{ employeeRole.id }}">
+                                {{ employeeRole.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% if app.user.canEditEmployees() %}
+                    <button type="button" class="btn btn-primary pull-right start" data-toggle="modal" data-target=".addEmployeeModal"><i class="fa fa-plus"></i> {{ 'Add employee' | trans() }}</button>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            {% set orderType = order == 'desc' ? 'asc' : 'desc' %}
+            {% set routeParams = {'currentPage': currentPage, 'filters': filters} %}
+
+            <th class="small text-muted text-uppercase"></th>
+            <th class="small text-muted text-uppercase">
+                {% set routeParams = routeParams | merge({'orderBy': 'username', 'order': orderBy == 'username' ? orderType : 'asc'}) %}
+                <a href="{{ path('employees_list', routeParams) }}">
+                    <strong>{{ "Fullname" | trans() ~ ' '}}</strong>
+                    <i class="fa fa-sort{{ orderBy == 'username' ? '-' ~ order : '' }}"></i>
+                </a>
+            </th>
+            <th class="small text-muted text-uppercase">
+                {% set routeParams = routeParams | merge({'orderBy': 'employeeRole', 'order': orderBy == 'employeeRole' ? orderType : 'asc'}) %}
+                <a href="{{ path('employees_list', routeParams) }}">
+                    <strong>{{ "Employee Role" | trans() ~ ' ' }}</strong>
+                    <i class="fa fa-sort{{ orderBy == 'employeeRole' ? '-' ~ order : '' }}"></i>
+                </a>
+            </th>
+            <th class="small text-muted text-uppercase"><strong>{{ "Status" | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase">
+                {% set routeParams = routeParams | merge({'orderBy': 'team', 'order': orderBy == 'team' ? orderType : 'asc'}) %}
+                <a href="{{ path('employees_list', routeParams) }}">
+                    <strong>{{ "Team" | trans() ~ ' ' }}</strong>
+                    <i class="fa fa-sort{{ orderBy == 'team' ? '-' ~ order : '' }}"></i>
+                </a>
+            </th>
+            <th class="small text-muted text-uppercase">
+                {% set routeParams = routeParams | merge({'orderBy': 'room', 'order': orderBy == 'room' ? orderType : 'asc'}) %}
+                <a href="{{ path('employees_list', routeParams) }}">
+                    <strong>{{ "Room" | trans() ~ ' ' }}</strong>
+                    <i class="fa fa-sort{{ orderBy == 'room' ? '-' ~ order : '' }}"></i>
+                </a>
+            </th>
+            <th class="small text-muted text-uppercase">
+                {% set routeParams = routeParams | merge({'orderBy': 'email', 'order': orderBy == 'email' ? orderType : 'asc'}) %}
+                <a href="{{ path('employees_list', routeParams) }}">
+                    <strong>{{ "Email" | trans() ~ ' ' }}</strong>
+                    <i class="fa fa-sort{{ orderBy == 'email' ? '-' ~ order : '' }}"></i>
+                </a>
+            </th>
+            <th class="small text-muted text-uppercase"><strong>{{ "Tasks" | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ "Telegram" | trans() }}</strong></th>
+            {% if app.user.canEditEmployees() %}
+                <th class="small text-right text-muted text-uppercase"><strong>{{ "Actions" | trans() }}</strong></th>
+            {% endif %}
+        </tr>
+        </thead>
+        <tbody>
+
+        {% for employee in employees %}
+            <!-- START ROW Task -->
+            <tr>
+                <td class="v-a-m" style="width: 35px;">
+                    <div class="avatar avatar-image avatar-sm">
+                        <div class="avatar-circle">
+                            {% if employee.imageUrl is not null %}
+                                <img src="{{ employee.imageUrl }}" />
+                            {% else %}
+                                <img src="/images/noavatar.png" alt="Avatar">
+                            {% endif %}
+                        </div>
+                        <i class="avatar-status avatar-status-bottom bg-{{ employee_service.getOnlineStatus(employee).colorBadge }} b-brand-gray-darker"></i>
+                    </div>
+                </td>
+                <td class="v-a-m">
+                    <a href="{{ path('employee_details', {'userName': employee.username}) }}">
+                        {{ employee.getFullName(true) }}
+                    </a>
+                </td>
+                <td class="v-a-m">
+                    {% if employee.employeeRole is not null %}
+                        {{ employee.employeeRole.name }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+                <td class="v-a-m">
+                    {{ employee.getEmployeeStatuses()[employee.employeeStatus] | trans() }}
+                </td>
+                <td class="v-a-m">
+                    {% if employee.team is not null %}
+                        {{ employee.team.title }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+                <td class="v-a-m">
+                    {{ employee.room }}
+                </td>
+                <td class="v-a-m">
+                    <a href="mailto:{{ employee.email }}">{{ employee.email }}</a>
+                </td>
+                <td class="v-a-m">
+                    <a href="{{ path('user_created_tasks', {'filters': {'type': 'in', 'responsible': employee.id}}) }}"><i class="fa fa-list fa-lg fa-fw text-inverse"></i></a>
+                </td>
+                <td class="v-a-m">
+                    {% if employee.telegramUsername is not null %}
+                        <a target="_blank" href="tg://resolve?domain={{ employee.telegramUsername }}"><i class="fa fa-telegram fa-lg fa-fw text-inverse"></i></a>
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+                {% if app.user.canEditEmployees() %}
+                    <td class="text-right v-a-m">
+                        <div class="dropdown">
+                            <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                <i class="fa fa-fw fa-gear"></i> <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-right">
+                                <li><a href=""
+                                       class="edit-employee"
+                                       data-href="{{ path('edit_employee', {'id': employee.id}) }}"
+                                       data-firstname="{{ employee.firstName is defined ? employee.firstName }}"
+                                       data-middlename="{{ employee.middleName is defined ? employee.middleName }}"
+                                       data-lastname="{{ employee.lastName is defined ? employee.lastName }}"
+                                       data-date-of-birth="{{ employee.dateOfBirth is defined ? employee.dateOfBirth | date('d.m.Y') }}"
+                                       data-employment-date="{{ employee.employmentDate is defined ? employee.employmentDate | date('d.m.Y') }}"
+                                       data-room="{{ employee.room is defined ? employee.room}}"
+                                       data-employee-status="{{ employee.employeeStatus }}"
+                                       data-team="{{ employee.team is defined ? employee.team.id }}"
+                                       data-gender="{{ employee.gender }}"
+                                       data-employee-role="{{ employee.employeeRole is not null ? employee.employeeRole.id }}"
+                                       data-phone="{{ employee.phone }}"
+                                       data-email="{{ employee.email }}"
+                                       data-user-name="{{ employee.userName }}"
+                                       data-toggle="modal"
+                                       data-target=".editEmployeeModal"
+                                    ><i class="fa fa-fw fa-pencil text-gray-lighter m-r-1"></i> {{ 'Edit' | trans() }}</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </td>
+                {% endif %}
+            </tr>
+        {% endfor %}
+        <!-- END ROW Task -->
+        </tbody>
+    </table>
+
+    {% set vars = {
+        'route': 'employees_list',
+        'currentPage': currentPage,
+        'maxPages': maxPages,
+        'filters': filters,
+        'routeParams': {
+            'orderBy': orderBy,
+            'order': order
+        }
+    }
+    %}
+
+    {% include 'partial/paginator.html.twig' with vars %}
+
+    {% import 'employee/partial/form.html.twig' as employeeForm %}
+
+    {% set editEmployeeFormVars = {
+        'class': 'editEmployeeModal',
+        'formId': 'editEmployeeForm',
+        'title': 'Edit employee' | trans(),
+        'formAction': path('edit_employee'),
+        'content': employeeForm.inputs(employeeStatuses, employeeRoles, genders, teams),
+        'size' : 'large',
+        'submitTitle': 'Save'
+    } %}
+
+    {% set addEmployeeFormVars = {
+        'class': 'addEmployeeModal',
+        'formId': 'addEmployeeForm',
+        'title': 'Add employee' | trans(),
+        'formAction': path('add_employee'),
+        'content': employeeForm.inputs(employeeStatuses, employeeRoles, genders, teams),
+        'size' : 'large',
+        'submitTitle': 'Add'
+    } %}
+
+    {% include 'partial/modal.html.twig' with editEmployeeFormVars %}
+    {% include 'partial/modal.html.twig' with addEmployeeFormVars %}
+{% endblock %}

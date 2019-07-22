@@ -1,0 +1,101 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ project.name ~ ": " ~ ("Calendar" | trans()) }}{% endblock %}
+{% block body %}
+
+<div class="col-lg-12">
+    <div class="col-lg-6">
+        <h3 class="f-w-300 m-t-1"><a href="{{ path('project_details', {'id': project.id}) }}">{{ project.name }}</a> {{ "Calendar" | trans()}}</h3>
+    </div>
+    <div class="col-lg-5 col-md-5 col-xs-6 col-lg-offset-1 col-md-offset-1 col-sm-4 col-sm-offset-2 hidden-xs">
+        <!-- START Toolbar -->
+        <div class="btn-toolbar pull-right">
+            <div class="btn-group" role="group" aria-label="...">
+                {% set vars = {'active_page': 'project_calendar'} %}
+                {% include 'projects/partial/nav.html.twig' with vars %}
+            </div>
+        </div>
+        <!-- END Toolbar -->
+    </div>
+</div>
+<div class="col-lg-12">
+
+
+    <div id="full-calendar"></div>
+
+    <script>
+        $(document).ready(function(){
+            var Colors = Dashboard.Helpers.Colors;
+
+            function elementClassToColor($element) {
+                if($element.hasClass('event-info'))
+                    return Colors.brandInfo;
+                if($element.hasClass('event-success'))
+                    return Colors.brandSuccess;
+                if($element.hasClass('event-warning'))
+                    return Colors.brandWarning;
+                if($element.hasClass('event-danger'))
+                    return Colors.brandDanger;
+
+                return Colors.brandPrimary;
+            };
+
+
+            $('#full-calendar').fullCalendar({
+                locale: 'ru',
+                header: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'basicYear,month,agendaWeek,agendaDay'
+                },
+                monthNames: ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль',
+                    'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'],
+                dayNamesShort: ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'],
+                buttonText: {
+                    today: 'сегодня',
+                    month: 'месяц',
+                    week: 'неделя',
+                    day: 'день',
+                    list: 'список',
+                    year: 'год'
+                },
+                firstDay: 1,
+                defaultDate: new Date().getFullYear() + "-" + (new Date().getMonth() + 1) + "-" + new Date().getDay(),
+                defaultView: 'month',
+                droppable: true,
+                editable: true,
+                events: [
+                    {% for stage in project.projectStages %}
+                    {{ "{" }}
+                        {{ ("title: '" ~ stage.projectStage.name ~ " (" ~ stage.responsibleUser.fullname ~  ")',") | raw }}
+                        {{ ("start: '" ~ (stage.startAt | date('Y-m-d')) ~ "',") | raw }}
+                        {{ ("end: \'" ~ (stage.endAt | date('Y-m-d')) ~ "\',") | raw }}
+                        {{ ("color: Colors.brandInfo") | raw }}
+                    {{ "}," }}
+                    {% endfor %}
+                    {% for task in project.projectTasks if task.status != 3 %}
+                    {% if task.responsibleUser.fullname is defined %}
+                        {% set responsible = task.responsibleUser.fullname %}
+                    {% else %}
+                        {% set responsible = '' %}
+                    {% endif %}
+                    {{ "{" }}
+                        {{ ("title: '" ~ task.title ~ " (" ~ responsible ~  ")',") | raw }}
+                        {{ ("start: '" ~ (task.startAt | date('Y-m-d H:i')) ~ "',") | raw }}
+                        {{ ("end: \'" ~ (task.endAt | date('Y-m-d H:i')) ~ "\',") | raw }}
+                        {{ ("color: Colors.brandDanger") | raw }}
+                    {{ "}," }}
+                    {% endfor %}
+                ],
+                views: {
+                    basicYear: {
+                        type: 'basic',
+                        duration: { month: 12 },
+                        buttonText: 'year'
+                    }
+                }
+            });
+        })
+    </script>
+</div>
+{% endblock %}

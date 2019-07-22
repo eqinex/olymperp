@@ -1,0 +1,89 @@
+<div class="panel-body">
+    <ul class="media-list">
+        {% for comment in comments if comment.parentComment is null %}
+            <li class="media m-t-1">
+                <div class="media-left">
+                    <div class="avatar avatar-image avatar-inline">
+                        <div class="avatar-circle">
+                            {% if comment.owner.imageUrl is not null %}
+                                <img src="{{ comment.owner.imageUrl }}" />
+                            {% else %}
+                                <img class="img-circle avatar" src="/images/noavatar.png" alt="Avatar">
+                            {% endif %}
+                        </div>
+                        <i class="avatar-status avatar-status-bottom bg-{{ employee_service.getOnlineStatus(comment.owner).colorBadge }} b-brand-gray-darker"></i>
+                    </div>
+                </div>
+                <div class="media-body">
+                    <h5 class="m-t-0">
+                        <a class="link-comment" href="{{ path('employee_details', {'userName': comment.owner.username}) }}">
+                            <span>{{ comment.owner.fullName }}</span>
+                        </a>
+                        <small><span>{{ comment.createdAt | date('d/m/Y H:i:s') }}</span></small>
+                    </h5>
+                    <span>{{ comment.commentText | raw }}</span>
+                    <br>
+                    <div class="m-t-1">
+                        <a href="javascript: void(0)"
+                           data-reply-comment-id="{{ comment.id }}"
+                           class="reply-comment">{{ 'Reply' | trans() }}</a>
+                        <span class="text-muted">·</span>
+
+                        {% if app.user.id == comment.owner.id %}
+                            <a href="javascript: void(0)"
+                               data-comment-id="{{ comment.id }}"
+                               data-comment-text="{{ comment.commentText }}"
+                               class="edit-comment">{{ 'Edit' | trans()}}</a>
+                        {% endif %}
+                    </div>
+                    {% import 'partial/partial/tree_comments.html.twig' as treeComments %}
+                    {{ treeComments.list(comment.replies) }}
+                </div>
+            </li>
+        {% else %}
+            <span class="v-a-m b-t-0 text-muted">{{ "There's no comments yet" | trans() }}</span>
+        {% endfor %}
+    </ul>
+</div>
+<div class="panel-footer">
+    <form action="{{ action }}#commentstab" method="POST">
+        <div class="comment-form">
+            <input id="comment-reply" type="hidden" name="comment[reply-id]">
+            <input id="comment-id" type="hidden" name="comment[id]">
+            <textarea name="comment[text]" id="comment-input" required class="form-control" placeholder="{{ 'Enter your message' | trans() }}"></textarea>
+            <span class="input-group-btn text-right">
+                <button class="btn btn-primary send-comment-button" type="submit">{{ 'Send' | trans() }}</button>
+            </span>
+        </div>
+    </form>
+</div>
+
+<script>
+    $(document).ready(function() {
+        $('#comment-input').trumbowyg({removeformatPasted: true});
+        $('#content-input').trumbowyg();
+        $('#remarks-input').trumbowyg();
+
+        $('.reply-comment').click(function(){
+            $('#comment-id').val(null);
+            $('#comment-reply').val($(this).data('reply-comment-id'));
+
+            $('#comment-input').val(null);
+            $('#comment-input').trumbowyg('destroy');
+            $('#comment-input').trumbowyg({removeformatPasted: true});
+
+            $('.comment-form .trumbowyg-editor').focus();
+        });
+
+        $('.edit-comment').click(function(){
+            $('#comment-reply').val(null);
+            $('#comment-id').val($(this).data('comment-id'));
+
+            $('#comment-input').val($(this).data('comment-text'));
+            $('#comment-input').trumbowyg('destroy');
+            $('#comment-input').trumbowyg({removeformatPasted: true});
+
+            $('.comment-form .trumbowyg-editor').focus();
+        });
+    });
+</script>

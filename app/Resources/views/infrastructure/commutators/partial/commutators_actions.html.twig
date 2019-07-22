@@ -1,0 +1,28 @@
+<li>
+    <a href=""
+       data-href="{{ path('commutator_edit', {'id': commutator.id}) }}"
+       class="edit-commutator"
+       data-type="{{ commutator.type }}"
+       data-model="{{ commutator.model }}"
+       data-ip-address="{{ commutator.ipAddress }}"
+       data-ip-type="{{ commutator.ipType }}"
+       data-mac-address="{{ commutator.macAddress }}"
+       data-inventory-number="{{ commutator.inventoryNumber }}"
+       data-room="{{ commutator.room }}"
+       data-toggle="modal"
+       data-target=".editCommutatorModal">
+        <i class="fa fa-fw fa-pencil"></i> {{ 'Edit' | trans() }}
+    </a>
+</li>
+
+<li>
+    <a href=""
+       class="deleteComputer"
+       data-modal-title="{{ 'Delete commutator' | trans() }}"
+       data-form-action="{{ path('delete_computer', {'id': commutator.id}) }}"
+       data-target=".deleteComputerModal"
+       data-toggle="modal"
+       data-list-path="commutators_list">
+        <i class="fa fa-fw fa-minus-square-o text-danger"></i> {{ 'Delete commutator' | trans() }}
+    </a>
+</li>

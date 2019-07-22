@@ -1,0 +1,12 @@
+{% macro inputs() %}
+    <div class="text-center">{{ "Are you sure you want to delete item?" | trans() }}</div>
+
+    <script>
+        $(document).ready(function(){
+            $('.remove-item').bind('click', function() {
+                var itemNoticeForm = $('#removeItemForm');
+                itemNoticeForm.attr('action', $(this).data('form-action'));
+            });
+        });
+    </script>
+{% endmacro %}

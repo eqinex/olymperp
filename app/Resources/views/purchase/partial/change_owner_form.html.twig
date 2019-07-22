@@ -1,0 +1,37 @@
+{% macro inputs(purchaseRequest, teamMembers, owner) %}
+    <div class="form-group">
+        <label class="col-sm-4 control-label">{{ "Owner" | trans() }}</label>
+        <div class="col-sm-6">
+            <select class="form-control select2-modal" name="owner">
+                {% for parent, users in teamMembers %}
+                    <optgroup label="{{ parent }}">
+                        {% for user in users %}
+                            <option value="{{ user.id }}"
+                                {% if user.id is defined and user.id == owner.id %}
+                                    {{ "selected" }}
+                                {% endif %}>
+                                {{ user.fullname }} ({{ user.employeeRole ? user.employeeRole.name }})
+                            </option>
+                        {% endfor %}
+                    </optgroup>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function(){
+            $('.require-modal-action').click(function(){
+                var changeOwnerForm = $('.changeOwnerFormModal');
+
+                var title = $(this).data('modal-title');
+                var formAction = $(this).data('form-action');
+
+                changeOwnerForm.find('.modal-title').text(title);
+                changeOwnerForm.find('#changeOwnerForm').attr('action', formAction);
+
+                $('.select2-modal').select2({ width: '100%' });
+            });
+        });
+    </script>
+{% endmacro %}

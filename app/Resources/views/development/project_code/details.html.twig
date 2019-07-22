@@ -1,0 +1,160 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ projectCode.code }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ breadcrumb( 'Project registry' | trans(), path('project_code_list') ) }}
+    {{ breadcrumb( projectCode.code, path('project_code_details', {'id': projectCode.id})) }}
+{% endblock %}
+
+{% block body %}
+    <form action="{{ path('project_code_details_edit', {'id': projectCode.id}) }}" method="POST">
+        <table class="table">
+            <tr>
+                <td class="v-a-m">
+                    <label class="col-sm-3 control-label" title="{{ 'Designation' | trans() }}">{{ 'Designation' | trans() }}</label>
+                    <div class="col-sm-5">
+                        <input type="text" class="form-control code"  placeholder="{{ 'Designation' | trans() }}" title="{{ 'Designation' | trans() ~ ' (' ~ 'If you do not fill in this field, it will be filled automatically' | trans() ~ ')'}}" name="project_code[code]" value="{{ projectCode.code }}">
+                    </div>
+                </td>
+                <td class="v-a-m">
+                    <label class="col-sm-3 control-label" title="{{ 'title' | trans() }}">{{ 'title' | trans() }}</label>
+                    <div class="col-sm-5">
+                        <textarea class="form-control name" name="project_code[name]" placeholder="{{ "title" | trans() }}" rows="1" required>{{ projectCode.name }}</textarea>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="v-a-m">
+                    <label class="col-sm-3 control-label del-padding" title="{{ 'Company code' | trans() }}">{{ 'Company code' | trans() }}</label>
+                    <div class="col-sm-5">
+                        <select class="form-control enter-data-for-code company-code" name="project_code[companyCode]" required>
+                            <option value="">{{ 'Company code' | trans() }}<hr/></option>
+                            {% for companyCode in companyCodes %}
+                                <option class="company-code-option" value="{{ companyCode.id }}" {% if projectCode.companyCode.id == companyCode.id %} selected {% endif %}>{{ companyCode.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </td>
+                <td class="v-a-m">
+                    <label class="col-sm-3 control-label" title="{{ 'Project number' | trans() }}">{{ 'Project number' | trans() }}</label>
+                    <div class="col-sm-5">
+                        <input type="text" class="form-control enter-data-for-code number" placeholder="{{ 'Project number' | trans() }}" name="project_code[projectNumber]" value="{{ projectCode.projectNumber }}" required>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="v-a-m">
+                    <label class="col-sm-3 control-label " title="{{ 'Project stages' | trans() }}">{{ 'Project stages' | trans() }}</label>
+                    <div class="col-sm-5">
+                        <select class="form-control enter-data-for-code project-stage" name="project_code[projectStage]" required>
+                            <option value="">{{ 'Select stage' | trans() }}</option>
+                            {% for status in statuses %}
+                                <option class="project-stage-option" value="{{ status }}" {% if projectCode.projectStage == status %} selected {% endif %}>{{ status }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </td>
+                <td class="v-a-m">
+                    <label class="col-sm-3 control-label" title="{{ 'Created year project code' | trans() }}">{{ 'Created year project code' | trans() }}</label>
+                    <div class="col-sm-5">
+                        <input type="text" maxlength="2" minlength="2" class="form-control enter-data-for-code created-year ui-datepicker-calendar" name="project_code[createdYear]" placeholder="{{ 'Created year project code' | trans() }}" title="{{ 'Created year project code' | trans() }}" value="{{ projectCode.createdYear }}" required>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="v-a-m">
+                    <label class="col-sm-3 control-label" title="{{ 'Subassembly' | trans() }}">{{ 'Subassembly' | trans() }}</label>
+                    <div class="col-sm-5">
+                        <input type="text" placeholder="{{ 'Subassembly' | trans() }}" class="form-control enter-data-for-code subassembly" name="project_code[subassembly]" value="{{ projectCode.subassembly }}">
+                    </div>
+                </td>
+                <td class="v-a-m">
+                    <label class="col-sm-3 control-label" title="{{ 'Execution' | trans() }}">{{ 'Execution' | trans() }}</label>
+                    <div class="col-sm-5">
+                        <input type="text" placeholder="{{ 'Execution' | trans() }}" class="form-control enter-data-for-code execution" name="project_code[execution]" value="{{ projectCode.execution }}">
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="v-a-m">
+                    <label class="col-sm-3 control-label del-padding" title="{{ 'Project structure' | trans() ~ ' %' }}">{{ 'Project structure' | trans() ~ ' %' }}</label>
+                    <div class="col-sm-5">
+                        <input type="number" class="form-control material-quantity project-structure"  name="project_code[projectStructure]" min="0" max="100" value="{{ projectCode.projectStructure }}">
+                    </div>
+                </td>
+                <td class="v-a-m">
+                    <label class="col-sm-3 control-label del-padding" title="{{ 'Set Engineering Document' | trans() ~ ' %' }}">{{ 'Set Engineering Document' | trans() ~ ' %' }}</label>
+                    <div class="col-sm-5">
+                        <input type="number" class="form-control material-quantity kit-engineering-document"  name="project_code[setEngineeringDocument]" min="0" max="100" value="{{ projectCode.kitEngineeringDocument }}">
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="v-a-m">
+                    <label class="col-sm-3 control-label" title="{{ 'Inside code' | trans() }}">{{ 'Inside code' | trans() }}</label>
+                    <div class="col-sm-5">
+                        <input type="text" placeholder="{{ 'Inside code' | trans() }}" class="form-control enter-data-for-code inside-code" name="project_code[insideCode]" value="{{ projectCode.insideCode }}">
+                    </div>
+                </td>
+                <td class="v-a-m">
+                    <label class="col-sm-3 control-label" title="{{ 'Project location' | trans() }}">{{ 'Project location' | trans() }}</label>
+                    <div class="col-sm-5">
+                        <input type="text" placeholder="{{ 'Project location' | trans() }}" class="form-control enter-data-for-code project-location" name="project_code[projectLocation]" value="{{ projectCode.projectLocation }}">
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="v-a-m">
+                    <label class="col-sm-3 control-label" title="{{ 'The date of registration of the code' | trans() }}">{{ 'Registration Date' | trans() }}</label>
+                    <div class="col-sm-5">
+                        <input type="text" required class="form-control date-of-registration daterange-single-date-picker"
+                               name="project_code[dateOfRegistration]" value="{{ projectCode.dateOfRegistration | date('d.m.Y') }}">
+                    </div>
+                </td>
+                <td class="v-a-m">
+                    <label class="col-sm-3 control-label" title="{{ 'Responsible' | trans() }}">{{ 'Responsible' | trans() }}</label>
+                    <div class="col-sm-5">
+                        <select class="form-control select2-modal responsible" name="project_code[responsible]">
+                            <option value="">{{ 'Select responsible' | trans() }}</option>
+                            {% for user in users %}
+                                <option value="{{ user.id }}"
+                                        {% if projectCode.responsible is not null and projectCode.responsible.id == user.id %}
+                                            {{ "selected" }}
+                                        {% endif %}>{{ user.firstname ~ ' ' ~ user.lastname }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="v-a-m">
+                    <label class="col-sm-3 control-label" title="{{ 'Notice' | trans() }}">{{ 'Notice' | trans() }}</label>
+                    <div class="col-sm-5">
+                        <textarea class="form-control material-quantity remark"  name="project_code[remark]" placeholder="{{ 'Notice'| trans() }}" rows="1">{{ projectCode.remark }}</textarea>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <button type="submit" class="btn btn-primary">{{ 'Save edit registry' | trans() }}</button>
+                </td>
+            </tr>
+        </table>
+    </form>
+    <script>
+        $(document).ready(function () {
+            $('.daterange-single-date-picker').daterangepicker({
+                singleDatePicker: true,
+                showDropdowns: true,
+                timePicker24Hour: true,
+                timePickerIncrement: 30,
+                opens: "left",
+                drops: "down",
+                locale: {
+                    format: 'DD.MM.YYYY', applyLabel: "Выбрать", cancelLabel: "Отменить"
+                }
+            });
+        })
+    </script>
+{% endblock %}

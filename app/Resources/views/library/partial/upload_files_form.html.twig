@@ -1,0 +1,25 @@
+{% macro inputs() %}
+    <div class="panel-footer">
+        <!-- START Send Message Input -->
+        <div class="input-group">
+            <span class="input-group-btn">
+                <button class="btn btn-default" type="button"><i class="fa fa-fw fa-paperclip"></i></button>
+            </span>
+            <input type="file" class="form-control" name="files[]" required placeholder="{{ 'Upload File' | trans() }}"/>
+            <span class="input-group-btn ">
+                <button type="submit" class="btn btn-primary">{{ 'Upload File' | trans() }}</button>
+            </span>
+        </div>
+        <!-- END Send Message Input -->
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $('.upload-book-file').bind('click', function () {
+                var uploadBookFileForm = $('#uploadApplicantFileForm');
+                uploadBookFileForm.attr('action', $(this).data('href'));
+                uploadApplicantFileForm.find('.engineering-document-id').val($(this).data('id'));
+            });
+        });
+    </script>
+{% endmacro %}

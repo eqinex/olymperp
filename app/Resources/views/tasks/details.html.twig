@@ -1,0 +1,780 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ task.title }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ breadcrumb( 'Projects' | trans(), path('projects_list') ) }}
+    {{ breadcrumb( project.name, path('project_details', {'id': project.id}) ) }}
+    {% if task is defined and task.isScheduler() %}
+        {{ breadcrumb( 'Scheduled tasks' | trans(), path('scheduled_tasks')) }}
+    {% else %}
+        {{ breadcrumb( 'Tasks' | trans(), path('project_tasks', {'id': project.id}) ) }}
+    {% endif %}
+    {{ breadcrumb( task.title, path('project_task_details', {'id': project.id, 'taskId': task.id}) ) }}
+{% endblock %}
+
+{% block body %}
+        <!-- START Navigation Tree & Search -->
+        <div class="col-lg-3 task-sidebar" >
+
+            <div class="hr-text hr-text-left m-t-0 m-b-1">
+                <h6 class="text-inverse"><strong>{{ "Details" | trans() }}</strong></h6>
+            </div>
+
+            <table class="table table-condensed">
+                <tbody>
+                <tr>
+                    <td class="v-a-m">
+                        {{ 'Status' | trans() }}
+                    </td>
+                    <td class="v-a-m text-right">
+                        {% if task.status is not null %}
+                            <span class="text-inverse">{{ ("status_" ~ (task.scheduler ? task.schedulerStatusList[task.status] : task.statusList[task.status])) | trans() }}</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% if task.scheduler and task.scheduledPeriod is defined %}
+                    <tr>
+                        <td class="v-a-m">
+                            {{ 'Scheduled period' | trans() }}
+                        </td>
+                        <td class="v-a-m text-right">
+                            <span>{{ task.scheduledPeriod | trans() }}</span>
+                        </td>
+                    </tr>
+                {% endif %}
+                <tr>
+                    <td class="v-a-m">
+                        {{ 'Project' | trans() }}
+                    </td>
+                    <td class="v-a-m text-right">
+                        <a href="{{ path('project_tasks', {'id': project.id}) }}"><span>{{ project.name }}</span></a>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="v-a-m">
+                        {{ 'Type' | trans() }}
+                    </td>
+                    <td class="v-a-m text-right">
+                        <span>{{ task.type | trans() }}</span>
+                    </td>
+                </tr>
+
+                {% if task.epic is not null %}
+                    <tr>
+                        <td class="v-a-m">
+                            {{ 'Epic' | trans() }}
+                        </td>
+                        <td class="v-a-m text-right text-inverse">
+                            <a class="text-{{ task_service.getEpicLabel(task.epic) }}" href="{{ path('project_task_details', {'id': task.project.id, 'taskId': task.epic.id}) }}">
+                                <span>{{ task.epic.title }}</span>
+                            </a>
+                        </td>
+                    </tr>
+                {% endif %}
+
+                {% if task.protocol is not null %}
+                    <tr>
+                        <td class="v-a-m">
+                            {{ 'Protocol' | trans() }}
+                        </td>
+                        <td class="v-a-m text-right text-inverse">
+                            <a class="text-{{ task_service.getEpicLabel(task.protocol) }}" href="{{ path('project_task_details', {'id': task.project.id, 'taskId': task.protocol.id}) }}">
+                                <span>{{ task.protocol.title }}</span>
+                            </a>
+                        </td>
+                    </tr>
+                {% endif %}
+
+                {% if task.startAt is not null %}
+                    <tr>
+                        <td class="v-a-m">
+                            {{ 'Start At' | trans() }}
+                        </td>
+                        <td class="v-a-m text-right text-inverse">
+                            {{ task.startAt|date("d.m.Y H:i") }}
+                        </td>
+                    </tr>
+                {% endif %}
+                {% if task.endAt is not null %}
+                    <tr>
+                        <td class="v-a-m">
+                            {{ 'End At' | trans() }}
+                        </td>
+                        <td class="v-a-m text-right text-inverse">
+                            {{ task.endAt|date("d.m.Y H:i") }}
+                        </td>
+                    </tr>
+                {% endif %}
+                <tr>
+                    <td class="v-a-m">
+                        {{ "Priority" | trans() }}
+                    </td>
+                    <td class="v-a-m text-right">
+                        <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                            <i class="fa fa-fw fa fa-circle text-{{ task.priorityLabels[task.priority] }}"></i>
+                            {{ ("priority_" ~ task.priorityList[task.priority]) | trans() }}
+                        </button>
+                    </td>
+                </tr>
+
+                </tbody>
+            </table>
+            <div class="collapsible-panel collapsed">
+                <div class="panel-heading hr-text hr-text-left m-t-0 m-l-0 p-r-0 p-l-0">
+                    <h6 class="text-inverse"><strong>{{ "Task members" | trans() }}</strong></h6>
+                    <a href="javascript: void(0)" class="action-panel-collapse-specially-one action-panel-collapse">
+                        <i class="fa fa-fw fa-chevron-up text-muted panel-collapsed-hidden"></i>
+                        <i class="fa fa-fw fa-chevron-down text-muted panel-collapsed-visible"></i>
+                    </a>
+                </div>
+
+                <div class="scroll-300 custom-scrollbar">
+                    <table class="table table-condensed">
+                        <tbody>
+                        <tr>
+                            <td class="v-a-m">
+                                {{ 'Reporter' | trans() }}
+                            </td>
+                            <td class="v-a-m text-right">
+                                <a href="{{ path('employee_details', {'userName': task.reporter.userName}) }}"><span>{{ task.reporter.fullName }}</span></a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="v-a-m">
+                                {{ 'Controlling user' | trans() }}
+                            </td>
+                            <td class="v-a-m text-right">
+                                <a href="{{ path('employee_details', {'userName': task.controllingUser.userName}) }}"><span>{{ task.controllingUser.fullName }}</span></a>
+                            </td>
+                        </tr>
+                        {% if task.responsibleUser.id is defined %}
+                            <tr>
+                                <td class="v-a-m">
+                                    {{ 'Responsible' | trans() }}
+                                </td>
+                                <td class="v-a-m text-right">
+                                    <a href="{{ path('employee_details', {'userName': task.responsibleUser.userName}) }}"><span>{{ task.responsibleUser.fullName }}</span></a>
+                                </td>
+                            </tr>
+                        {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% if task.subscribers | length %}
+            <div class="collapsible-panel collapsed">
+                <!-- END Table Project Details -->
+                <div class="panel-heading hr-text hr-text-left m-t-0 m-l-0 p-r-0 p-l-0">
+                    {% if task.isUserSubscribed(app.user) %}
+                        {% set icon = 'eye-slash' %}
+                        {% set link = path('task_unsubscribe', {'id': project.id, 'taskId': task.id}) %}
+                    {% else %}
+                        {% set icon = 'eye' %}
+                        {% set link = path('task_subscribe', {'id': project.id, 'taskId': task.id}) %}
+                    {% endif %}
+
+                    <h6 class="text-inverse"><strong>{{ 'Subscribers' | trans() }}</strong> <span class="badge">{{ task.subscribers | length }}</span>
+                        <a class="btn btn-gray-light btn-sm" style="margin-left: 15px;" href="{{ link }}"><i class="fa fa-{{ icon }}"></i></a>
+                        </h6>
+                    <a href="javascript: void(0)" class="action-panel-collapse-specially-two action-panel-collapse">
+                        <i class="fa fa-fw fa-chevron-up text-muted panel-collapsed-hidden"></i>
+                        <i class="fa fa-fw fa-chevron-down text-muted panel-collapsed-visible"></i>
+                    </a>
+                </div>
+
+                <!-- START Widget - Menu Pills Vertical -->
+                <div class="scroll-300 custom-scrollbar">
+                    <ul class="nav nav-pills nav-stacked">
+                    <!-- START User Online (Small) -->
+                        <li>
+                            <table class="table table-hover table-project-team">
+                                {% for subscriber in task.subscribers %}
+                                    <tr class="team-member">
+                                        <td>
+                                            <a href="{{ path('employee_details', {'userName':subscriber.username}) }}">
+                                                <div class="media-left">
+                                                    <div class="avatar avatar-sm">
+                                                        <div class="avatar-circle">
+                                                            {% if subscriber.imageUrl is not null %}
+                                                                <img class="media-object" src="{{ subscriber.imageUrl }}" />
+                                                            {% else %}
+                                                                <img class="media-object" src="/images/noavatar.png" alt="Avatar">
+                                                            {% endif %}
+                                                        </div>
+                                                        <i class="avatar-status avatar-status-bottom bg-{{ employee_service.getOnlineStatus(subscriber).colorBadge }} b-brand-gray-darker"></i>
+                                                    </div>
+                                                </div>
+                                                <div class="media-body">
+                                                    <h5 class="m-t-0 m-b-0 text-primary"><span>{{ subscriber.fullname }}</span></h5>
+                                                    <p class="small text-gray-lighter m-b-0"><span>{{ subscriber.employeeRole }}</span></p>
+                                                </div>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </table>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="hr-text hr-text-left m-t-0 m-b-1">
+                <h6 class="text-inverse"><strong>{{ "Work Logs" | trans() }}</strong></h6>
+            </div>
+
+            <table class="table table-condensed">
+                <tbody>
+                {% if task.type != 'epic' %}
+                    <tr>
+                        <td class="v-a-m">
+                            {{ "Original estimate" | trans() }}
+                        </td>
+                        <td class="v-a-m text-right">
+                            {{ task.getFormattedTime(task.originalEstimate) }}
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="v-a-m">
+                            {{ "Remaining estimate" | trans() }}
+                        </td>
+                        <td class="v-a-m text-right">
+                            {{ task.getFormattedTime(task.remainingEstimate|round(2)) }}
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="v-a-m">
+                            {{ "Time spent" | trans() }}
+                        </td>
+                        <td class="v-a-m text-right">
+                            {{ task.getFormattedTime(task.timeSpent|round(2)) }}
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td class="v-a-m">
+                            {{ "Original estimate" | trans() }}
+                        </td>
+                        <td class="v-a-m text-right">
+                            {{ task.getFormattedTime(task.getEpicEstimateTime.originalEstimateEpic) }}
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="v-a-m">
+                            {{ "Remaining estimate" | trans() }}
+                        </td>
+                        <td class="v-a-m text-right">
+                            {{ task.getFormattedTime(task.getEpicEstimateTime.remainingEstimateEpic|round(2)) }}
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="v-a-m">
+                            {{ "Time spent" | trans() }}
+                        </td>
+                        <td class="v-a-m text-right">
+                            {{ task.getFormattedTime((task.getEpicEstimateTime.timeSpentEpic|round(2))) }}
+                        </td>
+                    </tr>
+                {% endif %}
+                </tbody>
+            </table>
+
+            <div class="hr-text hr-text-left m-t-0 m-b-1">
+                <h6 class="text-inverse"><strong>{{ "Time log" | trans() }}</strong>
+                {% if task.status == 1 and task.type != 'epic' %}
+                    <a class="btn btn-gray-light btn-sm" data-toggle="modal" data-target=".addWorkLogModal"><i class="fa fa-plus"></i></a></h6>
+                {% endif %}
+            </div>
+
+            <table class="table table-condensed">
+                <tbody>
+                {% if task.type != 'epic' %}
+                    {% for workLog in task.workLogs %}
+                        <tr>
+                            <td class="v-a-m">
+                                {{ workLog.owner.fullName }}
+                            </td>
+                            <td class="v-a-m text-right">
+                                <span>{{ workLog.getFormattedTime(workLog.loggedHours) }}</span>
+                            </td>
+                            <td class="v-a-m text-right">
+                                <span>{{ workLog.loggedDay | date('d/m/y') }}</span>
+                            </td>
+                            <td class="v-a-m text-right">
+                                {% if workLog.canRemove(app.user) %}
+                                    <a class="btn btn-danger btn-sm" href="{{ path('work_log_remove', {'id': workLog.id}) }}"><i class="fa fa-minus"></i></a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    {% for epicTask in task.getEpicWorklogs() %}
+                        {% for workLog in epicTask.worklogs %}
+                            <tr>
+                                <td class="v-a-m">
+                                    <a href="{{ path('project_task_details', {'id': project.id, 'taskId': epicTask.id}) }}">
+                                        <span>{{ epicTask.title }}</span>
+                                    </a>
+                                </td>
+                                <td class="v-a-m">
+                                    {{ workLog.name }}
+                                </td>
+                                <td class="v-a-m text-right">
+                                    <span>{{ task.getFormattedTime(workLog.hours) }}</span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                    {% endfor %}
+                {% endif %}
+                </tbody>
+            </table>
+        </div>
+        <!-- END Navigation Tree & Search -->
+
+
+        <div class="col-lg-9">
+
+            <!-- START Header with Option -->
+            <div class="row">
+
+                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                    <!-- START Header -->
+                    <h3 class="f-w-300 m-t-1">{{ task.title }}</h3>
+                </div>
+                <div class="col-lg-6 col-md-5 col-xs-12">
+                    <div class="btn-toolbar pull-right">
+                        <div class="btn-group" role="group" aria-label="...">
+                            {% set vars = {'active_page': 'project_tasks'} %}
+                            {% include 'projects/partial/nav.html.twig' with vars %}
+                        </div>
+                    </div>
+                    <!-- END Toolbar -->
+                </div>
+            </div>
+
+            <div class="tabbable-line tabs">
+                <ul class="nav nav-tabs">
+                    <li role="presentation" data-target="description" class="active tab-descriptiontab"><a href="#descriptiontab">{{ 'Description' | trans() }}</a></li>
+
+                    <li class="tab-attachmentstab" role="presentation" data-target="attachments"><a href="#attachmentstab">{{ 'attachments' | trans() | capitalize }}
+                            {% if taskFiles | length != 0 %}
+                                <span class="badge">{{ taskFiles| length }}</span>
+                            {% endif %}
+                        </a></li>
+
+                    <li class="tab-commentstab" role="presentation" data-target="comments"><a href="#commentstab">{{ 'Comments' | trans() }}
+                            {% if taskComments | length != 0 %}
+                                <span class="badge">{{ taskComments | length }}</span>
+                            {% endif %}
+                        </a></li>
+
+                    <li class="tab-historytab" role="presentation" data-target="history"><a href="#historytab">{{ 'History' | trans() }}</a></li>
+                </ul>
+                <div class="pull-right" style="margin-top: -35px;">
+                    {% set vars = {'task': task, 'class': ''} %}
+                    {% include 'tasks/partial/task_actions.html.twig' with vars %}
+                </div>
+            </div>
+            <!-- END Header with Option -->
+
+            <div class="tab" id="description">
+                <div class="panel panel-default no-bg b-gray-dark">
+                    <div class="panel-body">
+                        {% if task.type == 'protocol' %}
+                            <div class="hr-text hr-text-left">
+                                <h6 class="text-inverse"><strong class="m-r-1">{{ 'Theme' | trans() }} </strong></h6>
+                            </div>
+                            <span class="v-a-m b-t-0">{{ task.subject }}</span>
+                            <div class="hr-text hr-text-left">
+                                <h6 class="text-inverse"><strong class="m-r-1">{{ 'Description' | trans() }} </strong></h6>
+                            </div>
+                            {% if task.description != '' %}
+                                <span class="v-a-m b-t-0">{{ task.description }}</span>
+                            {% else %}
+                                <span class="v-a-m b-t-0 text-muted">{{ "Description is not filled yet" | trans() }}</span>
+                            {% endif %}
+                            {% if task.protocolMembers() | length %}
+                                <div class="hr-text hr-text-left">
+                                    <h6 class="text-inverse"><strong class="m-r-1">{{ 'Members' | trans() }} </strong></h6>
+                                </div>
+                                {% set protocolMembers = [] %}
+                                {% for protocolMember in task.protocolMembers() %}
+                                    {% set protocolMembers = protocolMembers | merge([protocolMember.member]) %}
+                                {% endfor %}
+                                <span>{{ protocolMembers | join(', ')}}</span>
+                            {% endif %}
+                        {% elseif task.description != '' %}
+                            {{ task.description | raw }}
+                        {% else %}
+                            <span class="v-a-m b-t-0 text-muted">{{ "Description is not filled yet" | trans() }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {% if task.type == 'epic' or task.type == 'protocol'%}
+                    <div class="hr-text hr-text-left m-t-0 m-b-1">
+                        <h6 class="text-inverse"><strong>{{ (task.type == 'epic' ? 'Epic tasks' : 'Protocol tasks') | trans() }}</strong></h6>
+                        <a class="btn btn-gray-light btn-sm add-plus add-task" data-toggle="modal" data-target=".addTaskEpicModal">
+                            <i class="fa fa-plus"></i>
+                        </a>
+                        <a class="btn btn-success btn-sm get-epic-gantt" href="{{ path('project_epic_gantt_chart', {'id': project.id, 'epicId': task.id}) }}" target="_blank">
+                            <i class="fa fa-file-excel-o"></i> {{ 'Gantt' | trans() }}
+                        </a>
+                        <a class="btn btn-primary btn-sm get-protocol" target="_blank" title="{{ 'download' | trans() }}" href="{{ path('export_protocol', {'id': project.id, 'taskId': task.id}) }}">
+                            <i class="fa fa-fw fa-file-word-o text-inverse"></i> {{ 'protocol' | trans() }}
+                        </a>
+                    </div>
+                    <table class="table table-condensed">
+                        <tbody>
+                        {% set linkedTasks = task.type == 'epic' ? task.epicTasks : task.protocolTasks %}
+                        {% set siblings = {} %}
+
+                        {% for linkedTask in linkedTasks %}
+
+                            {% if (linkedTask.taskSiblings.id is defined and linkedTask.taskSiblings.id not in siblings) or linkedTask.taskSiblings.id is not defined %}
+                            <tr>
+                                <td class="v-a-m" style="width: 10px;">
+                                    {% if linkedTask.type == 'epic' %}
+                                        <i class="fa fa-fw fa fa-object-group text-{{ linkedTask.priorityLabels[linkedTask.priority] }}"></i>
+                                    {% else %}
+                                        <i class="fa fa-fw fa fa-circle text-{{ linkedTask.priorityLabels[linkedTask.priority] }}"></i>
+                                    {% endif %}
+                                </td>
+                                <td class="v-a-m" style="width: 25px;">
+                                    <span class="text-muted">#{{ linkedTask.id }}</span>
+                                </td>
+                                <td class="v-a-m" style="width:75px;">
+                                    {% if linkedTask.status is not null %}
+                                        <span class="text-{{ linkedTask.priorityLabels[linkedTask.status] }}">{{
+                                            ("status_" ~ linkedTask.statusList[linkedTask.status]) | trans() }}</span>
+                                    {% endif %}
+                                </td>
+                                <td class="v-a-m">
+                                    {% if linkedTask.status == 2 or linkedTask.status == 3 %}
+                                        <del>
+                                            <a class="text-muted" href="{{ path('project_task_details', {'id': linkedTask.project.id, 'taskId': linkedTask.id}) }}">
+                                                <span>{{ linkedTask.title }}</span>
+                                            </a>
+                                        </del>
+                                    {% else %}
+                                        <a href="{{ path('project_task_details', {'id': project.id, 'taskId': linkedTask.id}) }}">
+                                            <span>{{ linkedTask.title }}</span>
+                                        </a>
+                                    {% endif %}
+                                </td>
+                                <td class="v-a-m no-wrap">
+                                    {% if linkedTask.result is not null %}
+                                        <span>{{ linkedTask.result.name }}</span>
+                                    {% else %}
+                                        <span>-</span>
+                                    {% endif %}
+                                </td>
+                                <td class="v-a-m no-wrap">
+                                    {% if linkedTask.taskSiblings is not null %}
+                                        {% set siblings = siblings | merge([linkedTask.taskSiblings.id]) %}
+
+                                        {% for sibling in linkedTask.taskSiblings.siblings %}
+                                            {% if sibling.status == 2 %}
+                                                <i class="fa fa-check-square-o text-success"></i>
+                                            {% else %}
+                                                <i class="fa fa-square-o"></i>
+                                            {% endif %}
+                                            <div class="avatar avatar-sm avatar-inline">
+                                                <div class="avatar-circle">
+                                                    {% if sibling.responsibleUser.imageUrl is not null %}
+                                                        <img class="" src="{{ sibling.responsibleUser.imageUrl }}" />
+                                                    {% else %}
+                                                        <img class="" src="/images/noavatar.png" alt="Avatar">
+                                                    {% endif %}
+                                                </div>
+                                                <i class="avatar-status avatar-status-bottom bg-{{ employee_service.getOnlineStatus(sibling.responsibleUser).colorBadge }} b-brand-gray-darker"></i>
+                                            </div>
+                                            {{ sibling.responsibleUser.lastNameWithInitials }}
+                                            <br />
+                                        {% endfor %}
+                                    {% else %}
+                                        <div class="avatar avatar-sm avatar-inline">
+                                            <div class="avatar-circle">
+                                                {% if linkedTask.responsibleUser.imageUrl is not null %}
+                                                    <img class="" src="{{ linkedTask.responsibleUser.imageUrl }}" />
+                                                {% else %}
+                                                    <img class="" src="/images/noavatar.png" alt="Avatar">
+                                                {% endif %}
+                                            </div>
+                                            <i class="avatar-status avatar-status-bottom bg-{{ employee_service.getOnlineStatus(linkedTask.responsibleUser).colorBadge }} b-brand-gray-darker"></i>
+                                        </div>
+                                        {{ linkedTask.responsibleUser.lastNameWithInitials }}
+                                    {% endif %}
+                                </td>
+                                <td class="v-a-m">
+                                    <span {% if linkedTask.Active and linkedTask.expired %}style="color:orangered;"{% endif %}>{{ linkedTask.endAt | date('d.m.Y') }}</span>
+                                </td>
+                                <td class="v-a-m">
+                                    <span {% if linkedTask.timeSpent > linkedTask.originalEstimate %}class="text-warning"{% endif %}>
+                                        {{ linkedTask.getFormattedTime(linkedTask.timeSpent) ~ '/' ~ linkedTask.getFormattedTime(linkedTask.originalEstimate) }}
+                                    </span>
+                                </td>
+                                <td class="text-right v-a-m">
+                                    {% set vars = {'task': linkedTask, 'class': ''} %}
+                                    {% include 'tasks/partial/task_actions.html.twig' with vars %}
+                                </td>
+                            <tr>
+                            {% endif %}
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
+            </div>
+            <div class="panel panel-default no-bg b-gray-dark hidden tab" id="attachments">
+                <div class="panel-body">
+                    {% if taskFiles | length %}
+                        <table class="table table-hover m-b-0">
+                            <tbody>
+                            {% for file in taskFiles %}
+                                {% set vars = {
+                                    'category': 'task',
+                                    'downloadFilePath': path('task_download_file', {'id': project.id, 'fileId': file.id, 'taskId': task.id}),
+                                    'deleteFilePath' : path('project_remove_file', {'id': project.id, 'fileId': file.id }),
+                                    'accessRightsFilePath' : path('task_access_rights_edit', {'id': project.id, 'taskId': task.id, 'fileId': file.id})
+                                } %}
+                                {% if file.format == 'jpg' or file.format == 'jpeg' or file.format == 'png' %}
+                                    {% set vars = vars | merge({ 'previewImage': path('task_download_file', {'id': project.id, 'fileId': file.id, 'taskId': task.id, 'preview': true }) }) %}
+                                {% endif %}
+                                {% include 'partial/upload_files_list.html.twig' with vars %}
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <span class="v-a-m b-t-0 text-muted">{{ "There's no files yet" | trans() }}</span>
+                    {% endif %}
+                </div>
+                {% set vars = {'uploadFilePath' : path('task_upload_file', {'id': project.id, 'taskId': task.id})} %}
+                {% include 'partial/upload_files_form.html.twig' with vars %}
+            </div>
+            <div class="panel panel-default no-bg b-gray-dark hidden tab" id="comments">
+                {% set vars = {
+                    'comments': taskComments,
+                    'action': path('project_task_add_comment', {'id': project.id,'taskId': task.id})
+                } %}
+                {% include 'partial/comments.html.twig' with vars %}
+            </div>
+
+            <div class="panel panel-default no-bg b-gray-dark hidden tab" id="history">
+                <div class="panel-body">
+                    <div>
+                        {% if taskChanges | length %}
+                        <table class="table table-sm table-hover">
+                            <thead>
+                            <tr>
+                                <th class="small text-muted text-uppercase">{{ 'Field' | trans() }}</th>
+                                <th class="small text-muted text-uppercase">{{ 'Old value' | trans() }}</th>
+                                <th class="small text-muted text-uppercase">{{ 'New value' | trans() }}</th>
+                                <th class="small text-muted text-uppercase">{{ 'Changed by' | trans() }}</th>
+                                <th class="small text-muted text-uppercase">{{ 'Changed at' | trans() }}</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                {% for changes in taskChanges %}
+                                <tr>
+                                    <td>{{ (changes.field | capitalize) | trans() }}</td>
+                                    <td><strike>{{ changes.oldValue | trans() }}</strike></td>
+                                    <td class="text-inverse">{{ changes.newValue | trans() }}</td>
+                                    <td>{{ changes.changedBy.fullName }}</td>
+                                    <td>{{ changes.updatedAt | date('d.m.Y H:i') }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        {% else %}
+                            <span class="v-a-m b-t-0 text-muted">{{ "There's no changes yet" | trans() }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            {% import 'tasks/partial/form.html.twig' as form %}
+            {% import 'tasks/partial/protocol_form.html.twig' as protocolForm %}
+            {% import 'tasks/partial/scheduler_task_form.html.twig' as schedulerTaskForm %}
+            {% import 'tasks/partial/worklog_form.html.twig' as workLogForm %}
+            {% import 'tasks/partial/start_progress_form.html.twig' as startProgressForm %}
+            {% import 'tasks/partial/finish_task_form.html.twig' as finishTaskForm %}
+            {% import 'tasks/partial/cancel_task_form.html.twig' as cancelTaskForm %}
+            {% import 'tasks/partial/return_to_work_task_form.html.twig' as returnTaskForm %}
+            {% import 'partial/preview_form.html.twig' as previewForm %}
+            {% import 'projects/partial/delete_file_form.html.twig' as deleteFileForm %}
+            {% import 'tasks/partial/request_approve_task_form.html.twig' as requestApproveTaskForm %}
+            {% import 'partial/access_rights_file_form.html.twig' as accessRightsFileForm %}
+
+            {% set editTaskVars = {
+                    'class': 'editTaskModal',
+                    'formId': 'editTaskForm',
+                    'title': 'Edit task',
+                    'size': 'large',
+                    'content': form.inputs(project, task, taskResults),
+                    'submitTitle': 'Save'
+                }
+            %}
+            {% set editProtocolVars = {
+                'class': 'editProtocolModal',
+                'formId': 'editProtocolForm',
+                'title': 'Edit protocol',
+                'size': 'large',
+                'content': protocolForm.inputs(newTask, taskResults, project, task.getProtocolMember()),
+                'submitTitle': 'Save'
+            }
+            %}
+
+            {% set editScheduledTaskVars = {
+                'class': 'editScheduledTaskModal',
+                'formId': 'editScheduledTaskForm',
+                'title': 'Edit scheduled task',
+                'size': 'large',
+                'content': schedulerTaskForm.inputs(task, taskResults, daysWeek),
+                'submitTitle': 'Save'
+            }
+            %}
+
+            {% set addWorkLogVars = {
+                    'class': 'addWorkLogModal',
+                    'formId': 'addWorkLogForm',
+                    'title': 'Add work log',
+                    'content': workLogForm.inputs(),
+                    'formAction': path('project_task_work_log', {'id': project.id, 'taskId': task.id}),
+                    'submitTitle': 'Write off'
+                }
+            %}
+
+            {% set startProgressVars = {
+                    'class': 'startProgressModal',
+                    'formId': 'startProgressForm',
+                    'title': 'Start progress',
+                    'content': startProgressForm.inputs(),
+                    'formAction': path('project_task_change_state', {'id': task.project.id, 'taskId': task.id, 'state': 1}),
+                    'submitTitle': 'Start'
+                }
+            %}
+            {% set requestApproveTaskVars = {
+                'class': 'requestApproveTaskModal',
+                'formId': 'requestApproveTaskForm',
+                'title': 'Request approve',
+                'content': requestApproveTaskForm.inputs(),
+                'formAction': path('project_task_change_state', {'id': task.project.id, 'taskId': task.id, 'state': 4}),
+                'submitTitle': 'Send'
+            }
+            %}
+            {% set finishTaskVars = {
+                    'class': 'finishTaskModal',
+                    'formId': 'finishTaskForm',
+                    'title': 'Done',
+                    'size': 'large',
+                    'content': finishTaskForm.inputs(),
+                    'formAction': path('project_task_change_state', {'id': task.project.id, 'taskId': task.id, 'state': 2}),
+                    'submitTitle': 'Done'
+                }
+            %}
+            {% set resultApproveTaskVars = {
+                'class': 'resultApproveTaskModal',
+                'formId': 'resultApproveTaskForm',
+                'title': 'Request result approve',
+                'size': 'large',
+                'content': finishTaskForm.inputs(),
+                'formAction': path('project_task_change_state', {'id': task.project.id, 'taskId': task.id, 'state': 7}),
+                'submitTitle': 'Send'
+            }
+            %}
+            {% set cancelTaskVars = {
+                'class': 'cancelTaskModal',
+                'formId': 'cancelTaskForm',
+                'title': 'Cancel',
+                'content': cancelTaskForm.inputs(),
+                'formAction': path('project_task_change_state', {'id': task.project.id, 'taskId': task.id, 'state': 3}),
+                'submitTitle': 'Cancel'
+            }
+            %}
+            {% set returnTaskVars = {
+                'class': 'returnTaskModal',
+                'formId': 'returnTaskForm',
+                'title': 'Return to work',
+                'content': returnTaskForm.inputs(),
+                'formAction': path('project_task_change_state', {'id': task.project.id, 'taskId': task.id, 'state': 1}),
+                'submitTitle': 'Return to work'
+            }
+            %}
+            {% set previewFormVars = {
+                    'class': 'previewModal',
+                    'formId': 'previewForm',
+                    'size': 'large',
+                    'title': 'Image preview',
+                    'content': previewForm.inputs(),
+                }
+            %}
+            {% set addTaskEpicVars = {
+                    'class': 'addTaskEpicModal',
+                    'formId': 'addTaskEpicForm',
+                    'title': 'New task',
+                    'size': 'large',
+                    'content': form.inputs(project, newTask, taskResults),
+                    'formAction': path('project_add_task', {'id': project.id}),
+                    'submitTitle': 'Create'
+                }
+            %}
+            {% set deleteFileFormVars = {
+                    'class': 'deleteFileModal',
+                    'formId': 'deleteFileForm',
+                    'title': 'Delete file',
+                    'content': deleteFileForm.inputs(),
+                    'submitTitle': 'Delete'
+                }
+            %}
+            {% set accessRightsFileFormVars = {
+                'class': 'accessRightsFileModal',
+                'formId': 'accessRightsFileForm',
+                'title': 'Access rights',
+                'content': accessRightsFileForm.inputs(),
+                'submitTitle': 'Apply'
+            }
+            %}
+
+            {% include 'partial/modal.html.twig' with previewFormVars %}
+            {% include 'partial/modal.html.twig' with editTaskVars %}
+            {% include 'partial/modal.html.twig' with editProtocolVars %}
+            {% include 'partial/modal.html.twig' with editScheduledTaskVars %}
+            {% include 'partial/modal.html.twig' with addWorkLogVars %}
+            {% include 'partial/modal.html.twig' with startProgressVars %}
+            {% include 'partial/modal.html.twig' with finishTaskVars %}
+            {% include 'partial/modal.html.twig' with resultApproveTaskVars %}
+            {% include 'partial/modal.html.twig' with cancelTaskVars %}
+            {% include 'partial/modal.html.twig' with returnTaskVars %}
+            {% include 'partial/modal.html.twig' with addTaskEpicVars %}
+            {% include 'partial/modal.html.twig' with deleteFileFormVars %}
+            {% include 'partial/modal.html.twig' with requestApproveTaskVars %}
+            {% include 'partial/modal.html.twig' with accessRightsFileFormVars %}
+        </div>
+        <script>
+            $(document).ready(function(){
+                $('.tabs .nav a').bind('click', function(){
+                    $('.tabs .nav li').removeClass('active');
+                    $('.tab').addClass('hidden');
+
+                    $('#' + $(this).parent().data('target')).removeClass('hidden');
+                    $(this).parent().addClass('active')
+                });
+
+                var url = window.location.href;
+                var hash = url.substring(url.indexOf('#')+1);
+
+                if (hash == 'descriptiontab' || hash == 'attachmentstab' || hash == 'commentstab' || hash == 'historytab') {
+                    $('.tab-' + hash + ' a').click();
+                }
+            });
+
+            $(document).submit(function(){
+                $('.send-comment-button').attr("disabled", "disabled");
+            });
+        </script>
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends 'notifications/base_notification_template.html.twig' %}
+
+{% block template_title %}
+    <tr>
+        <td>
+        <a href="{{ path('project_task_details', {'id': task.project.id, 'taskId': task.id}) }}"> {{ '#' ~ task.id }}: {{ task.title }}</a>
+        </td>
+    </tr>
+{% endblock %}
+{% block template_description %}
+{% endblock %}
+{% block template_table %}
+    <tr class="hide slide-row">
+        <td>
+            <table>
+                <tbody>
+                {% for changes in taskChanges %}
+                    <tr>
+                        <th>{{ (changes.field | capitalize) | trans() }}:</th>
+                        <td>
+                            <span id="notification-oldvalue">{{ changes.oldValue | trans() }}</span> <span id="notification-newvalue">{{ changes.newValue | trans() }}</span>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </td>
+    </tr>
+{% endblock %}

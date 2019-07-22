@@ -1,0 +1,90 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'Structure' | trans() }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ breadcrumb( 'Structure' | trans(), path('company_structure') ) }}
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/getorgchart.css') }}" />
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('js/getorgchart.js') }}"></script>
+
+    {% set leader = team.leader %}
+    {% import 'employee/partial/employee_json.html.twig' as m %}
+
+    <script type="text/javascript">
+        var peopleElement = document.getElementById("people");
+
+        var orgChart = new getOrgChart(peopleElement, {
+            primaryFields: ["name", "title", "phone", "mail", "room", "team"],
+            photoFields: ["image"],
+            scale: 1,
+            enableEdit: false,
+            enableDetailsView: false,
+            enableSearch: false,
+            siblingSeparation: 100,
+            subtreeSeparation: 100,
+            separationMixedHierarchyNodes: 100,
+            expandToLevel: 2,
+            gridView: true,
+            linkType: "M",
+            orientation: getOrgChart.RO_TOP,
+            levelSeparation: 200,
+            layout: getOrgChart.MIXED_HIERARCHY_RIGHT_LINKS,
+            boxSizeInPercentage: {
+                minBoxSize: {
+                    width: 3,
+                    height: 7
+                },
+                boxSize: {
+                    width: 20,
+                    height: 20
+                },
+                maxBoxSize: {
+                    width: 90,
+                    height: 90
+                }
+            },
+            dataSource: [
+                {#{#}
+                    {#id: {{ leader.id }},#}
+                    {#parentId: null,#}
+                    {#name: "<a href='{{ path('employee_details', {'userName': leader.username}) }}' style='cursor: pointer'>{{ leader.fullName }}</a>",#}
+                    {#title: "{{ leader.employeeRole }}",#}
+                    {#phone: "{{ leader.phone }}",#}
+                    {#mail: "{{ leader.email }}",#}
+                    {#room: "{{ leader.room }}",#}
+                    {#image: "{% if leader.imageUrl is not null %}{{ leader.imageUrl }}{% else %}{{ '/images/noavatar.png' }}{% endif %}"#}
+                {#},#}
+
+                {{ m.tree(team) }}
+            ],
+        });
+    </script>
+{% endblock %}
+{% block body %}
+    <div class="panel panel-default no-bg  b-gray-dark">
+        <div class="panel-body">
+            <form class="form-inline filter-form" method="get" action="{{ path('company_structure') }}">
+                <div class="form-group filter">
+                    <select class="form-control" name="filters[team]">
+                        <option value="">{{ 'Select team' | trans() }}</option>
+                        {% for team in teams %}
+                            <option {% if filters.team is defined and filters.team == team.id %}selected{% endif %} value="{{ team.id }}">
+                                {{ team.title }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="col-lg-12 m-b-2">
+        <div id="people"></div>
+    </div>
+{% endblock %}

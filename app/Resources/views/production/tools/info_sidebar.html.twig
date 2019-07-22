@@ -1,0 +1,46 @@
+<!-- START Navigation Tree & Search -->
+<div class="col-lg-3">
+    <div class="hr-text hr-text-left m-t-0 m-b-1">
+        <h6 class="text-inverse"><strong>{{ "Details toolbox" | trans() }}</strong></h6>
+    </div>
+
+    <!-- START Table Project Details -->
+    <table class="table table-condensed">
+        <tbody>
+        <!-- START ROW Project Details  -->
+        <tr>
+            <td class="v-a-m">
+                {{ 'Toolbox' | trans() }}
+            </td>
+            <td class="v-a-m text-right">
+                {{ tool.name }}
+            </td>
+        </tr>
+        <tr>
+            <td class="v-a-m">
+                {{ "Code" | trans() }}
+            </td>
+            <td class="v-a-m text-right text-inverse">
+                {{ tool.code }}
+            </td>
+        </tr>
+        <tr>
+            <td class="v-a-m">
+                {{ "Type" | trans() }}
+            </td>
+            <td class="v-a-m text-right text-inverse">
+                {{ tool.type }}
+            </td>
+        </tr>
+        <tr>
+            <td class="v-a-m">
+                {{ "Description" | trans() }}
+            </td>
+            <td class="v-a-m text-right text-inverse">
+                {{ tool.description }}
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<!-- END Navigation Tree & Search -->

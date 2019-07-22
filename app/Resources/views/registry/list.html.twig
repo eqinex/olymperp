@@ -1,0 +1,143 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ "Registry List" | trans() }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ breadcrumb( 'Registry List' | trans(), path('invoices_registry_list') ) }}
+{% endblock %}
+
+{% block body %}
+
+    <div class="panel panel-default no-bg  b-gray-dark">
+        <div class="panel-body">
+            <form class="form-inline filter-form" method="get" action="">
+                {#<div class="form-group">#}
+                    {#<select class="form-control filter" name="filters[supplier]">#}
+                        {#<option value="">{{ 'Select supplier' | trans() }}</option>#}
+                        {#{% for supplier in supplierNames %}#}
+                            {#<option {% if filters.supplier is defined and filters.supplier == supplier.id %}selected{% endif %} value="{{ supplier.id }}">#}
+                                {#{{ supplier.fullTitle ~ ' (' ~  supplier.title ~ ') '}}#}
+                            {#</option>#}
+                        {#{% endfor %}#}
+                    {#</select>#}
+                {#</div>#}
+                {#<div class="form-group">#}
+                    {#<select class="form-control filter" name="filters[category]">#}
+                        {#<option value="">{{ 'Select supplier category' | trans() }}</option>#}
+                        {#{% for parent, suppliesCategories in suppliesCategoriesGrouped %}#}
+                            {#<optgroup label="{{ parent | trans() }}">#}
+                                {#{% for suppliesCategory in suppliesCategories %}#}
+                                    {#<option value="{{ suppliesCategory.id }}"#}
+                                        {#{% if filters.category is defined and filters.category == suppliesCategory.id %}selected{% endif %}>{{ suppliesCategory.title }}</option>#}
+                                {#{% endfor %}#}
+                            {#</optgroup>#}
+                        {#{% endfor %}#}
+                    {#</select>#}
+                {#</div>#}
+                {#<div class="form-group">#}
+                    {#<input class="form-control filter" name="filters[itn]" placeholder="{{ 'Search by itn' | trans() }}"#}
+                           {#value="{% if filters.itn is defined %}{{ filters.itn }}{% endif %}">#}
+                {#</div>#}
+                {#<div class="form-group">#}
+                    {#<input class="form-control filter" name="filters[document]" placeholder="{{ 'Search by document code' | trans() }}"#}
+                           {#value="{% if filters.document is defined %}{{ filters.document }}{% endif %}">#}
+                {#</div>#}
+                {% if app.user.canEditRegistry() %}
+                    <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target=".addRegistryModal"><i class="fa fa-plus"></i> {{ 'Add registry' | trans() }}</button>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th class="small text-muted text-uppercase"><strong>{{ "Registry Number" | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ "Status" | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ "Money Limit" | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ "Total in accounts" | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ "Total for payment" | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ "Created At" | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ "Creator" | trans() }}</strong></th>
+            {% if app.user.canEditRegistry() %}
+                <th class="small text-muted text-uppercase text-right"><strong>{{ 'Actions' | trans() }}</strong></th>
+            {% endif %}
+        </tr>
+        </thead>
+        <tbody>
+            {% for registry in registryList %}
+                {% set total = 0 %}
+                {% set totalForPay = 0 %}
+                {% for invoice in registry.invoices %}
+                    {% set total = total + invoice.amount %}
+                    {% set totalForPay = totalForPay + (invoice.amount - invoice.amountPaid) %}
+                {% endfor %}
+                <tr>
+                    <td class="v-a-m">
+                        <a href="{{ path('invoice_registry_details', {'id': registry.id}) }}">{{ 'Registry' | trans() }} #{{ registry.id }}</a>
+                    </td>
+                    <td class="v-a-m">
+                        {{ registry.status | trans() }}
+                    </td>
+                    <td class="v-a-m">
+                        {{ registry.moneyLimit | number_format(2, '.', ',') }}
+                    </td>
+                    <td class="v-a-m">
+                        {{ total | number_format(2, '.', ',') }}
+                    </td>
+                    <td class="v-a-m">
+                        {{ totalForPay | number_format(2, '.', ',') }}
+                    </td>
+                    <td class="v-a-m">
+                        {{ registry.createdAt | date('d.m.y') }}
+                    </td>
+                    <td class="v-a-m">
+                        {{ registry.owner.lastNameWithInitials }}
+                    </td>
+                    {#<td class="v-a-m">#}
+                        {#<a href="{{ path('suppliers_details', {'id': supplier.id}) }}">{{ supplier.title }}</a>#}
+                    {#</td>#}
+                    {#{% if app.user.canEditSupplier() %}#}
+                        {#<td class="text-right v-a-m">#}
+                            {#<div class="dropdown">#}
+                                {#<button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">#}
+                                    {#<i class="fa fa-fw fa-gear"></i> <span class="caret"></span>#}
+                                {#</button>#}
+                                {#<ul class="dropdown-menu dropdown-menu-right">#}
+                                    {#{% include 'supplier/partial/supplier_actions.html.twig' %}#}
+                                {#</ul>#}
+                            {#</div>#}
+                        {#</td>#}
+                    {#{% endif %}#}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {% set vars = {'route': 'suppliers_list', 'currentPage': currentPage, 'maxPages': maxPages, 'filters': filters} %}
+    {% include 'partial/paginator.html.twig' with vars %}
+
+    {% import 'registry/partial/form.html.twig' as form %}
+
+    {% set addRegistryFormVars = {
+        'class': 'addRegistryModal',
+        'formId': 'addRegistryForm',
+        'title': 'Add registry',
+        'content': form.inputs(),
+        'formAction': path('invoice_registry_add'),
+        'submitTitle': 'Add'
+    } %}
+
+    {#{% set editSupplierFormVars = {#}
+        {#'class': 'editSupplierModal',#}
+        {#'size': 'large',#}
+        {#'formId': 'editSupplierForm',#}
+        {#'title': 'Edit supplier',#}
+        {#'content': form.inputs(clients, suppliesCategoriesGrouped),#}
+        {#'submitTitle': 'Save'#}
+    {#} %}#}
+
+    {% include 'partial/modal.html.twig' with addRegistryFormVars %}
+    {#{% include 'partial/modal.html.twig' with editSupplierFormVars %}#}
+
+{% endblock %}

@@ -1,0 +1,42 @@
+{% macro inputs() %}
+    <div class="form-group">
+        <input type="hidden" class="form-control team-id" value="" name="id">
+        <label class="col-sm-6 control-label">{{ 'Select period of execution' | trans() }}</label>
+        <div class="col-sm-4">
+            <input type="text" required class="form-control daterange-picker"
+                   name="jobReport[endAt]" placeholder="{{ 'Period' | trans() }}"
+                   value="{{ 'now' | date('01.m.Y') ~ ' - ' ~ 'now' | date('t.m.Y') }}">
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            moment.locale('ru');
+            $('.daterange-picker').daterangepicker({
+                timePickerIncrement: 30,
+                timePicker24Hour: true,
+                autoUpdateInput: false,
+                locale: {
+                    format: 'DD.MM.YYYY', applyLabel: "Выбрать", cancelLabel: "Отменить"
+                }
+            });
+
+            $('.daterange-picker').on('apply.daterangepicker', function(ev, picker) {
+                $(this).val(picker.startDate.format('DD.MM.YYYY') + ' - ' + picker.endDate.format('DD.MM.YYYY'));
+
+                $(this).trigger('change');
+            });
+
+            $('.daterange-picker').on('cancel.daterangepicker', function(ev, picker) {
+                $(this).val('');
+                $(this).trigger('change');
+            });
+
+            $('.export-job-report').bind('click', function () {
+                var exportJobReportForm = $('#exportJobReportForm');
+                exportJobReportForm.attr('action', $(this).data('href'));
+                exportJobReportForm.find('.team-id').val($(this).data('id'));
+            });
+        });
+    </script>
+{% endmacro %}

@@ -1,0 +1,308 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ project.name }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ breadcrumb( 'Projects' | trans(), path('projects_list') ) }}
+    {{ breadcrumb( project.name, path('project_details', {'id': project.id}) ) }}
+    {{ breadcrumb( 'Tasks' | trans(), path('project_tasks', {'id': project.id}) ) }}
+{% endblock %}
+
+{% block body %}
+
+    {% set vars = {'project': project} %}
+    {% include 'projects/partial/info_sidebar.html.twig' with vars %}
+
+    <div class="col-lg-9">
+
+        <!-- START Header with Option -->
+        <div class="row m-b-2">
+
+            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                <!-- START Header -->
+                <h3 class="f-w-300 m-t-1">{{ project.name }}</h3>
+            </div>
+            <div class="col-lg-6 col-md-6 col-xs-12">
+                <div class="btn-toolbar pull-right">
+                    <div class="btn-group" role="group" aria-label="...">
+                        {% set vars = {'active_page': 'project_tasks'} %}
+                        {% include 'projects/partial/nav.html.twig' with vars %}
+                    </div>
+                </div>
+                <!-- END Toolbar -->
+            </div>
+
+        </div>
+        <!-- END Header with Option -->
+        <div class="panel panel-default no-bg  b-gray-dark">
+            <div class="panel-body">
+
+                <form class="form-inline filter-form" method="get" action="{{ path('project_tasks', {'id': project.id}) }}">
+                    <div class="form-group filter">
+                        <input class="form-control" name="filters[title]" placeholder="{{ 'Search by title' | trans() }}"
+                               value="{% if filters.title is defined %}{{ filters.title }}{% endif %}" />
+                    </div>
+                    <div class="form-group filter">
+                        <select class="form-control" name="filters[team]">
+                            <option value="">{{ 'Select team' | trans() }}</option>
+                            {% for team in teams %}
+                                <option {% if filters.team is defined and filters.team == team.id %}selected{% endif %} value="{{ team.id }}">
+                                    {{ team.title }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group filter">
+                        <select class="form-control" name="filters[responsible]">
+                            <option value="">{{ 'Select responsible' | trans() }}</option>
+                            {% for member in project.projectMembers %}
+                                <option {% if filters.responsible is defined and filters.responsible == member.member.id %}selected{% endif %} value="{{ member.member.id }}">
+                                    {{ member.member.fullname }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group filter">
+                        <select class="form-control" name="filters[status]">
+                            <option value="">{{ 'Select status' | trans() }}</option>
+                            {% for key, status in statuses %}
+                                <option {% if filters.status is defined and filters.status is not same as('') and filters.status == key %}selected{% endif %} value="{{ key }}">
+                                    {{ ('status_' ~ status) | trans() }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group pull-right">
+                        <div class="btn-toolbar">
+                            <a href="" class="btn btn-primary add-task" data-toggle="modal" data-target=".addTaskModal"><i class="fa fa-plus"></i> {{ "New task" | trans() }}</a>
+                        </div>
+                    </div>
+                    <div class="btn-group pull-right m-r-2">
+                        <a class="btn btn-success" target="_blank" title="{{ 'download' | trans() }}" href="{{ path('report_tasks_stats', {'id': project.id,'filters': filters}) }}">
+                            <i class="fa fa-fw fa-file-excel-o text-inverse"></i>
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!-- START Panel Sessions -->
+        <div>
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th class="small text-uppercase"></th>
+                    <th class="small text-uppercase">
+                        <strong>{{ "Title" | trans() }}</strong>
+                    </th>
+                    <th class="small text-muted text-uppercase"><strong>{{ "Files" | trans() }}</strong></th>
+                    <th class="small text-uppercase" style="width:150px;">
+                        <strong>{{ "Responsible" | trans() }}</strong>
+                    </th>
+                    <th class="small text-uppercase">
+                        <strong>{{ "Deadline" | trans() }}</strong>
+                    </th>
+                    <th class="small text-uppercase">
+                        <strong>{{ "Status" | trans() }}</strong>
+                    </th>
+                    <th class="small text-uppercase">
+                        <strong>{{ "Task Result" | trans() }}</strong>
+                    </th>
+                    <th class="small text-uppercase">
+                        <strong>{{ "Time" | trans() }}</strong>
+                    </th>
+                    <th class="text-right small text-uppercase">
+                        <strong>{{ "Actions" | trans() }}</strong>
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+
+                {% for task in tasks %}
+                <!-- START ROW Task -->
+                <tr>
+                    <td class="v-a-m" style="width: 10px;">
+                        {% if task.type == 'epic' %}
+                            <i class="fa fa-fw fa fa-object-group text-{{ task.priorityLabels[task.priority] }}"></i>
+                        {% else %}
+                            <i class="fa fa-fw fa fa-circle text-{{ task.priorityLabels[task.priority] }}"></i>
+                        {% endif %}
+                    </td>
+                    <td class="v-a-m">
+                        {% if task.epic is not null %}
+                            {#{{ task.epic.id }}#}
+                            <a class="label m-r-1 label-{{ task_service.getEpicLabel(task.epic) }}" href="{{ path('project_task_details', {'id': task.project.id, 'taskId': task.epic.id}) }}">
+                                <span>{{ task.epic.title | upper }}</span>
+                            </a>
+                        {% endif %}
+                        <span class="text-muted">
+                            <!--span>#{{ task.id }}</span-->
+                        </span>
+                        <a href="{{ path('project_task_details', {'id': project.id, 'taskId': task.id}) }}">
+                            <span>{{ task.title }}</span>
+                        </a>
+                    </td>
+                    <td class="v-a-m">
+                        {% if task.attachments | length %}
+                            <a class="text-inverse" href="{{ path('project_edit_task', {'id': task.project.id, 'taskId': task.id}) }}#attachmentstab">
+                                <i class="fa fa-fw fa-paperclip"></i></a>
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+
+                    {% if filters.type is defined and filters.type == 'in' %}
+                        <td class="v-a-m">
+                            {% if task.reporter is not null %}
+                                {{ task.reporter.lastNameWithInitials }}
+                            {% endif %}
+                        </td>
+                    {% else %}
+                        <td class="v-a-m">
+                            {% if task.responsibleUser is not null %}
+                                <a class="link-comment" href="{{ path('employee_details', {'userName': task.responsibleUser.username}) }}">{{ task.responsibleUser.lastNameWithInitials }}</a>
+                            {% endif %}
+                        </td>
+                    {% endif %}
+
+                    <td class="v-a-m">
+                        <span {% if task.Active and task.expired %}style="color:orangered;"{% endif %}>{{ task.endAt | date('d.m.Y') }}</span>
+                    </td>
+
+                    <td class="v-a-m">
+                        {% if task.status is not null %}
+                            <span class="text-{{ task.priorityLabels[task.status] }}">{{
+                                ("status_" ~ task.statusList[task.status]) | trans() }}</span>
+                        {% endif %}
+                    </td>
+                    <td class="v-a-m">
+                        <span>{{ task.result ? task.result.name : '-' }}</span>
+                    </td>
+                    <td class="v-a-m">
+                        <span {% if task.timeSpent > task.originalEstimate %}class="text-warning"{% endif %}>
+                            {{ task.getFormattedTime(task.timeSpent) ~ '/' ~ task.getFormattedTime(task.originalEstimate) }}
+                        </span>
+                    </td>
+
+                    <td class="text-right v-a-m">
+                        {% set vars = {'task': task, 'class': ''} %}
+                        {% include 'tasks/partial/task_actions.html.twig' with vars %}
+                    </td>
+                </tr>
+                {% endfor %}
+                <!-- END ROW Task -->
+                </tbody>
+            </table>
+        </div>
+        {% set vars = {
+                'route': 'project_tasks',
+                'currentPage': currentPage,
+                'maxPages': maxPages,
+                'filters': filters,
+                'routeParams': {
+                    'id': project.id
+                }
+            }
+        %}
+
+        {% include 'partial/paginator.html.twig' with vars %}
+
+        {% import 'tasks/partial/form.html.twig' as form %}
+        {% import 'tasks/partial/protocol_form.html.twig' as protocolForm %}
+        {% import 'tasks/partial/start_progress_form.html.twig' as startProgressForm %}
+        {% import 'tasks/partial/finish_task_form.html.twig' as finishTaskForm %}
+        {% import 'tasks/partial/cancel_task_form.html.twig' as cancelTaskForm %}
+        {% import 'tasks/partial/return_to_work_task_form.html.twig' as returnTaskForm %}
+        {% import 'tasks/partial/request_approve_task_form.html.twig' as requestApproveTaskForm %}
+
+        {% set addTaskVars = {
+                'class': 'addTaskModal',
+                'formId': 'addTaskForm',
+                'title': 'New task',
+                'size': 'large',
+                'content': form.inputs(project, newTask, taskResults),
+                'formAction': path('project_add_task', {'id': project.id}),
+                'submitTitle': 'Create'
+            }
+        %}
+
+        {% set editTaskVars = {
+                'class': 'editTaskModal',
+                'formId': 'editTaskForm',
+                'title': 'Edit task',
+                'size': 'large',
+                'content': form.inputs(project, newTask, taskResults),
+                'submitTitle': 'Save'
+            }
+        %}
+        {% set editProtocolVars = {
+            'class': 'editProtocolModal',
+            'formId': 'editProtocolForm',
+            'title': 'Edit protocol',
+            'size': 'large',
+            'content': protocolForm.inputs(project, newTask, taskResults),
+            'submitTitle': 'Save'
+        }
+        %}
+        {% set startProgressVars = {
+                'class': 'startProgressModal',
+                'formId': 'startProgressForm',
+                'title': 'Start progress',
+                'content': startProgressForm.inputs(),
+                'submitTitle': 'Start'
+            }
+        %}
+        {% set requestApproveTaskVars = {
+            'class': 'requestApproveTaskModal',
+            'formId': 'requestApproveTaskForm',
+            'title': 'Request approve',
+            'content': requestApproveTaskForm.inputs(),
+            'submitTitle': 'Send'
+        }
+        %}
+        {% set finishTaskVars = {
+                'class': 'finishTaskModal',
+                'formId': 'finishTaskForm',
+                'title': 'Done',
+                'size': 'large',
+                'content': finishTaskForm.inputs(),
+                'submitTitle': 'Done'
+            }
+        %}
+        {% set resultApproveTaskVars = {
+            'class': 'resultApproveTaskModal',
+            'formId': 'resultApproveTaskForm',
+            'title': 'Request result approve',
+            'size': 'large',
+            'content': finishTaskForm.inputs(),
+            'submitTitle': 'Send'
+        }
+        %}
+        {% set cancelTaskVars = {
+            'class': 'cancelTaskModal',
+            'formId': 'cancelTaskForm',
+            'title': 'Cancel',
+            'content': cancelTaskForm.inputs(),
+            'submitTitle': 'Cancel'
+        }
+        %}
+        {% set returnTaskVars = {
+            'class': 'returnTaskModal',
+            'formId': 'returnTaskForm',
+            'title': 'Return to work',
+            'content': returnTaskForm.inputs(),
+            'submitTitle': 'Return to work'
+        }
+        %}
+
+        {% include 'partial/modal.html.twig' with addTaskVars %}
+        {% include 'partial/modal.html.twig' with editTaskVars %}
+        {% include 'partial/modal.html.twig' with editProtocolVars %}
+        {% include 'partial/modal.html.twig' with startProgressVars %}
+        {% include 'partial/modal.html.twig' with finishTaskVars %}
+        {% include 'partial/modal.html.twig' with resultApproveTaskVars %}
+        {% include 'partial/modal.html.twig' with cancelTaskVars %}
+        {% include 'partial/modal.html.twig' with returnTaskVars %}
+        {% include 'partial/modal.html.twig' with requestApproveTaskVars %}
+        <!-- END EDIT CONTENT -->
+    </div>
+{% endblock %}

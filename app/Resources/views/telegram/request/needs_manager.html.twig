@@ -1,0 +1,5 @@
+Новая заявка [{{ request.code }}]({{ base_url ~ path('request_details', {'id': request.project.id, 'requestId': request.id})}}) от {{ request.owner.lastnameWithInitials }}
+*Тип*: {{ (request.type | capitalize) | trans() }}
+*Приоритет*: {{ request.getPriorityList()[request.priority] | trans() }}
+*Проект*: {{ request.project.name }}
+*Описание*: {% if request.type == 'movement' and request.movements.first %}{{ request.movements.first.description | striptags }}{% else %}{{ request.description }}{% endif %}

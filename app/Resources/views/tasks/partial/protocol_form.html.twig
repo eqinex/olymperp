@@ -1,0 +1,187 @@
+{% macro inputs(task, taskResults, project, protocolMembers) %}
+    <div class="form-group">
+        <label class="col-sm-2 control-label"><span class="text-danger">*</span> {{ 'Number' | trans() }}</label>
+        <div class="col-sm-4">
+            <input type="hidden" class="form-control task-id" value="" name="id">
+            <input type="text" class="form-control task-title" required placeholder="{{ 'Number' | trans() }}" value="" name="task[title]">
+        </div>
+        <label class="col-sm-1 control-label" style="margin-top: -10px;">{{ 'Protocol Date' | trans() }}</label>
+        <div class="col-sm-4">
+            <input type="text" required class="form-control task-start-at daterange-single-date-picker-down"
+                   name="task[startAt]" value="{{ task.startAt | date('d.m.Y') ~ " 09:00"}}">
+        </div>
+
+        <input type="hidden" class="form-control task-type" required name="task[type]" value="protocol">
+        <input type="hidden" class="form-control task-priority" required name="task[priority]" value="1">
+        <input type="hidden" required class="form-control task-end-at"
+               name="task[endAt]" value="{{ task.endAt | date('d.m.Y') ~ " 18:00"}}">
+    </div>
+    <div class="form-group">
+        <label class="col-lg-3 control-label" style="margin-left: -75px;">{{ "Project" | trans() }}</label>
+        <div class="col-lg-9">
+            <select class="form-control task-project select2-modal" name="task[project]" required>
+                {% for project in project_service.getAvailableProjects(app.user) %}
+                    <option value="{{ project.id }}"
+                            {% if task.project.id is defined and task.project.id == project.id %}
+                                {{ "selected" }}
+                            {% endif %}>{{ project.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ "Secretary" | trans() }}</label>
+        <div class="col-sm-4 responsible-users-wrapper">
+            <select class="form-control task-responsible select2-modal" name="task[responsible]" required>
+                {% for team, members in employee_service.getUsersGroupedByTeams() %}
+                    <optgroup label="{{ team | trans() }}">
+                        {% for member in members %}
+                            <option value="{{ member.id }}"
+                                    {% if task.responsibleUser.id is defined and task.responsibleUser.id == member.id %}
+                                        {{ "selected" }}
+                                    {% elseif task.responsibleUser.id is not defined and app.user.id == member.id %}
+                                        {{ "selected" }}
+                                    {% endif %}
+                            >{{ member.fullName }} ({{ member.employeeRole }})</option>
+                        {% endfor %}
+                    </optgroup>
+                {% endfor %}
+            </select>
+        </div>
+        <label class="col-sm-1 control-label">{{ "Controlling user" | trans() }}</label>
+        <div class="col-sm-4">
+            <select class="form-control task-controller select2-modal" name="task[controllingUser]" required>
+                {% for team, members in employee_service.getUsersGroupedByTeams() %}
+
+                    <optgroup label="{{ team | trans() }}">{{ task.controllingUser.id is defined ? task.controllingUser.id }}
+                        {% for member in members %}
+                            <option value="{{ member.id }}"
+                                    {% if task.controllingUser.id is defined and task.controllingUser.id == member.id %}
+                                        {{ "selected" }}
+                                    {% elseif task.controllingUser.id is not defined and app.user.id == member.id %}
+                                        {{ "selected" }}
+                                    {% endif %}
+                            >{{ member.fullName }} ({{ member.employeeRole }})</option>
+                        {% endfor %}
+                    </optgroup>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-lg-2 control-label">{{ "Theme" | trans() }}</label>
+        <div class="col-lg-9">
+            <input type="text" class="form-control task-subject" placeholder="{{ "Theme" | trans() }}" name="task[subject]" required>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-lg-2 control-label">{{ "Description" | trans() }}</label>
+        <div class="col-lg-9">
+            <textarea class="form-control task-description" rows="4" placeholder="{{ "Description" | trans() }}" name="task[description]"></textarea>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-lg-2 control-label">{{ "Members" | trans() }}</label>
+        <div class="col-lg-9 responsible-users-wrapper">
+            <select class="form-control task-protocol-members select2-modal" name="task[protocolMembers]" multiple>
+                {% for team, members in employee_service.getUsersGroupedByTeams() %}
+                    <optgroup label="{{ team | trans() }}">
+                        {% for member in members %}
+                            <option value="{{ member.id }}"
+                                    {% if protocolMembers[member.id] is defined %}
+                                        {{ "selected" }}
+                                    {% endif %}
+                            >{{ member.fullName }} ({{ member.employeeRole }})</option>
+                        {% endfor %}
+                    </optgroup>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function(){
+            moment.locale('ru');
+
+            $('.daterange-single-date-picker-down').daterangepicker({
+                singleDatePicker: true,
+                showDropdowns: true,
+                timePicker: true,
+                timePicker24Hour: true,
+                timePickerIncrement: 30,
+                opens: "left",
+                drops: "down",
+                locale: {
+                    format: 'DD.MM.YYYY HH:mm', applyLabel: "Выбрать", cancelLabel: "Отменить"
+                }
+            });
+
+            $('.task-description').trumbowyg({removeformatPasted: true});
+
+            $('.add-protocol').bind('click', function () {
+                $('.task-responsible').attr('name', 'task[responsible][]');
+                $('.task-protocol-members').attr('name', 'task[protocolMembers][]');
+
+                $('.select2-modal').select2({ width: '100%' })
+            });
+
+            $('.edit-request').bind('click', function(){
+                $('.task-responsible').attr('name', 'task[responsible]');
+                $('.task-protocol-members').attr('name', 'task[protocolMembers][]');
+                var editProtocolForm = $('#editProtocolForm');
+
+                if ($(this).data('responsible-users-select')) {
+                    editProtocolForm.find('.responsible-users-wrapper').html($(this).data('responsible-users-select'));
+
+                    $('.task-responsible').select2({ width: '100%' });
+                }
+                if ($(this).data('epics-select')) {
+                    editProtocolForm.find('.epics-wrapper').html($(this).data('epics-select'));
+                    editProtocolForm.find('.task-epic').val($(this).data('epic'));
+
+                    $('.task-epic').select2({ width: '100%' });
+                }
+
+                editProtocolForm.attr('action', $(this).data('href'));
+                editProtocolForm.find('.task-id').val($(this).data('id'));
+                editProtocolForm.find('.task-title').val($(this).data('title'));
+                editProtocolForm.find('.task-project').val($(this).data('project'));
+                editProtocolForm.find('.task-description').val($(this).data('description'));
+                editProtocolForm.find('.task-responsible').val($(this).data('responsible'));
+                editProtocolForm.find('.task-controller').val($(this).data('controller'));
+                editProtocolForm.find('.task-priority').val($(this).data('priority'));
+                editProtocolForm.find('.task-type').val($(this).data('type'));
+                editProtocolForm.find('.task-epic').val($(this).data('epic'));
+                editProtocolForm.find('.task-protocol').val($(this).data('protocol'));
+                editProtocolForm.find('.task-start-at').val($(this).data('start-at'));
+                editProtocolForm.find('.task-end-at').val($(this).data('end-at'));
+                editProtocolForm.find('.task-original-estimate').val($(this).data('original-estimate') + 'h');
+                editProtocolForm.find('.task-description').trumbowyg('html', $(this).data('description'));
+                editProtocolForm.find('.task-subject').val($(this).data('subject'));
+                editProtocolForm.find('.task-result').val($(this).data('result'));
+
+                $('.select2-modal').select2({ width: '100%' })
+
+
+            });
+        });
+    </script>
+{% endmacro %}
+
+{% macro responsibleUsersSelect(projectMembers) %}
+    <select class="form-control task-responsible" name="task[responsible]" required>
+        {% for team, projectMember in projectMembers %}
+            <optgroup label="{{ team | trans() }}">
+                {% for member in projectMember %}
+                    <option value="{{ member.id }}"
+                            {% if task.responsibleUser.id is defined and task.responsibleUser.id == member.id %}
+                                {{ "selected" }}
+                            {% elseif task.responsibleUser.id is not defined and app.user.id == member.id %}
+                                {{ "selected" }}
+                            {% endif %}
+                    >{{ member.fullName }} ({{ member.employeeRole }})</option>
+                {% endfor %}
+            </optgroup>
+        {% endfor %}
+    </select>
+{% endmacro %}

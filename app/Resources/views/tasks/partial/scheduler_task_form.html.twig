@@ -1,0 +1,273 @@
+{% macro inputs(task, taskResults) %}
+    <div class="form-group">
+        <label class="col-lg-2 control-label"><span class="text-danger">*</span> {{ 'Title' | trans() }}</label>
+        <div class="col-lg-9">
+            <input type="hidden" class="form-control task-id" value="" name="id">
+            <input type="hidden" class="form-control" value="1" name="task[scheduler]">
+            <input type="text" class="form-control task-title" required placeholder="{{ 'Title' | trans() }}" value="" name="task[title]">
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ "Scheduled period" | trans() }}</label>
+        <div class="col-sm-4">
+            <select class="form-control task-scheduled-period select2-modal" required name="task[scheduledPeriod]">
+                <option value="">{{ 'Select scheduled period' | trans() }}</option>
+                {% for key, type in task.schedulerTypesList %}
+                    <option value="{{ key }}"
+                            {% if task.type == key %}
+                                {{ "selected" }}
+                            {% endif %}
+                    >{{ type | trans()}}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <label class="col-sm-1 control-label">{{ "Type" | trans() }}</label>
+        <div class="col-sm-4">
+            <select class="form-control task-type select2-modal" required name="task[type]">
+                {% for key, type in task.typesList %}
+                    <option value="{{ key }}"
+                            {% if task.type == key %}
+                                {{ "selected" }}
+                            {% endif %}
+                    >{{ type | trans()}}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <div class="form-group" id="schedulerOptions">
+        <div id="schedulerStartAt">
+            <label class="col-sm-2 control-label">{{ "Start At" | trans() }}</label>
+            <div class="col-sm-4">
+                <input type="text" required class="form-control task-start-at daterange-single-date-pick"
+                       name="task[startAt]" value="{{ task.startAt | date('d.m.Y') ~ "09:00"}}">
+            </div>
+        </div>
+        <div id="schedulerSelectDays">
+            <label class="col-sm-2 control-label">{{ "Days of the week" | trans() }}</label>
+            <div class="col-sm-4">
+                <select class="form-control task-days-week select2-modal" name="task[daysWeek][]" multiple>
+                    {% for key, dayWeek in task.daysOfTheWeekList %}
+                        <option value="{{ key }}"
+                                {% if key == task.daysWeek %}
+                                    {{ "selected" }}
+                                {% endif %}
+                        >{{ dayWeek | trans() }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ "Project" | trans() }}</label>
+        <div class="col-sm-4">
+            <select class="form-control task-project select2-modal" name="task[project]" required>
+                {% for project in project_service.getAvailableProjects(app.user) %}
+                    <option value="{{ project.id }}"
+                            {% if task.project.id is defined and task.project.id == project.id or project.team.id is defined and app.user.team.id == project.team.id %}
+                                {{ "selected" }}
+                            {% endif %}>{{ project.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <label class="col-sm-1 control-label">{{ "Result" | trans() }}</label>
+        <div class="col-sm-4">
+            <select class="form-control task-result select2-modal" name="task[result]">
+                <option value="">{{ 'Select task result' | trans() }}</option>
+                {% for result in taskResults %}
+                    <option value="{{ result.id }}"
+                            {% if task.result.id is defined and task.result.id == result.id %}
+                                {{ "selected" }}
+                            {% endif %}>{{ result.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-lg-2 control-label">{{ "Description" | trans() }}</label>
+        <div class="col-lg-9">
+            <textarea class="form-control task-description" rows="4" placeholder="{{ "Description" | trans() }}" name="task[description]"></textarea>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ "Responsible" | trans() }}</label>
+        <div class="col-sm-4 responsible-users-wrapper">
+            <select class="form-control task-responsible select2-modal" name="task[responsible]" required>
+                {% for team, members in employee_service.getUsersGroupedByTeams() %}
+                    <optgroup label="{{ team | trans() }}">
+                        {% for member in members %}
+                            <option value="{{ member.id }}"
+                                    {% if task.responsibleUser.id is defined and task.responsibleUser.id == member.id %}
+                                        {{ "selected" }}
+                                    {% elseif task.responsibleUser.id is not defined and app.user.id == member.id %}
+                                        {{ "selected" }}
+                                    {% endif %}
+                            >{{ member.fullName }} ({{ member.employeeRole }})</option>
+                        {% endfor %}
+                    </optgroup>
+                {% endfor %}
+            </select>
+        </div>
+        <label class="col-sm-1 control-label">{{ "Controlling user" | trans() }}</label>
+        <div class="col-sm-4">
+            <select class="form-control task-controller select2-modal" name="task[controllingUser]" required>
+                {% for team, members in employee_service.getUsersGroupedByTeams() %}
+
+                    <optgroup label="{{ team | trans() }}">{{ task.controllingUser.id is defined ? task.controllingUser.id }}
+                        {% for member in members %}
+                            <option value="{{ member.id }}"
+                                    {% if task.controllingUser.id is defined and task.controllingUser.id == member.id %}
+                                        {{ "selected" }}
+                                    {% elseif task.controllingUser.id is not defined and app.user.id == member.id %}
+                                        {{ "selected" }}
+                                    {% endif %}
+                            >{{ member.fullName }} ({{ member.employeeRole }})</option>
+                        {% endfor %}
+                    </optgroup>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ "Priority" | trans() }}</label>
+        <div class="col-sm-4">
+            <select class="form-control task-priority" required name="task[priority]">
+                {% for key, priority in task.priorityList %}
+                    <option value="{{ key }}"
+                            {% if task.priority == key %}
+                                {{ "selected" }}
+                            {% endif %}
+                    >{{ ("priority_" ~ priority) | trans()}}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <label class="col-sm-1 control-label" style="margin-top: -10px;">{{ "Original estimate" | trans() }}</label>
+        <div class="col-sm-4">
+            <input type="hidden" id="time-spent" value="{{ task.timeSpent }}">
+            <input type="text" id="original-estimate" class="form-control task-original-estimate"
+                   name="task[originalEstimate]" pattern="^([1-9][0-9]*[hmdчдм])|[0-9.]+[hmdчдм]|0" value="{{ task.originalEstimate }}">
+            <span class="help-block" style="font-size: 10px;">{{ '1m/1м - 1 minute, 1h/1ч - 1 hour, 1d/1д - 1 day' | trans() }}</span>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function(){
+            moment.locale('ru');
+
+            {{ task.scheduledPeriod == 'weekly' ? 'showWeeklyDays();' : (task.scheduledPeriod != 'weekly' or task.scheduledPeriod != 'daily') ? 'showStartAt();' : 'hideSchedulerOptions();' }}
+
+            $('.add-scheduled-task').bind('click',function () {
+                hideSchedulerOptions();
+            });
+
+            $('.task-scheduled-period').on('change', function () {
+                if ($(this).val() == 'weekly') {
+                    showWeeklyDays();
+                } else if ($(this).val() == 'singly' || $(this).val() == 'monthly' || $(this).val() == 'yearly') {
+                    showStartAt();
+                } else {
+                    $('#schedulerOptions').hide();
+                }
+            });
+
+            function showWeeklyDays() {
+                $('#schedulerOptions').show();
+                $('#schedulerSelectDays').show();
+                $('#schedulerStartAt').hide();
+            }
+
+            function showStartAt() {
+                $('#schedulerOptions').show();
+                $('#schedulerStartAt').show();
+                $('#schedulerSelectDays').hide();
+            }
+
+            function hideSchedulerOptions() {
+                $('#schedulerOptions').hide();
+            }
+
+            $('.daterange-single-date-pick').daterangepicker({
+                singleDatePicker: true,
+                showDropdowns: true,
+                opens: "left",
+                drops: "down",
+                locale: {
+                    format: 'DD.MM.YYYY', applyLabel: "Выбрать", cancelLabel: "Отменить"
+                }
+            });
+
+            $('.task-description').trumbowyg({removeformatPasted: true});
+
+            $('.edit-request').bind('click', function() {
+                var schedulerTaskForm = $('#editScheduledTaskForm');
+
+                if (schedulerTaskForm.find('.task-scheduled-period').val() == 'weekly') {
+                    showWeeklyDays();
+                } else if (schedulerTaskForm.find('.task-scheduled-period').val() != 'weekly' || schedulerTaskForm.find('.task-scheduled-period').val() != 'daily') {
+                    showStartAt();
+                } else {
+                    hideSchedulerOptions();
+                }
+
+                schedulerTaskForm.attr('action', $(this).data('href'));
+                schedulerTaskForm.find('.task-id').val($(this).data('id'));
+                schedulerTaskForm.find('.task-title').val($(this).data('title'));
+                schedulerTaskForm.find('.task-project').val($(this).data('project'));
+                schedulerTaskForm.find('.task-description').val($(this).data('description'));
+                schedulerTaskForm.find('.task-responsible').val($(this).data('responsible'));
+                schedulerTaskForm.find('.task-controller').val($(this).data('controller'));
+                schedulerTaskForm.find('.task-priority').val($(this).data('priority'));
+                schedulerTaskForm.find('.task-type').val($(this).data('type'));
+                schedulerTaskForm.find('.task-start-at').val($(this).data('start-at'));
+                schedulerTaskForm.find('.task-end-at').val($(this).data('end-at'));
+                schedulerTaskForm.find('.task-original-estimate').val($(this).data('original-estimate') + 'h');
+                schedulerTaskForm.find('.task-description').trumbowyg('html', $(this).data('description'));
+                schedulerTaskForm.find('.task-result').val($(this).data('result'));
+                schedulerTaskForm.find('.task-scheduled-period').val($(this).data('scheduled-period'));
+                schedulerTaskForm.find('.task-days-week').val($(this).data('days-week'));
+
+                var dateRangePicker = $('.daterange-single-date-pick');
+                dateRangePicker.daterangepicker({
+                    singleDatePicker: true,
+                    showDropdowns: true,
+                    opens: "left",
+                    drops: "down",
+                    locale: {
+                        format: 'DD.MM.YYYY', applyLabel: "Выбрать", cancelLabel: "Отменить"
+                    }
+                });
+
+                $('.select2-modal').select2({ width: '100%' })
+
+                schedulerTaskForm.find('.task-scheduled-period').on('change', function () {
+                    if ($(this).val() == 'weekly') {
+                        showWeeklyDays();
+                    } else if ($(this).val() == 'singly' || $(this).val() == 'monthly' || $(this).val() == 'yearly') {
+                        showStartAt();
+                    } else {
+                        schedulerTaskForm.find('#schedulerOptions').hide();
+                    }
+                });
+
+                function showWeeklyDays() {
+                    schedulerTaskForm.find('#schedulerOptions').show();
+                    schedulerTaskForm.find('#schedulerSelectDays').show();
+                    schedulerTaskForm.find('#schedulerStartAt').hide();
+                }
+
+                function showStartAt() {
+                    schedulerTaskForm.find('#schedulerOptions').show();
+                    schedulerTaskForm.find('#schedulerStartAt').show();
+                    schedulerTaskForm.find('#schedulerSelectDays').hide();
+                }
+
+                function hideSchedulerOptions() {
+                    schedulerTaskForm.find('#schedulerOptions').hide();
+                }
+            });
+        });
+    </script>
+{% endmacro %}

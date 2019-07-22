@@ -1,0 +1,68 @@
+{% macro inputs(priorities) %}
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ "Name" | trans() }}</label>
+        <div class="col-sm-3">
+            <input type="text" class="project-name form-control" placeholder="{{ "Name" | trans() }}" value="" name="project[name]" required="required">
+        </div>
+
+        <label class="col-sm-3 control-label">{{ "Code" | trans() }}</label>
+        <div class="col-sm-3">
+            <input type="text" class="project-code form-control" placeholder="{{ "Code" | trans() }}" value="" name="project[code]">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ "Leader" | trans() }}</label>
+        <div class="col-sm-3">
+            <select class="form-control project-leader select2-modal" name="project[leader]">
+                {% for team, members in employee_service.getUsersGroupedByTeams() %}
+                    <optgroup label="{{ team | trans() }}">
+                        {% for member in members %}
+                            <option value="{{ member.id }}"
+                                {% if project.leader is defined and project.leader.id == member.id %}
+                                     {{ 'selected' }}
+                                {% endif %}
+                            >{{ member.fullName }} ({{ member.employeeRole }})</option>
+                        {% endfor %}
+                    </optgroup>
+                {% endfor %}
+            </select>
+        </div>
+
+        <label class="col-sm-3 control-label">{{ "Priority" | trans() }}</label>
+        <div class="col-sm-3">
+            <select class="project-priority form-control select2-modal" name="project[priority]">
+                {% for key, priority in priorities %}
+                    <option value="{{ key }}">{{ priority }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ "Description" | trans() }}</label>
+        <div class="col-sm-9">
+            <textarea class="form-control project-description" name="project[description]" placeholder="{{ "Description" | trans() }}" rows="5"></textarea>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ "Goal project" | trans() }}</label>
+        <div class="col-sm-9">
+            <textarea class="form-control project-goal" name="project[goal]" placeholder="{{ "Goal project" | trans() }}" rows="5"></textarea>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function(){
+            $('.edit-project').click(function(){
+                $('.project-name').val($(this).data('name'));
+                $('.project-code').val($(this).data('code'));
+                $('.project-leader').val($(this).data('leader'));
+                $('.project-priority').val($(this).data('priority'));
+                $('.project-description').val($(this).data('description'));
+                $('.project-goal').val($(this).data('goal'));
+
+                $('#editProjectForm').attr('action', $(this).data('form-action'));
+
+                $('.select2-modal').select2({ width: '100%' })
+            })
+        });
+    </script>
+{% endmacro %}

@@ -1,0 +1,39 @@
+<div class="btn-group" role="group" aria-label="...">
+    <a class="btn btn-default {% if active_page == 'project_details' %}active{% endif %}" href="{{ path('project_details', {'id': project.id}) }}" role="button"><i class="fa fa-info"></i> {{ project.type == 'project' ? 'Project' | trans() : 'Team' | trans() }}</a>
+</div>
+{% if project.type == 'project' %}
+    <div class="btn-group" role="group" aria-label="...">
+        <a class="btn btn-default {% if active_page == 'project_passport' %}active{% endif %}" href="{{ path('project_passport', {'id': project.id}) }}" role="button"><i class="fa fa-book"></i> {{ 'Passport' | trans() }}</a>
+    </div>
+{% endif %}
+{% if project.type == 'project' %}
+<div class="btn-group hidden" role="group" aria-label="...">
+    <a class="btn btn-default {% if active_page == 'project_workflow' %}active{% endif %}" href="{{ path('project_workflow', {'id': project.id}) }}" role="button"><i class="fa fa-map-o"></i> Стадии</a>
+</div>
+{% endif %}
+{% if app.user.hasAccessToProjectCosts() %}
+<div class="btn-group" role="group" aria-label="...">
+    <a class="btn btn-default {% if active_page == 'project_costs_list' %}active{% endif %}" href="{{ path('project_costs_list', {'id': project.id}) }}" role="button"><i class="fa fa-rouble"></i> {{ 'Costs' | trans() }}</a>
+</div>
+{% endif %}
+<div class="btn-group" role="group" aria-label="...">
+    <a class="btn btn-default {% if active_page == 'project_specification' %}active{% endif %}" href="{{ path('project_specification', {'id': project.id}) }}" role="button"><i class="fa fa-tasks"></i> {{ 'ITT' | trans() }}</a>
+</div>
+<div class="btn-group" role="group" aria-label="...">
+    <a class="btn btn-default {% if active_page == 'project_tasks' %}active{% endif %}" href="{{ path('project_tasks', {'id': project.id}) }}" role="button"><i class="fa fa-tasks"></i> {{ 'Tasks' | trans() }}
+        {% if project.activeTasksCount %}<span class="badge">{{ project.activeTasksCount }}</span>{% endif %}</a>
+</div>
+<div class="btn-group" role="group" aria-label="...">
+    <a class="btn btn-default {% if active_page == 'project_purchases' %}active{% endif %}" href="{{ path('project_requests_list', {'id': project.id}) }}" role="button"><i class="fa fa-shopping-cart"></i> {{ 'Requests' | trans() }}
+        {% if project.activeProjectPurchases %}<span class="badge">{{ project.activeProjectPurchases }}</span>{% endif %}</a>
+</div>
+{% if app.user == project.leader or app.user.isProjectLeader() %}
+    <div class="btn-group" role="group" aria-label="...">
+        <a class="btn btn-default {% if active_page == 'project_history' %}active{% endif %}" href="{{ path('project_history', {'id': project.id}) }}" role="button"><i class="fa fa-pencil"></i> {{ 'History' | trans() }}</a>
+    </div>
+{% endif %}
+{% if app.user.canViewProjectPrice() %}
+    <div class="btn-group" role="group" aria-label="...">
+        <a class="btn btn-default {% if active_page == 'project_price_management' %}active{% endif %}" href="{{ path('project_price_management', {'id': project.id}) }}" role="button"><i class="fa fa-money"></i> {{ 'RCM' | trans() }}</a>
+    </div>
+{% endif %}

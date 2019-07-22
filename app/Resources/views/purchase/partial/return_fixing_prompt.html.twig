@@ -1,0 +1,24 @@
+{% macro inputs() %}
+    <div class="text-center">{{ "Are you sure you want to return request to fixing?" | trans() }}</div><br>
+
+    <div class="form-group">
+        <label class="col-sm-4 control-label">{{ "Comment" | trans() }}</label>
+        <div class="col-sm-7">
+            <textarea name="request[comment][text]" required class="form-control" placeholder="{{ 'Enter your message' | trans() }}"></textarea>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function(){
+            $('.reject-modal-action').click(function(){
+                var rejectForm = $('.rejectFormModal');
+
+                var title = $(this).data('modal-title');
+                var formAction = $(this).data('form-action');
+
+                rejectForm.find('.modal-title').text(title);
+                rejectForm.find('#rejectForm').attr('action', formAction);
+            });
+        });
+    </script>
+{% endmacro %}

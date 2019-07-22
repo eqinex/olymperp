@@ -1,0 +1,250 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ applicant.lastName ~ " " ~ applicant.firstName ~ " " ~ applicant.middleName }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ breadcrumb( 'Applicant' | trans(), path('applicant_list') ) }}
+    {{ breadcrumb( applicant.lastName ~ " " ~ applicant.firstName ~ " " ~ applicant.middleName ) }}
+{% endblock %}
+
+{% block body %}
+        <!-- START Navigation Tree & Search -->
+        <div class="col-lg-3 task-sidebar" >
+
+            <div class="hr-text hr-text-left m-t-0 m-b-1">
+                <h6 class="text-inverse"><strong>{{ "Details" | trans() }}</strong></h6>
+            </div>
+
+            <table class="table table-condensed">
+                <tbody>
+                <tr>
+                    <td class="v-a-m">
+                        {{ 'full name' | trans() }}
+                    </td>
+                    <td class="v-a-m text-right">
+                        <span>{{ applicant.lastName ~ " " ~ applicant.firstName ~ " " ~ applicant.middleName }}</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="v-a-m">
+                        {{ "Employee Role" | trans() }}
+                    </td>
+                    <td class="v-a-m text-right">
+                        <span>{{ applicant.employeeRole.name }}</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="v-a-m">
+                        {{ "Status" | trans() }}
+                    </td>
+                    <td class="v-a-m text-right">
+                        <span>
+                            {% if applicant.status is not null%}
+                                {{ applicant.status.status }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="v-a-m">
+                        {{ "Mail" | trans() }}
+                    </td>
+                    <td class="v-a-m text-right">
+                        <span>
+                            {% if applicant.email is not null%}
+                                <a href="mailto:{{ applicant.email }}">{{ applicant.email }}</a>
+                            {% else %}
+                                -
+                            {% endif %}
+                        </span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="v-a-m">
+                        {{ "Phone" | trans() }}
+                    </td>
+                    <td class="v-a-m text-right">
+                        <span>
+                            {{ applicant.phone ? applicant.phone : '-' }}
+                        </span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="v-a-m">
+                        {{ "Changed at" | trans() }}
+                    </td>
+                    <td class="v-a-m text-right">
+                        <span>
+                            {{ applicant.updatedAt | date('d.m.Y') }}
+                        </span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="col-lg-9">
+
+            <!-- START Header with Option -->
+            <div class="row">
+                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                    <h3 class="f-w-300 m-t-1">{{ applicant.lastName ~ " " ~ applicant.firstName ~ " " ~ applicant.middleName }}</h3>
+                </div>
+            </div>
+
+            <div class="tabbable-line tabs">
+                <ul class="nav nav-tabs">
+                    <li class="active tab-noticetab" role="presentation" data-target="notice"><a href="#noticetab">{{ 'Notice' | trans() }}</a></li>
+
+                    <li class="tab-attachmentstab" role="presentation" data-target="attachments"><a href="#attachmentstab">{{ 'attachments' | trans() | capitalize }}</a></li>
+
+                    <li class="tab-commentstab" role="presentation" data-target="comments"><a href="#commentstab">{{ 'Comments' | trans() }}</a></li>
+
+                    <li class="tab-historytab" role="presentation" data-target="history"><a href="#historytab">{{ 'History' | trans() }}</a></li>
+                </ul>
+                <div class="pull-right" style="margin-top: -35px;">
+                    <div class="dropdown">
+                        <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                            <i class="fa fa-fw fa-gear"></i> <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-right">
+                            {% include 'applicant/partial/applicant_actions.html.twig' %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <!-- END Header with Option -->
+
+            <div class="tab" id="notice">
+                <div class="panel panel-default no-bg b-gray-dark">
+                    <div class="panel-body">
+                        <span class="v-a-m b-t-0">{{ applicant.notice }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel panel-default no-bg b-gray-dark hidden tab" id="attachments">
+                <div class="panel-body">
+                    {% if applicantFiles | length %}
+                        <table class="table table-hover m-b-0">
+                            <tbody>
+                            {% for file in applicantFiles %}
+                                {% set vars = {
+                                    'category': 'applicant',
+                                    'downloadFilePath': path('applicant_download_file', {'applicantId': applicant.id, 'fileId': file.id}),
+                                    'deleteFilePath': path('applicant_remove_file', {'applicantId': applicant.id, 'fileId': file.id})
+                                } %}
+                                {% if file.format == 'jpg' or file.format == 'jpeg' or file.format == 'png' %}
+                                    {% set vars = vars | merge({ 'previewImage': path('applicant_download_file', {'applicantId': applicant.id, 'fileId': file.id, 'preview': true }) }) %}
+                                {% endif %}
+                                {% include 'partial/upload_files_list.html.twig' with vars %}
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <span class="v-a-m b-t-0 text-muted">{{ "There's no files yet" | trans() }}</span>
+                    {% endif %}
+                </div>
+                {% set vars = {'uploadFilePath' : path('applicant_upload_file', {'applicantId': applicant.id})} %}
+                {% include 'partial/upload_files_form.html.twig' with vars %}
+            </div>
+            <div class="panel panel-default no-bg b-gray-dark hidden tab" id="comments">
+                {% set vars = {
+                    'comments': applicantComments,
+                    'action': path('applicant_add_comment', {'applicantId': applicant.id})
+                } %}
+                {% include 'partial/comments.html.twig' with vars %}
+            </div>
+
+            <div class="panel panel-default no-bg b-gray-dark hidden tab" id="history">
+                <div class="panel-body">
+                    <div>
+                        {% if applicantChanges | length %}
+                        <table class="table table-sm table-hover">
+                            <thead>
+                            <tr>
+                                <th class="small text-muted text-uppercase">{{ 'Field' | trans() }}</th>
+                                <th class="small text-muted text-uppercase">{{ 'Old value' | trans() }}</th>
+                                <th class="small text-muted text-uppercase">{{ 'New value' | trans() }}</th>
+                                <th class="small text-muted text-uppercase">{{ 'Changed by' | trans() }}</th>
+                                <th class="small text-muted text-uppercase">{{ 'Changed at' | trans() }}</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                {% for changes in applicantChanges %}
+                                <tr>
+                                    <td>{{ (changes.field | capitalize) | trans() }}</td>
+                                    <td><strike>{{ changes.oldValue | trans() }}</strike></td>
+                                    <td class="text-inverse">{{ changes.newValue | trans() }}</td>
+                                    <td>{{ changes.changedBy.fullName }}</td>
+                                    <td>{{ changes.updatedAt | date('d.m.Y H:i') }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        {% else %}
+                            <span class="v-a-m b-t-0 text-muted">{{ "There's no changes yet" | trans() }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% import 'applicant/partial/delete_file_form.html.twig' as deleteFileForm %}
+    {% import 'applicant/partial/form.html.twig' as form %}
+    {% import 'applicant/partial/upload_files_form.html.twig' as uploadApplicantFileForm %}
+
+    {% set deleteFileFormVars = {
+        'class': 'deleteFileModal',
+        'formId': 'deleteFileForm',
+        'title': 'Delete file',
+        'content': deleteFileForm.inputs(),
+        'submitTitle': 'Delete'
+    }
+    %}
+
+    {% set editApplicantFormVars = {
+        'class': 'editApplicantModal',
+        'formId': 'editApplicantForm',
+        'title': 'Edit applicant',
+        'size': 'large',
+        'content': form.inputs(employeeRoles, statusList),
+        'submitTitle': 'Edit'
+    } %}
+
+    {% set uploadApplicantFileVars = {
+        'class': 'uploadApplicantFileModal',
+        'formId': 'uploadApplicantFileForm',
+        'title': 'Upload File',
+        'content': uploadApplicantFileForm.inputs(),
+        'submitTitle': 'Upload File'
+    } %}
+
+    {% include 'partial/modal.html.twig' with deleteFileFormVars %}
+    {% include 'partial/modal.html.twig' with editApplicantFormVars %}
+    {% include 'partial/modal.html.twig' with uploadApplicantFileVars %}
+
+    <script>
+            $(document).ready(function(){
+                $('.tabs .nav a').bind('click', function(){
+                    $('.tabs .nav li').removeClass('active');
+                    $('.tab').addClass('hidden');
+
+                    $('#' + $(this).parent().data('target')).removeClass('hidden');
+                    $(this).parent().addClass('active')
+                });
+
+                var url = window.location.href;
+                var hash = url.substring(url.indexOf('#')+1);
+
+                if (hash == 'noticetab' || hash == 'attachmentstab' || hash == 'commentstab' || hash == 'historytab') {
+                    $('.tab-' + hash + ' a').click();
+                }
+            });
+
+            $(document).submit(function(){
+                $('.send-comment-button').attr("disabled", "disabled");
+            });
+        </script>
+{% endblock %}

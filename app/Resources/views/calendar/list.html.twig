@@ -1,0 +1,71 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ "Calendar" | trans() }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ breadcrumb( 'Calendar' | trans(), path('calendar_index') ) }}
+{% endblock %}
+
+{% block body %}
+    <div class="col-lg-12">
+
+
+        <div id="full-calendar"></div>
+
+        <script>
+            $(document).ready(function(){
+
+                let Colors = Dashboard.Helpers.Colors;
+                $('#full-calendar').fullCalendar({
+                    slotLabelFormat: [
+                        'H:mm'
+                    ],
+                    aspectRatio:2.5,
+                    locale: 'ru',
+                    header: {
+                        left: 'prev,next today',
+                        center: 'title',
+                        right: 'basicYear,month,agendaWeek,agendaDay'
+                    },
+                    monthNames: ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль',
+                        'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'],
+                    dayNamesShort: ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'],
+                    buttonText: {
+                        today: 'сегодня',
+                        month: 'месяц',
+                        week: 'неделя',
+                        day: 'день',
+                        list: 'список',
+                        year: 'год'
+                    },
+                    firstDay: 1,
+                    views: {
+                        basicYear: {
+                            type: 'basic',
+                            duration: { month: 12 },
+                            buttonText: 'year'
+                        }
+                    },
+                    events: [
+                        {% for productionCalendarDay in productionCalendarDays %}
+                        {{ "{" }}
+                        {{ ("title: '" ~ productionCalendarDay.type | trans() ~ "',") | raw  }}
+                        {{ ("description: '" ~ productionCalendarDay.description | trans() ~ "',") | raw  }}
+                        {{ ("start: '" ~ (productionCalendarDay.dateStart | date('Y-m-d')) ~ "',") | raw }}
+                        {{ ("end: \'" ~ (productionCalendarDay.dateEnd | date_modify("+1 day") | date('Y-m-d')) ~ "\',") | raw }}
+                        {% if productionCalendarDay.type == 'holiday' %}
+                        {{ ("color: Colors.brandDanger") | raw }}
+                        {% elseif productionCalendarDay.type == 'shortened_day' %}
+                        {{ ("color: Colors.brandWarning") | raw }}
+                        {% endif %}
+                        {{ "}," }}
+                        {% endfor %}
+                    ],
+                    eventRender: function(event, element) {
+                        element.find('.fc-title').attr({ 'title' : event.description });
+                    }
+                });
+            })
+        </script>
+    </div>
+{% endblock %}

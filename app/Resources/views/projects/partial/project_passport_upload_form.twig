@@ -1,0 +1,21 @@
+{% macro inputs() %}
+    <div class="panel-footer">
+        <div class="input-group">
+            <span class="input-group-btn">
+                <button class="btn btn-default" type="button"><i class="fa fa-fw fa-paperclip"></i></button>
+            </span>
+            <input type="file" class="form-control" name="files[]" required placeholder="{{ 'Upload File' | trans() }}" multiple/>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            moment.locale('ru');
+
+            $('.upload-project-passport-file').bind('click', function () {
+                let uploadProjectPassportFileForm = $('#uploadProjectPassportFileForm');
+                uploadProjectPassportFileForm.attr('action', $(this).data('href'));
+            });
+        });
+    </script>
+{% endmacro %}

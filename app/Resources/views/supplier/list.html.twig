@@ -1,0 +1,198 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ "Suppliers" | trans() }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ breadcrumb( 'Suppliers' | trans(), path('suppliers_list') ) }}
+{% endblock %}
+
+{% block body %}
+
+    <div class="panel panel-default no-bg  b-gray-dark">
+        <div class="panel-body">
+            <form class="form-inline filter-form" method="get" action="">
+                <div class="form-group">
+                    <select class="form-control filter" name="filters[supplier]">
+                        <option value="">{{ 'Select supplier' | trans() }}</option>
+                        {% for supplier in supplierNames %}
+                            <option {% if filters.supplier is defined and filters.supplier == supplier.id %}selected{% endif %} value="{{ supplier.id }}">
+                                {{ supplier.fullTitle ~ ' (' ~  supplier.title ~ ') '}}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <select class="form-control filter" name="filters[category]">
+                        <option value="">{{ 'Select supplier category' | trans() }}</option>
+                        {% for parent, suppliesCategories in suppliesCategoriesGrouped %}
+                            <optgroup label="{{ parent | trans() }}">
+                                {% for suppliesCategory in suppliesCategories %}
+                                    <option value="{{ suppliesCategory.id }}"
+                                        {% if filters.category is defined and filters.category == suppliesCategory.id %}selected{% endif %}>{{ suppliesCategory.title }}</option>
+                                {% endfor %}
+                            </optgroup>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <input class="form-control filter" name="filters[itn]" placeholder="{{ 'Search by itn' | trans() }}"
+                           value="{% if filters.itn is defined %}{{ filters.itn }}{% endif %}">
+                </div>
+                <div class="form-group">
+                    <input class="form-control filter" name="filters[document]" placeholder="{{ 'Search by document code' | trans() }}"
+                           value="{% if filters.document is defined %}{{ filters.document }}{% endif %}">
+                </div>
+                {% if app.user.canEditSupplier() %}
+                    <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target=".addSupplierModal"><i class="fa fa-plus"></i> {{ 'Add supplier' | trans() }}</button>
+                    <div class="dropdown pull-right m-r-1">
+                        <button class="btn btn-success dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fa fa-fw fa-file"></i> {{ "Import/Export" | trans() }} <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-right">
+                            <li>
+                                <a href="" data-toggle="modal" data-target=".importSuppliersModal"><i class="fa fa-fw fa-upload"></i> {{ 'Import suppliers' | trans() }}</a>
+                            </li>
+                            <li>
+                                <a target="_blank" href="{{ path('export_suppliers') }}"><i class="fa fa-fw fa-download text-inverse"></i> {{ 'Export suppliers' | trans() }}</a>
+                            </li>
+                        </ul>
+                    </div>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+
+    <table class="table table-hover">
+    <thead>
+    <tr>
+        <th class="small text-muted text-uppercase">#<strong></strong></th>
+        <th class="small text-muted text-uppercase"><strong>{{ "Name" | trans() }}</strong></th>
+        <th class="small text-muted text-uppercase"><strong>{{ "Created At" | trans() }}</strong></th>
+        <th class="small text-muted text-uppercase"><strong>{{ ("ITN" | trans()) ~ '/' ~ ("Kpp" | trans()) }}</strong></th>
+        <th class="small text-muted text-uppercase"><strong>{{ "Supplies Categories" | trans() }}</strong></th>
+        <th class="small text-muted text-uppercase"><strong>{{ "Creator" | trans() }}</strong></th>
+        {% if app.user.canEditSupplier() %}
+            <th class="small text-muted text-uppercase text-right"><strong>{{ 'Actions' | trans() }}</strong></th>
+        {% endif %}
+    </tr>
+    </thead>
+    <tbody>
+    {% for supplier in suppliers %}
+        <tr>
+            <td class="v-a-m">
+                {{ supplier.id }}
+            </td>
+            <td class="v-a-m">
+                <a href="{{ path('suppliers_details', {'id': supplier.id}) }}">{{ supplier.title }}</a>
+            </td>
+            <td class="v-a-m">
+                {{ supplier.createdAt | date('d.m.Y H:i') }}
+            </td>
+            <td class="v-a-m">
+                {{ (supplier.itn ? supplier.itn : '-' ) ~ ' / ' ~ (supplier.kpp ? supplier.kpp : '-') }}
+            </td>
+            <td class="v-a-m">
+                {{ supplier.supplierCategories | join(',')  }}
+            </td>
+            <td class="v-a-m">
+                {{ supplier.createdBy ? supplier.createdBy | trans() : '-'  }}
+            </td>
+            {% if app.user.canEditSupplier() %}
+                <td class="text-right v-a-m">
+                    <div class="dropdown">
+                        <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                            <i class="fa fa-fw fa-gear"></i> <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-right">
+                            {% include 'supplier/partial/supplier_actions.html.twig' %}
+                        </ul>
+                        {% if app.user.hasAccessToBlackList %}
+                            {% if supplier.addedToBlackList %}
+                                <a href=""
+                                   data-href="{{ path('remove_blacklist_supplier', {'id': supplier.id}) }}"
+                                   class="remove-blacklist-supplier"
+                                   data-target=".removeBlackListSupplierModal"
+                                   data-toggle="modal"
+                                   title="{{ 'Remove from the blacklist' | trans() }}">
+                                    <i class="fa fa-fw fa-lg fa-ban text-danger"></i></a>
+                            {% elseif supplier.incidents | length != 0 %}
+                                <a href="{{ path('add_blacklist_supplier', {'id': supplier.id}) }}" title="{{ 'Add to blacklist' | trans() }}">
+                                    <i class="fa fa-fw fa-lg fa-ban text-default"></i>
+                                </a>
+                            {% else %}
+                                <a href=""
+                                   data-href="{{ path('add_blacklist_supplier', {'id': supplier.id}) }}"
+                                   class="add-blacklist-supplier"
+                                   data-target=".addBlackListSupplierModal"
+                                   data-toggle="modal"
+                                   title="{{ 'Add to blacklist' | trans() }}">
+                                    <i class="fa fa-fw fa-lg fa-ban text-default"></i></a>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                </td>
+            {% endif %}
+        </tr>
+    {% endfor %}
+    </tbody>
+    </table>
+
+    {% set vars = {'route': 'suppliers_list', 'currentPage': currentPage, 'maxPages': maxPages, 'filters': filters} %}
+    {% include 'partial/paginator.html.twig' with vars %}
+
+    {% import 'supplier/partial/form.html.twig' as form %}
+    {% import 'supplier/partial/import_form.html.twig' as importSuppliersForm %}
+    {% import 'supplier/partial/supplier_incident_form.html.twig' as addBlackListSupplierForm %}
+    {% import 'supplier/partial/remove_blacklist_supplier_form.html.twig' as removeBlackListSupplierForm %}
+
+    {% set addSupplierFormVars = {
+        'class': 'addSupplierModal',
+        'formId': 'addSupplierForm',
+        'title': 'Add supplier',
+        'size': 'large',
+        'content': form.inputs(clients, suppliesCategoriesGrouped, legalForms),
+        'formAction': path('suppliers_add'),
+        'submitTitle': 'Add'
+    } %}
+
+    {% set editSupplierFormVars = {
+        'class': 'editSupplierModal',
+        'size': 'large',
+        'formId': 'editSupplierForm',
+        'title': 'Edit supplier',
+        'content': form.inputs(clients, suppliesCategoriesGrouped, legalForms),
+        'submitTitle': 'Save'
+    } %}
+
+    {% set importSuppliersVars = {
+        'class': 'importSuppliersModal',
+        'formId': 'importSuppliersForm',
+        'title': 'Import suppliers',
+        'content': importSuppliersForm.inputs(),
+        'submitTitle': 'Import',
+        'formAction': path('import_suppliers')
+    } %}
+
+    {% set addBlackListSupplierVars = {
+        'class': 'addBlackListSupplierModal',
+        'formId': 'addBlackListSupplierForm',
+        'title': 'Add to blacklist',
+        'content': addBlackListSupplierForm.inputs(criticalities),
+        'submitTitle': 'Add'
+    } %}
+
+    {% set removeBlackListSupplierVars = {
+        'class': 'removeBlackListSupplierModal',
+        'formId': 'removeBlackListSupplierForm',
+        'title': 'Remove from the blacklist',
+        'content': removeBlackListSupplierForm.inputs(),
+        'submitTitle': 'Remove'
+    } %}
+
+    {% include 'partial/modal.html.twig' with addSupplierFormVars %}
+    {% include 'partial/modal.html.twig' with editSupplierFormVars %}
+    {% include 'partial/modal.html.twig' with importSuppliersVars %}
+    {% include 'partial/modal.html.twig' with addBlackListSupplierVars %}
+    {% include 'partial/modal.html.twig' with removeBlackListSupplierVars %}
+
+{% endblock %}

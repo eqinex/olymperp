@@ -1,0 +1,164 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'Library' | trans() }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ breadcrumb( 'Library' | trans(), path('books_list') ) }}
+{% endblock %}
+
+{% block body %}
+    <div class="panel panel-default no-bg  b-gray-dark">
+        <div class="panel-body">
+            <form class="form-inline filter-form" method="get" action="">
+                <div class="form-group filter">
+                    <input class="form-control" name="filters[title]" placeholder="{{ 'Search by title' | trans() }}"
+                           value="{% if filters.title is defined %}{{ filters.title }}{% endif %}" />
+                    <input class="form-control" name="filters[author]" placeholder="{{ 'Search by author' | trans() }}"
+                            value="{% if filters.author is defined %}{{ filters.author }}{% endif %}" />
+                    <select class="form-control" name="filters[genre]">
+                        <option value="">{{ 'Select genre' | trans() }}</option>
+                        {% for genre in genreList %}
+                            <option {% if filters.genre is defined and filters.genre == genre.name %}selected{% endif %} value="{{ genre.name }}">
+                                {{ genre.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% if app.user.canEditLibrary() %}
+                    <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target=".addBookModal"><i class="fa fa-plus"></i> {{ 'Add book' | trans() }}</button>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            {% set orderType = order == 'desc' ? 'asc' : 'desc' %}
+            {% set routeParams = {'filters': filters } %}
+
+            <th class="small text-muted text-uppercase">
+                {% set routeParams = routeParams | merge({'orderBy': 'title', 'order': orderBy == 'title' ? orderType : 'asc'}) %}
+                <a href="{{ path('books_list', routeParams) }}">
+                    <strong>{{ "Title" | trans() }}</strong>
+                    <i class="fa fa-sort{{ orderBy == 'title' ? '-' ~ order : '' }}"></i>
+                </a>
+            </th>
+            <th class="small text-muted text-uppercase">
+                {% set routeParams = routeParams | merge({'orderBy': 'author', 'order': orderBy == 'author' ? orderType : 'asc'}) %}
+                <a href="{{ path('books_list', routeParams) }}">
+                    <strong>{{ "Author" | trans() }}</strong>
+                    <i class="fa fa-sort{{ orderBy == 'author' ? '-' ~ order : '' }}"></i>
+                </a>
+            </th>
+            <th class="small text-muted text-uppercase"><strong>{{ "Editor" | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ "Description" | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ "Year of issue" | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ "Publishing house" | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase">
+                {% set routeParams = routeParams | merge({'orderBy': 'genre', 'order': orderBy == 'genre' ? orderType : 'asc'}) %}
+                <a href="{{ path('books_list', routeParams) }}">
+                    <strong>{{ "Genre" | trans() }}</strong>
+                    <i class="fa fa-sort{{ orderBy == 'genre' ? '-' ~ order : '' }}"></i>
+                </a>
+            </th>
+            <th class="small text-muted text-uppercase"><strong>{{ "Paper version" | trans() }}</strong></th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for book in books %}
+            <tr>
+                <td class="v-a-m"><a href="{{ path('book_details', {'bookId': book.id}) }}">
+                        {{ book.title }}
+                </a></td>
+                <td class="v-a-m">
+                    {% if book.author is not null%}
+                        {{ book.author }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+                <td class="v-a-m">
+                    {% if book.editor is not null%}
+                        {{ book.editor }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+                <td class="v-a-m">
+                    {{ book.description }}
+                </td>
+                <td class="v-a-m">
+                    {{ book.yearOfIssue }}
+                </td>
+                <td class="v-a-m">
+                    {% if book.publishingHouse is not null%}
+                        {{ book.publishingHouse }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+                <td class="v-a-m">
+                    {% for genre in genresGroupedByBook[book.id] %}
+                        {{ genre.genre }}<br>
+                    {% endfor %}
+                </td>
+                <td class="v-a-m">
+                    {% if book.paperVersion %}
+                        {{ "Yes" | trans() }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+                {% if app.user.canEditLibrary or book.paperVersion %}
+                <td class="text-right v-a-m">
+                    <div class="dropdown">
+                        <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                            <i class="fa fa-fw fa-gear"></i> <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-right">
+                            {% include 'library/partial/book_actions.html.twig' %}
+                        </ul>
+                    </div>
+                </td>
+                {% endif %}
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    {% import 'library/partial/form.html.twig' as form %}
+    {% import 'library/partial/issueForm.html.twig' as issueForm %}
+
+    {% set addBookFormVars = {
+        'class': 'addBookModal',
+        'formId': 'addBookForm',
+        'title': 'Add book',
+        'size': 'large',
+        'content': form.inputs(genreList),
+        'formAction': path('book_add'),
+        'submitTitle': 'Add'
+    } %}
+
+    {% set editBookFormVars = {
+        'class': 'editBookModal',
+        'formId': 'editBookForm',
+        'title': 'Edit book',
+        'size': 'large',
+        'content': form.inputs(genreList),
+        'submitTitle': 'Edit'
+    } %}
+
+    {% set issueBookFormVars = {
+        'class': 'issueBookModal',
+        'formId': 'issueBookForm',
+        'title': 'Issue book',
+        'size': 'large',
+        'content': issueForm.inputs(users),
+        'submitTitle': 'Issue book'
+    } %}
+
+    {% include 'partial/modal.html.twig' with addBookFormVars %}
+    {% include 'partial/modal.html.twig' with editBookFormVars %}
+    {% include 'partial/modal.html.twig' with issueBookFormVars %}
+
+{% endblock %}

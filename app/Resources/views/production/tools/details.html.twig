@@ -1,0 +1,238 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ tool.name }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ breadcrumb( 'Toolbox' | trans(), path('production_tools_list') ) }}
+    {{ breadcrumb( tool.name, path('production_tools_details', {'id': tool.id}) ) }}
+{% endblock %}
+
+{% block body %}
+
+    {% set vars = {'tool': tool} %}
+    {#{% include 'production/tools/info_sidebar.html.twig' with vars %}#}
+    {% if app.user.isProductionLeader() or app.user.canViewToolWorkLog() %}
+
+    <form class="form-inline filter-form" method="get" action="{{ path('production_tools_details', {'id': tool.id}) }}">
+        <div class="panel panel-default no-bg  b-gray-dark">
+            <div class="panel-body">
+                <div class="form-group pull-right">
+                    <div class="btn-toolbar">
+                        <a class="btn btn-primary" data-toggle="modal" data-target=".addToolWorkLogModal"><i class="fa fa-plus"></i> {{ "Add tool work log" | trans() }}</a>
+                    </div>
+                </div>
+                <div class="form-group filter">
+                    <input class="form-control" name="filters[designation]" placeholder="{{ 'Search by designation' | trans() }}"
+                           value="{% if filters.designation is defined %}{{ filters.designation }}{% endif %}" />
+                </div>
+                <div class="form-group filter">
+                    <input class="form-control" name="filters[title]" placeholder="{{ 'Search by title' | trans() }}"
+                           value="{% if filters.title is defined %}{{ filters.title }}{% endif %}" />
+                </div>
+                <div class="form-group filter">
+                    <select name="filters[project]" class="form-control select2-modify filter" tabindex="-1" aria-hidden="true">
+                        <option value="">{{ 'Select project' | trans() }}</option>
+                        {% for project in projects %}
+                            <option {% if filters.project is defined and filters.project == project.id %}selected{% endif %} value="{{ project.id }}">{{ project.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+        </div>
+        </div>
+    </form>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th class="small text-muted text-uppercase">{{ 'item.designation' | trans() }}</th>
+                    <th class="small text-muted text-uppercase">{{ 'item.title' | trans() }}</th>
+                    <th class="small text-muted text-uppercase">{{ 'Project' | trans() }}</th>
+                    <th class="small text-muted text-uppercase">{{ 'item.quantity' | trans() }}</th>
+                    <th class="small text-muted text-uppercase">{{ 'item.consumption of basic materials' | trans() }}</th>
+                    <th class="small text-muted text-uppercase">{{ 'item.support materials consumption' | trans() }}</th>
+                    <th class="small text-muted text-uppercase">{{ 'item.placement' | trans() }}</th>
+                    <th class="small text-muted text-uppercase">{{ 'item.printing time' | trans() }}</th>
+                    <th class="small text-muted text-uppercase">{{ 'item.total consumption of basic materials' | trans() }}</th>
+                    <th class="small text-muted text-uppercase">{{ 'item.total support materials consumption' | trans() }}</th>
+                    <th class="small text-muted text-uppercase">{{ 'item.placement' | trans() }}</th>
+                    <th class="small text-muted text-uppercase">{{ 'item.total time' | trans() }}</th>
+                    <th class="small text-muted text-uppercase">{{ 'item.price' | trans() }}</th>
+                    <th class="small text-muted text-uppercase">{{ 'Created at' | trans() }}</th>
+                    <th class="small text-muted text-uppercase text-right">{{ 'Actions' | trans() }}</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% set sumCons = 0 %}
+            {% set sumSup = 0 %}
+            {% set sumPlacement = 0 %}
+            {% set sumTime = 0 %}
+            {% set sumPrice = 0 %}
+
+            {% for worklog in toolWorkLog %}
+
+                {% set price = 0 %}
+                {% set priceMaterials = 0 %}
+                {% set priceSupport = 0 %}
+                {% set consumptionOfBasicMaterials = 0 %}
+                {% set supportMaterialsConsumption = 0 %}
+                <tr>
+                    <td class="v-a-m">
+                        {{ worklog.designation }}
+                    </td>
+                    <td class="v-a-m">
+                        {{ worklog.title }}
+                    </td>
+                    <td class="v-a-m">
+                        <a href="{{ path('project_tasks', { 'id': worklog.project.id }) }}">{{ worklog.project.name }}</a>
+                    </td>
+                    <td class="v-a-m">
+                        {{ worklog.quantity }}
+                    </td>
+                    <td class="v-a-m">
+                        {{ worklog.consumptionOfBasicMaterials }}
+                    </td>
+                    <td class="v-a-m">
+                        {{ worklog.supportMaterialsConsumption }}
+                    </td>
+                    <td class="v-a-m">
+                        {{ worklog.placement }}
+                    </td>
+                    <td class="v-a-m">
+                        {{ worklog.printingTime }}
+                    </td>
+                    <td class="v-a-m">
+                        {% set consumptionOfBasicMaterials = worklog.quantity * worklog.consumptionOfBasicMaterials %}
+                        {{ consumptionOfBasicMaterials }}
+                        {% set sumCons = consumptionOfBasicMaterials + sumCons %}
+                    </td>
+                    <td class="v-a-m">
+                        {% set supportMaterialsConsumption = worklog.quantity * worklog.supportMaterialsConsumption %}
+                        {{ supportMaterialsConsumption }}
+                        {% set sumSup = supportMaterialsConsumption + sumSup %}
+                    </td>
+                    <td class="v-a-m">
+                        {{ worklog.quantity * worklog.placement }}
+                        {% set sumPlacement = worklog.quantity * worklog.placement + sumPlacement %}
+                    </td>
+                    <td class="v-a-m">
+                        {{ worklog.quantity * worklog.printingTime }}
+                        {% set sumTime = worklog.quantity * worklog.printingTime + sumTime %}
+                    </td>
+                    <td class="v-a-m">
+                        {% set priceMaterials = consumptionOfBasicMaterials * 6 %}
+                        {% set priceSupport = supportMaterialsConsumption * 30 %}
+                        {% set price = priceMaterials + priceSupport %}
+                        {% set sumPrice = sumPrice + price %}
+                        <h5 class="m-t-0 m-b-0 f-w-300" style="white-space: nowrap;">
+                            <span>{{ price | number_format(2, '.', ',') }} <i class="fa fa-fw fa-rouble"></i> </span>
+                        </h5>
+                    </td>
+                    <td class="v-a-m">
+                       {{ worklog.createdAt ? worklog.createdAt | date('d.m.Y') : '' }}
+                    </td>
+                    <td class="text-right v-a-m">
+                        {% if worklog.owner.id == app.user.id %}
+                            <div class="dropdown">
+                                <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                    <i class="fa fa-fw fa-gear"></i> <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-right">
+                                    <li><a href=""
+                                           class="editToolWorkLog"
+                                           data-href="{{ path('tool_work_log_edit', {'id': tool.id, 'workLogId': worklog.id}) }}"
+                                           data-designation="{{ worklog.designation }}"
+                                           data-title="{{ worklog.title }}"
+                                           data-project="{{ worklog.project.id }}"
+                                           data-tool="{{ worklog.id }}"
+                                           data-designation="{{ worklog.designation }}"
+                                           data-quantity="{{ worklog.quantity }}"
+                                           data-consumption-of-basic-materials="{{ worklog.consumptionOfBasicMaterials }}"
+                                           data-support-materials-consumption="{{ worklog.supportMaterialsConsumption }}"
+                                           data-placement="{{ worklog.placement }}"
+                                           data-printing-time="{{ worklog.printingTime }}"
+                                           data-toggle="modal"
+                                           data-target=".editToolWorkLogModal"
+                                        ><i class="fa fa-fw fa-pencil text-gray-lighter m-r-1"></i> {{ 'Edit' | trans() }}</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+
+            <tfoot>
+            <tr class="m-t-0 m-b-0 f-w-300">
+                <td colspan="7"></td>
+                <td>
+                    <h4 class="m-t-0 m-b-0 f-w-300">
+                    {{ 'Total' | trans() }}</td>
+                </h4>
+                <td>
+                    <h4 class="m-t-0 m-b-0 f-w-300">
+                        <span>{{ sumCons }}</span>
+                    </h4>
+                </td>
+                <td>
+                    <h4 class="m-t-0 m-b-0 f-w-300">
+                        {{ sumSup }}
+                    </h4>
+                </td>
+                <td>
+                    <h4 class="m-t-0 m-b-0 f-w-300">
+                        {{ sumPlacement }}
+                    </h4>
+                </td>
+                <td>
+                    <h4 class="m-t-0 m-b-0 f-w-300">
+                        {{ sumTime }}
+                    </h4>
+                </td>
+                <td>
+                    <h4 class="m-t-0 m-b-0 f-w-300" style="white-space: nowrap;">
+                        <span>{{ sumPrice | number_format(2, '.', ',') }} <i class="fa fa-fw fa-rouble"></i> </span>
+                    </h4>
+                </td>
+            </tr>
+            </tfoot>
+        </table>
+    {% endif %}
+
+    {% set vars = {
+        'route': 'production_tools_details',
+        'currentPage': currentPage,
+        'maxPages': maxPages,
+        'filters': filters,
+        'routeParams': {
+            'id': tool.id
+        }
+    }
+    %}
+
+    {% include 'partial/paginator.html.twig' with vars %}
+
+    {% import 'production/tools/partial/form.html.twig' as toolWorkLogForm %}
+
+    {% set toolWorkLogFormVars = {
+        'class': 'addToolWorkLogModal',
+        'formId': 'addToolWorkLogModal',
+        'title': 'Add tool work log' | trans() ,
+        'size': 'large',
+        'formAction': path('tool_work_log_add', {'id': tool.id}),
+        'content': toolWorkLogForm.inputs(),
+        'submitTitle': 'Add'
+    }
+    %}
+
+    {% set editToolWorkLogFormVars = {
+        'class': 'editToolWorkLogModal',
+        'size': 'large',
+        'formId': 'editToolWorkLogForm',
+        'title': 'Edit tool work log' | trans() ,
+        'content': toolWorkLogForm.inputs(),
+        'submitTitle': 'Save'
+    } %}
+
+    {% include 'partial/modal.html.twig' with toolWorkLogFormVars %}
+    {% include 'partial/modal.html.twig' with editToolWorkLogFormVars %}
+{% endblock %}

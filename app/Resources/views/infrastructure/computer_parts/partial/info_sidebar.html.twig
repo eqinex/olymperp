@@ -1,0 +1,51 @@
+<div class="col-lg-3">
+    <div class="hr-text hr-text-left m-t-0 m-b-1">
+        <h6 class="text-inverse"><strong>{{ 'Details' | trans() }}</strong></h6>
+    </div>
+
+    <table class="table table-condensed">
+        <tbody>
+        <tr>
+            <td class="v-a-m">
+                {{ 'Type' | trans() }}
+            </td>
+            <td class="v-a-m text-right text-inverse">
+                {{ part.type | trans() }}
+            </td>
+        </tr>
+        <tr>
+            <td class="v-a-m">
+                {{ 'Name' | trans() }}
+            </td>
+            <td class="v-a-m text-right text-inverse">
+                {{ part.name }}
+            </td>
+        </tr>
+        <tr>
+            <td class="v-a-m">
+                {{ 'Inventory number' | trans() }}
+            </td>
+            <td class="v-a-m text-right text-inverse">
+                {{ part.inventoryNumber }}
+            </td>
+        </tr>
+        <tr>
+            <td class="v-a-m">
+                {{ 'Serial number' | trans() }}
+            </td>
+            <td class="v-a-m text-right text-inverse">
+                {{ part.serialNumber }}
+            </td>
+        </tr>
+        <tr>
+            <td class="v-a-m">
+                {{ 'Description' | trans() }}
+            </td>
+            <td class="v-a-m text-right text-inverse">
+                {{ part.description }}
+            </td>
+        </tr>
+
+        </tbody>
+    </table>
+</div>

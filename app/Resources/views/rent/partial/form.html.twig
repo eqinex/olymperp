@@ -1,0 +1,91 @@
+{% macro inputs(paymentMethods, users, months, tenements) %}
+    <div class="form-group">
+        <label class="col-lg-2 control-label">{{ 'Tenant' | trans() }}</label>
+        <div class="col-lg-3">
+            <select  class="form-control tenement responsible" name="rent[tenement]">
+                <option value="">{{ 'Select tenant' | trans() }}</option>
+                {% for tenement in tenements %}
+                    <option value="{{ tenement.id }}"
+                            data-rent="{{ tenement.rent }}"
+                            data-heating="{{ tenement.heating }}"
+                            data-communal-payments="{{ tenement.communalPayments }}"
+                            data-total="{{ tenement.total }}"
+                            data-square="{{ tenement.square }}"
+                            data-target=".addRent">
+                        {{ tenement.supplier ~ '(' ~ tenement.title ~ ')'}}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <label class="col-lg-3 control-label">{{ 'Rent' | trans() ~ ' ' }}<i class="fa fa-rub"></i></label>
+        <div class="col-lg-3">
+            <input type="text" pattern="^[. + 0-9]+$" class="form-control data-for-total rent" name="rent[rent]" placeholder="{{ 'Rent' | trans() }}" value="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-lg-2 control-label">{{ 'Heating' | trans() ~ ' ' }}<i class="fa fa-rub"></i></label>
+        <div class="col-lg-3">
+            <input type="text" pattern="^[. + 0-9]+$" class="form-control data-for-total heating" name="rent[heating]" placeholder="{{ 'Heating' | trans() }}" value="">
+        </div>
+        <label class="col-lg-3 control-label del-padding">{{ 'Communal payments' | trans() ~ ' ' }}<i class="fa fa-rub"></i></label>
+        <div class="col-lg-3">
+            <input type="text" pattern="^[. + 0-9]+$" class="form-control data-for-total communal" name="rent[communalPayments]" placeholder="{{ 'Communal payments' | trans() }}" value="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-lg-2 control-label">{{ 'Total income' | trans() ~ ' ' }}<i class="fa fa-rub"></i></label>
+        <div class="col-lg-3">
+            <input type="text" pattern="^[. + 0-9]+$" class="form-control total" name="rent[total]" placeholder="{{ 'Total income' | trans() }}" value="">
+        </div>
+        <label class="col-lg-3 control-label">{{ 'Square' | trans() ~ ' м' }}<sup>2</sup></label>
+        <div class="col-lg-3">
+            <input type="text" pattern="^[. + 0-9]+$" class="form-control square" name="rent[square]" placeholder="{{ 'Square' | trans() }}" value="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-lg-2 control-label">{{ 'Payment method' | trans() }}</label>
+        <div class="col-lg-3">
+            <select class="form-control enter-data-for-code project-stage" name="rent[method]" required>
+                <option value="">{{ 'Select payment method' | trans() }}</option>
+                {% for paymentMethod in paymentMethods %}
+                    <option class="project-stage-option" value="{{ paymentMethod }}">{{ paymentMethod | trans() }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <label class="col-lg-3 control-label">{{ 'Month' | trans()}}</label>
+        <div  class="col-lg-3" >
+            <select  class="form-control select2-modal responsible" name="rent[month]">
+                {% for month, num in months %}
+                    <option value="{{ num }}" {{ 'now' | date('m') == num ? 'selected' }}>{{ month | trans() }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-lg-2 control-label">{{ 'Year' | trans()}}</label>
+        <div  class="col-lg-3" >
+            <select  class="form-control select2-modal responsible" name="rent[year]">
+                {% for year in "now" | date('Y') - 10 .. "now" | date('Y') + 10 %}
+                    <option value="{{ year }}" {{ 'now' | date('Y') == year ? 'selected' }}>{{ year }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function () {
+            $('.tenement').blur(function () {
+
+                console.log('yjhv');
+
+                var addRent = $('#addRent');
+                addRent.find('.rent').val($('.tenement option:selected').data('rent'));
+                addRent.find('.heating').val($('.tenement option:selected').data('heating'));
+                addRent.find('.communal').val($('.tenement option:selected').data('communalPayments'));
+                addRent.find('.total').val($('.tenement option:selected').data('total'));
+                addRent.find('.square').val($('.tenement option:selected').data('square'));
+
+                $('.select2-modal').select2({width: '100%'});
+            });
+        })
+    </script>
+{% endmacro %}

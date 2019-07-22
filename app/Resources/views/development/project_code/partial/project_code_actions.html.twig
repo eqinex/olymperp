@@ -1,0 +1,36 @@
+<li>
+    <a href=""
+       data-href="{{ path('project_code_edit', {'id': projectCode.id}) }}"
+       class="edit-project-code"
+       data-company-code="{{ projectCode.companyCode.id }}"
+       data-name="{{ projectCode.name }}"
+       data-created-year="{{ projectCode.createdYear }}"
+       data-kit-engineering-document="{{ projectCode.kitEngineeringDocument }}"
+       data-project-structure="{{ projectCode.projectStructure }}"
+       {% if projectCode.responsible is not null %}
+        data-responsible="{{ projectCode.responsible.id }}"
+       {% endif %}
+       data-code="{{ projectCode.code }}"
+       data-inside-code="{{ projectCode.insideCode }}"
+       data-project-location="{{ projectCode.projectLocation }}"
+       data-remark="{{ projectCode.remark }}"
+       data-subassembly="{{ projectCode.subassembly }}"
+       data-execution="{{ projectCode.execution }}"
+       data-project-stage="{{ projectCode.projectStage }}"
+       data-project-number="{{ projectCode.projectNumber }}"
+       data-date-of-registration="{{ projectCode.dateOfRegistration | date('d.m.Y') }}"
+       data-toggle="modal"
+       data-target=".editProjectCodeModal">
+        <i class="fa fa-fw fa-pencil"></i> {{ 'Edit' | trans() }}</a>
+</li>
+{% if app.user.canDeleteProjectCode %}
+<li>
+    <a href=""
+       data-form-action="{{ path('project_code_remove', {'id': projectCode.id}) }}"
+       class="deleted-project-code"
+       data-toggle="modal"
+       data-target=".deleteProjectCodeModal">
+        <i class="fa fa-fw fa-minus"></i> {{ 'Delete' | trans() }}</a>
+</li>
+{% endif %}
+

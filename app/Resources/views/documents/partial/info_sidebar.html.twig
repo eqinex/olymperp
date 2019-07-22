@@ -1,0 +1,179 @@
+<div>
+    <table class="table table-bordered table-inverse">
+        <thead>
+        <tr>
+            <th class="title-card"><strong>{{ "Project" | trans() }}</strong></th>
+            <th colspan="3">
+                <strong class="variable-card-padding">
+                        <a href="{{ path('project_tasks', {'id': document.project.id}) }}">{{ document.project }}</a>
+                </strong>
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <th scope="row" class="title-card"><strong>{{ "document.subject" | trans() }}</strong></th>
+            <td colspan="3"><strong class="variable-card-padding">{{ document.subject }}</strong></td>
+        </tr>
+        <tr>
+            <th scope="row" class="title-card"><strong>{{ "Project leader" | trans() }}</strong></th>
+            <td class="variable-card-width">
+                <strong class="variable-card-padding">
+                    <a href="{{ path('employee_details', {'userName': document.project.leader.userName}) }}">{{ document.project.leader.getFullName(true) }}</a>
+                </strong>
+            </td>
+            <td class="title-card"><strong>{{ "document.leader.department" | trans() }}</strong></td>
+            <td><strong class="variable-card-padding">{{ document.project.leader.team ?: '-' }}</strong></td>
+        </tr>
+        <tr>
+            <th scope="row" class="title-card"><strong>{{ "Curator" | trans() }}</strong></th>
+            <td>
+                <strong class="variable-card-padding">
+                    {% if document.curator is defined and document.curator is not null %}
+                        <a href="{{ path('employee_details', {'userName': document.curator.userName}) }}">{{ document.curator.getFullName(true) }}</a>
+                    {% else %}
+                        -
+                    {% endif %}
+                </strong>
+            </td>
+            <td class="title-card"><strong >{{ "document.curator.department" | trans() }}</strong></td>
+            <td>
+                <strong class="variable-card-padding">
+                    {% if document.curator is defined and document.curator is not null %}
+                        {{ document.curator.team ?: '-' }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </strong>
+            </td>
+        </tr>
+        <tr>
+            <th scope="row" class="title-card"><strong>{{ "document.owner" | trans() }}</strong></th>
+            <td>
+                <strong class="variable-card-padding">
+                    <a href="{{ path('employee_details', {'userName': document.owner.userName}) }}"><span>{{ document.owner.getFullName(true) }}</span></a>
+                </strong>
+            </td>
+            <td class="title-card"><strong>{{ "document.owner.department" | trans() }}</strong></td>
+            <td><strong class="variable-card-padding">{{ document.owner.team ?: '-' }}</strong></td>
+        </tr>
+        <tr>
+            <th class="title-card"><strong>{{ "Category" | trans() }}</strong></th>
+            <th>
+                <strong class="variable-card-padding">{{ document.category }}</strong>
+            </th>
+            <td class="title-card"><strong>{{ "Blank" | trans() }}</strong></td>
+            <td><strong class="variable-card-padding">{{ document.type | trans() }}</strong></td>
+        </tr>
+        <tr>
+            <th scope="row" class="title-card"><strong>{{ "document.template" | trans() }}</strong></th>
+            <td colspan="3"><strong class="variable-card-padding">{{ document.documentTemplate }}</strong></td>
+        </tr>
+        <tr>
+            <th scope="row" class="title-card"><strong>{{ "Status" | trans() }}</strong></th>
+            <td><strong class="text-{{ document.priorityLabels[document.status] }} variable-card-padding">{{ document.statusList[document.status] | trans() }}</strong></td>
+            <td class="title-card"><strong>{{ "document.period" | trans() }}</strong></td>
+            <td><strong class="variable-card-padding">{{ document.period }}</strong></td>
+        </tr>
+        <tr>
+            <td class="title-card"><strong>{{ "Created At" | trans() }}</strong></td>
+            <td><strong class="variable-card-padding">{{ document.createdAt | date('d.m.Y H:i') }}</strong></td>
+            <td class="title-card"><strong>{{ "Updated At" | trans() }}</strong></td>
+            <td><strong class="variable-card-padding">{{ document.updatedAt | date('d.m.Y H:i') }}</strong></td>
+        </tr>
+        <tr>
+            <th scope="row" class="title-card"><strong>{{ "document.code" | trans() }}</strong></th>
+            <td><strong class="variable-card-padding">{{ document.code }}</strong></td>
+            <th class="title-card"><strong>{{ "Number supplier" | trans() }}</strong></th>
+            <td><strong class="variable-card-padding">{{ document.supplierContractCode }}</strong></td>
+        </tr>
+        <tr>
+            <th scope="row" class="title-card"><strong>{{ "document.amount" | trans() }}</strong></th>
+            <td><strong class="variable-card-padding">{{ document.amount }}</strong></td>
+            <td class="title-card"><strong>{{ "document.vat" | trans() }}</strong></td>
+            <td>
+                {% if document.vat is defined and document.vat != 0 and document.vat is not null %}
+                    <strong class="variable-card-padding">{{ document.vat }}</strong>
+                {% else %}
+                    <strong class="variable-card-padding">{{ "Without VAT" | trans() }}</strong>
+                {% endif %}
+            </td>
+        </tr>
+        <tr>
+            <th scope="row" class="title-card"><strong>{{ "document.startAt" | trans() }}</strong></th>
+            <td><strong class="variable-card-padding">{{ document.startAt | date('d.m.Y') }}</strong></td>
+            <td class="title-card"><strong>{{ "document.unlimited" | trans() }}</strong></td>
+            <td><strong class="variable-card-padding">{{ document.unlimited == 0 ? 'No' | trans() : 'Yes' | trans() }}</strong></td>
+        </tr>
+        <tr>
+            <td class="title-card"><strong>{{ "document.endAt" | trans() }}</strong></td>
+            <td><strong class="variable-card-padding">{{ document.endAt | date('d.m.Y') }}</strong>
+            </td>
+            <td class="title-card"><strong>{{ "document.extension" | trans() }}</strong></td>
+            <td><strong class="variable-card-padding">{{ document.contractExtension == 0 ? 'Unenvisaged' | trans() : 'Envisaged' | trans() }}</strong></td>
+        </tr>
+        {% if document.parentDocument %}
+            <tr>
+                <td class="title-card"><strong>{{ 'Basic agreement' | trans() }}</strong></td>
+                <td><a href="{{ path('document_details', {'id': document.parentDocument.id}) }}"><strong class="variable-card-padding">{{ document.parentDocument.code }}</strong></a></td>
+                <td class="title-card"><strong>{{ 'Date basic agreement' | trans() }}</strong></td>
+                <td><strong class="variable-card-padding">{{ document.parentDocument.startAt | date('d.m.Y') }}</strong></td>
+            </tr>
+        {% endif %}
+        {% if supplementaryAgreements %}
+            <tr>
+                <td class="title-card"><strong>{{ 'Supplementary agreement' | trans() }}</strong></td>
+                <td>
+                    {% for agreement in supplementaryAgreements %}
+                        <a href="{{ path('document_details', {'id': agreement.id}) }}"><strong class="variable-card-padding">{{ agreement.code }}</strong></a><br>
+                    {% endfor %}
+                </td>
+                <td class="title-card"><strong>{{ 'Date supplementary agreement' | trans() }}</strong></td>
+                <td>
+                    {% for agreement in supplementaryAgreements %}
+                        <strong class="variable-card-padding">{{ agreement.startAt | date('d.m.Y') }}</strong><br>
+                    {% endfor %}
+                </td>
+            </tr>
+        {% endif %}
+        <tr id="measure-row">
+            <th scope="row" class="title-card"><strong>{{ "Measure of responsibility" | trans() }}</strong></th>
+            <td colspan="3"><strong class="variable-card-padding">{{ document.measureOfResponsibility }}</strong></td>
+        </tr>
+        <tr>
+            <th scope="row" class="title-card"><strong>{{ "document.security" | trans() }}</strong></th>
+            <td colspan="3"><strong class="variable-card-padding">{{ document.security }}</strong></td>
+        </tr>
+        <tr>
+            <th scope="row" class="title-card"><strong>{{ "Supplier" | trans() }}</strong></th>
+            <td>
+                {% if document.supplier.id is defined %}
+                    <a href="{{ path('suppliers_details', {'id': document.supplier.id }) }}"><strong class="variable-card-padding">{{ document.supplier.title }}</strong></a>
+                {% else %}
+                    <strong class="variable-card-padding">-</strong>
+                {% endif %}
+            </td>
+            <td class="title-card"><strong>{{ "ITN" | trans() }}</strong></td>
+            <td><strong class="variable-card-padding">{{ document.supplier.itn is defined and document.supplier.itn is not null ? document.supplier.itn : '-' }}</strong></td>
+        </tr>
+        <tr>
+            <th colspan="3" class="title-card"><strong>{{ "Debtreceivable" | trans() }}</strong></th>
+            <th>
+                <strong class="variable-card-padding">{{ document.debtReceivable ? document.debtReceivable | date('d.m.Y') : '' }}</strong>
+            </th>
+        </tr>
+        <tr>
+            <th class="title-card"><strong>{{ "Act" | trans() }}</strong></th>
+            <th colspan="3">
+                <strong class="variable-card-padding">{{ document.act }}</strong>
+            </th>
+        </tr>
+        <tr>
+            <th class="title-card"><strong>{{ "Comment" | trans() }}</strong></th>
+            <th colspan="3">
+                <strong class="variable-card-padding">{{ document.comment }}</strong>
+            </th>
+        </tr>
+        </tbody>
+    </table>
+</div>

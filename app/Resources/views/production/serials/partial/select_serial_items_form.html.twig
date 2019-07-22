@@ -1,0 +1,137 @@
+{% macro inputs(purchaseRequests) %}
+    <input type="hidden" class="form-control model-id" value="" name="serial[id]">
+    <div class="form-group">
+        <div class="col-sm-12">
+            {% for request in purchaseRequests %}
+                <div>
+                    <div class="col-sm-1" style="margin-top: 2px;">
+                        <input class="serial-request" id="request-id-{{ request.id }}" type="checkbox" value="{{ request.id }}" name="requests[]">
+                    </div>
+                    <h4>{{ request.code }}</h4>
+                    <p>{{ request.description }}</p>
+                </div>
+                <table class="table table-striped">
+                    <thead class="thead-primary">
+                    <tr>
+                        <th class="small text-muted text-uppercase"></th>
+                        <th class="small text-muted text-uppercase"><strong>ID</strong></th>
+                        <th class="small text-muted text-uppercase"><strong>{{ 'item.sku' | trans() }}</strong></th>
+                        <th class="small text-muted text-uppercase"><strong>{{ 'Name' | trans() }}</strong></th>
+                        <th class="small text-muted text-uppercase"><strong>{{ 'item.quantity' | trans() }}</strong></th>
+                        <th class="small text-muted text-uppercase"><strong>{{ 'item.category' | trans() }}</strong></th>
+                        <th class="small text-muted text-uppercase"><strong>{{ 'Amount' | trans() }}</strong></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% set id = 1 %}
+                    {% for item in request.items %}
+                        <tr>
+                            <td class="text-center"><input class="serial-item" id="item-id-{{ item.id }}" type="checkbox" value="{{ item.id }}" name="items[]"></td>
+                            <td><span>{{ '#' ~ id }}</span></td>
+                            <td><span>{{ item.sku }}</span></td>
+                            <td><span>{{ item.title }}</span></td>
+                            <td><span>{{ item.quantity }}{{ item.unit }}</span></td>
+                            <td><span>{{ item.category }}</span></td>
+                            <td><span>{{ item.price ? (item.price | number_format(2, '.', ',') ~ 'р'): '-' }}</span></td>
+                        </tr>
+                        {% set id = id + 1 %}
+                    {% endfor %}
+                    </tbody>
+                </table>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+
+            var purchaseRequests = [];
+
+            $('.add-items').bind('click', function () {
+                var selectSerialItemsForm = $('#selectSerialItemsForm');
+                selectSerialItemsForm.attr('action', $(this).data('href'));
+                selectSerialItemsForm.find('.serial-id').val($(this).data('id'));
+
+                $('.serial-item').removeAttr('checked');
+                $('.serial-request').removeAttr('checked');
+
+                let items = $(this).data('items');
+                let requests = $(this).data('requests');
+
+                for (let item in items) {
+                    $('#item-id-' + items[item]).prop('checked', true);
+                }
+
+                $.each(requests, function (request) {
+                    for (let item in requests[request]) {
+                        if ($('#item-id-' + requests[request][item]).prop('checked')) {
+                            $('#request-id-' + request).prop('checked', true);
+                        } else {
+                            $('#request-id-' + request).removeAttr('checked');
+                            return true;
+                        }
+                    }
+                });
+                purchaseRequests = requests;
+            });
+
+            let otherClass = '';
+
+            $('.serial-request').bind('click', function () {
+                otherClass = $(this).attr('id');
+                $('#' + otherClass).change(function () {
+                    if (this.checked) {
+                        $.each(purchaseRequests, function (request) {
+                            if ('request-id-' + request == otherClass) {
+                                for (let item in purchaseRequests[request]) {
+                                    $('#item-id-' + purchaseRequests[request][item]).prop('checked', true);
+                                }
+                                return false;
+                            } else {
+                                return true;
+                            }
+                        });
+                    } else {
+                        $.each(purchaseRequests, function (request) {
+                            if ('request-id-' + request == otherClass) {
+                                for (let item in purchaseRequests[request]) {
+                                    $('#item-id-' + purchaseRequests[request][item]).prop('checked', false);
+                                }
+                                return false;
+                            } else {
+                                return true;
+                            }
+                        });
+                    }
+                });
+            });
+
+            $('.serial-item').bind('click', function () {
+                otherClass = $(this).attr('id');
+                $('#' + otherClass).change(function () {
+                    let requestId = '';
+                    $.each(purchaseRequests, function (request) {
+                        $.each(purchaseRequests[request], function (item) {
+                            if ('item-id-' + purchaseRequests[request][item] == otherClass) {
+                                requestId = request;
+                                return false;
+                            } else {
+                                return true;
+                            }
+                        });
+                    });
+                    if (requestId != '') {
+                        $.each(purchaseRequests[requestId], function (item) {
+                            if ($('#item-id-' + item).prop('checked')) {
+                                return true;
+                            } else {
+                                $('#request-id-' + requestId).prop('checked', false);
+                                return false;
+                            }
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+{% endmacro %}

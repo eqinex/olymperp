@@ -1,0 +1,34 @@
+{% macro inputs() %}
+    <div class="form-group">
+        <label class="col-sm-3 control-label">{{ "Time spent" | trans() }}</label>
+        <div class="col-sm-8">
+            <input type="text" class="form-control" name="task[timeSpent]" required pattern="^[1-9][0-9]*[hmdчдм](?:\s*[1-9][0-9]*[hmdчдм])*\s*" value="">
+            <span class="help-block">{{ '1m/1м - 1 minute, 1h/1ч - 1 hour, 1d/1д - 1 day' | trans() }}<br>{{ 'Example "1h 10m"' | trans() }}</span>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-3 control-label">{{ "Comment" | trans() }}</label>
+        <div class="col-sm-8 finish-comment-form">
+            <textarea name="task[comment][text]" id="textarea-finish" required class="form-control trumbowyg-textarea" placeholder="{{ 'Enter your message' | trans() }}"></textarea>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function(){
+            $('.finish-task').click(function(){
+                var finishTaskForm = $('#finishTaskForm');
+                finishTaskForm.attr('action', $(this).data('href'));
+            });
+            $('.result-approve-task').click(function(){
+                var resultApproveTaskForm = $('#resultApproveTaskForm');
+                resultApproveTaskForm.attr('action', $(this).data('href'));
+            });
+
+            $('#textarea-finish').focusout(function(){
+                var str = $('#textarea-finish').val().trim();
+                if (str == '') {
+                    $('#textarea-finish').val('');
+                }
+            });
+        });
+    </script>
+{% endmacro %}

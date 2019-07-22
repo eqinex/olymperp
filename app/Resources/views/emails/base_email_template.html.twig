@@ -1,0 +1,72 @@
+{% set mainDivCss = 'color:#333333;font-family:Arial,sans-serif;font-size:14px;line-height:1.429;' %}
+{% set mainTableCss = 'border-collapse:collapse;background-color:#f5f5f5;border-collapse:collapse;' %}
+{% set tdFirstCss = 'padding:0;border-collapse:collapse;padding:15px 20px;"' %}
+{% set tdSecondCss = 'padding:0;border-collapse:collapse;padding:0px 20px;"' %}
+
+<div style="{{ mainDivCss }}">
+    <table cellpadding="0" cellspacing="0" width="100%" style="{{ mainTableCss }}" bgcolor="#f5f5f5">
+
+        <tbody>
+        <tr>
+            <td style="{{ tdFirstCss }}">
+                <table cellspacing="0" cellpadding="0" border="0" style="border-collapse:collapse;">
+                    <tbody>
+                    <tr>
+                        <td valign="top" style="padding:0;border-collapse:collapse;vertical-align:top;width:32px;padding-right:8px;" width="32">
+                            {% if app.user and app.user.imageUrl is not null %}
+                                <img height="32" width="32" border="0" style="border-radius:3px;vertical-align:top;" src="{{ base_url ~ app.user.imageUrl }}">
+                            {% else %}
+                                <img height="32" width="32" border="0" style="border-radius:3px;vertical-align:top;" src="{{ base_url ~ "/images/noavatar.png" }}">
+                            {% endif %}
+                        </td>
+                        <td valign="middle" style="padding:0;border-collapse:collapse;vertical-align:middle;font-family:Arial,sans-serif;font-size:14px;line-height:20px;">
+                            {% block template_title %}
+
+                            {% endblock %}
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td style="{{ tdSecondCss }}">
+                <table cellspacing="0" cellpadding="0" border="0" width="100%" style="border-collapse:collapse;border-spacing:0;border-collapse:separate;">
+                    <tbody>
+                    <tr>
+                        <td style="padding:0;border-collapse:collapse;color:#ffffff;padding:0 15px 0 16px;height:15px;background-color:#ffffff;border-left:1px solid #cccccc;border-top:1px solid #cccccc;border-right:1px solid #cccccc;border-bottom:0;border-top-right-radius:5px;border-top-left-radius:5px;height:10px;line-height:10px;padding:0 15px 0 16px;" height="10" bgcolor="#ffffff">&nbsp;</td>
+                    </tr>
+                    {% block template_description %}
+
+                    {% endblock %}
+                    <tr>
+                        <td style="padding:0;border-collapse:collapse;border-left:1px solid #cccccc;border-right:1px solid #cccccc;border-top:0;border-bottom:0;padding:0 15px 0 16px;background-color:#ffffff;padding-bottom:5px;" bgcolor="#ffffff">
+                            {% block template_table %}
+                            {% endblock %}
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td style="padding:0;border-collapse:collapse;color:#ffffff;padding:0 15px 0 16px;height:5px;line-height:5px;background-color:#ffffff;border-top:0;border-left:1px solid #cccccc;border-bottom:1px solid #cccccc;border-right:1px solid #cccccc;border-bottom-right-radius:5px;border-bottom-left-radius:5px;" height="5" bgcolor="#ffffff">&nbsp;</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+
+        <tr>
+            <td style="{{ tdFirstCss }}">
+                <table cellspacing="0" cellpadding="0" border="0" style="border-collapse:collapse;">
+                    <tbody>
+                    <tr>
+                        <td valign="top" style="padding:0;border-collapse:collapse;vertical-align:top;width:32px;padding-right:8px;" width="32"></td>
+                        <td valign="middle" style="padding:0;border-collapse:collapse;vertical-align:middle;font-family:Arial,sans-serif;font-size:14px;line-height:20px;"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+</div>

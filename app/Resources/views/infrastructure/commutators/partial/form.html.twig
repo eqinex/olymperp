@@ -1,0 +1,64 @@
+{% macro inputs(ipTypes) %}
+
+    <div class="form-group">
+        <input type="hidden" class="form-control commutator-type" value="commutator" name="commutator[type]">
+        <label class="col-sm-2 control-label">{{ 'Model' | trans() }}</label>
+        <div class="col-lg-3">
+            <input class="commutator-model form-control" name="commutator[model]" value="" placeholder="{{ 'Model' | trans() }}">
+        </div>
+        <label class="col-sm-2 control-label" style="margin-top:-8px;">{{ 'Inventory number' | trans() }}</label>
+        <div class="col-lg-3">
+            <input class="commutator-inventory-number form-control" name="commutator[inventoryNumber]" value="" placeholder="{{ 'Inventory number' | trans() }}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label" style="margin-top: -20px;">{{ 'Way to get the ip-address' | trans() }}</label>
+        <div class="col-lg-3">
+            <select class="form-control select2-modal commutator-ip-type" name="commutator[ipType]">
+                <option value="">{{ 'Select type' | trans() }}</option>
+                {% for type in ipTypes %}
+                    <option {% if commutator.ipType is defined and commutator.ipType == type %}selected{% endif %} value="{{ type }}">
+                        {{ type | trans() }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <label class="col-sm-2 control-label">{{ 'IP Address' | trans() }}</label>
+        <div class="col-lg-3">
+            <input class="commutator-ip-address form-control" name="commutator[ipAddress]" value="" placeholder="{{ 'IP Address' | trans() }}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ 'MAC Address' | trans() }}</label>
+        <div class="col-lg-3">
+            <input class="commutator-mac-address form-control" name="commutator[macAddress]" value="" placeholder="{{ 'MAC Address' | trans() }}">
+        </div>
+        <label class="col-sm-2 control-label">{{ 'Room' | trans() }}</label>
+        <div class="col-lg-3">
+            <input class="commutator-room form-control" value="" name="commutator[room]" placeholder="{{ 'Room' | trans() }}">
+        </div>
+    </div>
+    
+    <script>
+        $(document).ready(function(){
+            moment.locale('ru');
+            
+            $('.edit-commutator').bind('click', function(){
+
+                var editCommutatorForm = $('#editCommutatorForm');
+                editCommutatorForm.attr('action', $(this).data('href'));
+                editCommutatorForm.find('.commutator-type').val($(this).data('type'));
+                editCommutatorForm.find('.commutator-model').val($(this).data('model'));
+                editCommutatorForm.find('.commutator-host').val($(this).data('host'));
+                editCommutatorForm.find('.commutator-ip-address').val($(this).data('ip-address'));
+                editCommutatorForm.find('.commutator-ip-type').val($(this).data('ip-type'));
+                editCommutatorForm.find('.commutator-mac-address').val($(this).data('mac-address'));
+                editCommutatorForm.find('.commutator-inventory-number').val($(this).data('inventory-number'));
+                editCommutatorForm.find('.commutator-room').val($(this).data('room'));
+
+                $('.select2-modal').select2({ width: '100%' });
+            });
+        });
+    </script>
+
+{% endmacro %}

@@ -1,0 +1,165 @@
+<!-- START Navigation Tree & Search -->
+<div class="col-lg-3">
+
+    {% if project.type == 'project' %}
+    <div class="hr-text hr-text-left m-t-0 m-b-1">
+        <h6 class="text-inverse"><strong>{{ "Project Details" | trans() }}</strong></h6>
+    </div>
+
+    <!-- START Table Project Details -->
+    <table class="table table-condensed">
+        <tbody>
+        <!-- START ROW Project Details  -->
+        <tr>
+            <td class="v-a-m">
+                {{ 'Leader' | trans() }}
+            </td>
+            <td class="v-a-m text-right">
+                <a href="{{ path('employee_details', {'userName': project.leader.userName}) }}"><span>{{ project.leader.fullname }}</span></a>
+            </td>
+        </tr>
+        <tr>
+            <td class="v-a-m">
+                {{ "project.client" | trans() }}
+            </td>
+            <td class="v-a-m text-right text-inverse">
+                {% if project.client is defined and project.client is not null %}
+                    <a href="{{ path('suppliers_details', {'id': project.supplier.id}) }}">{{ project.supplier.legalForm is defined ? ( project.supplier.legalForm.name ~ ' "' ~ project.supplier.title ~ '"') : '"' ~ project.supplier.title ~ '"' }}</a>
+                {% else %}
+                    -
+                {% endif %}
+            </td>
+        </tr>
+        <!-- START ROW Project Details  -->
+        <tr>
+            <td class="v-a-m">
+                {{ 'Status' | trans() }}
+            </td>
+            <td class="v-a-m text-right text-inverse">
+                {% if project.status %}
+                    <span class="label label-pill label-{{ project.status.label }} label-outline">{{ project.status.name }}</span>
+                {% else %}
+                    -
+                {% endif %}
+            </td>
+        </tr>
+
+        <!-- START ROW Project Details  -->
+        <tr>
+            <td class="v-a-m">
+                {{ 'Start At' | trans() }}
+            </td>
+            <td class="v-a-m text-right text-inverse">
+                {{ project.startAt|date("d.m.Y") }}
+            </td>
+        </tr>
+        <!-- END ROW Project Details  -->
+
+        <!-- START ROW Project Details  -->
+        <tr>
+            <td class="v-a-m">
+                {{ 'End At' | trans() }}
+            </td>
+            <td class="v-a-m text-right text-inverse">
+                {{ project.endAt|date("d.m.Y") }}
+            </td>
+        </tr>
+
+        {% if project.telegramChatUrl is not null %}
+        <tr>
+            <td class="v-a-m">
+                {{ "Telegram Chat" | trans() }}
+            </td>
+            <td class="v-a-m text-right text-inverse">
+
+                <div class="btn-group" role="group" aria-label="...">
+                    <!-- Standard button -->
+                    <a href="{{ project.telegramChatUrl }}" target="_blank" class="btn btn-sm btn-default"><i class="fa fa-fw fa-telegram"></i></a>
+                </div>
+            </td>
+        </tr>
+        {% endif %}
+        </tbody>
+    </table>
+    {% endif %}
+    <!-- END Table Project Details -->
+    <div class="hr-text hr-text-left m-t-2 m-b-1">
+        <h6 class="text-inverse"><strong>{{ 'Involved users' | trans() }}</strong> <span class="badge">{{ project.projectMembers | length }}</span></h6>
+    </div>
+
+    <!-- START Widget - Menu Pills Vertical -->
+    <div class="scroll-300 custom-scrollbar">
+        <ul class="nav nav-pills nav-stacked">
+
+            <!-- START User Online (Small) -->
+
+            {% for team, members in project.getProjectMembersTeams(app.user, false) %}
+                <li>{{ team | trans() }}</li>
+                <li>
+                    <table class="table table-hover table-project-team">
+                        {% for member in members %}
+                        <tr class="team-member">
+                            <td>
+                                <a href="{{ path('employee_details', {'userName':member.username}) }}">
+                                    {#<div class="media">#}
+                                        <div class="media-left">
+                                            <div class="avatar avatar-image avatar-sm">
+                                                <div class="avatar-circle">
+                                                    {% if member.imageUrl is not null %}
+                                                        <img class="media-object img-circle" src="{{ member.imageUrl }}" />
+                                                    {% else %}
+                                                        <img class="media-object img-circle" src="/images/noavatar.png" alt="Avatar">
+                                                    {% endif %}
+                                                </div>
+                                                <i class="avatar-status avatar-status-bottom bg-{{ employee_service.getOnlineStatus(member).colorBadge }} b-brand-gray-darker"></i>
+                                            </div>
+                                        </div>
+                                        <div class="media-body">
+                                            <h5 class="m-t-0 m-b-0 text-primary"><span>{{ member.fullname }}</span></h5>
+                                            <p class="small text-gray-lighter m-b-0"><span>{{ member.employeeRole }}</span></p>
+                                        </div>
+                                    {#</div>#}
+                                </a>
+                            </td>
+                            <td>
+                            {% if project.canEditProjectMember(app.user) %}
+                                <div class="remove-team-member">
+                                    <a title="{{ 'Remove team member' | trans() }}" class="btn btn-danger btn-xs" href="{{ path('project_remove_team_member', {'id': project.id, 'teamMemberId': member.id}) }}"><i class="fa fa-minus"></i></a>
+                                </div>
+                            {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% if project.canEditProjectMember(app.user) and companyUsers is defined%}
+        <div role="presentation" class="m-t-2 m-l-3 m-b-2">
+            <a href=""
+               data-toggle="modal"
+               data-target=".addTeamMemberModal"
+               class="text-gray-lighter">
+                <i class="fa fa-fw fa-plus text-muted m-r-1"></i>{{ 'Add team members' | trans() }}
+            </a>
+        </div>
+
+        {% import 'projects/partial/add_team_member_form.html.twig' as addTeamMemberForm %}
+
+        {% set addTeamMemberVars = {
+                'class': 'addTeamMemberModal',
+                'formId': 'addTeamMemberForm',
+                'title': 'Add team members',
+                'formAction': path('project_add_team_member', {'id': project.id}),
+                'content': addTeamMemberForm.inputs(companyUsers, project),
+                'submitTitle': 'Add'
+            }
+        %}
+
+        {% include 'partial/modal.html.twig' with addTeamMemberVars %}
+    {% endif %}
+
+
+</div>
+<!-- END Navigation Tree & Search -->

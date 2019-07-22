@@ -1,0 +1,70 @@
+<div class="col-lg-3">
+    <div class="hr-text hr-text-left m-t-0 m-b-1">
+        <h6 class="text-inverse"><strong>{{ 'Details' | trans() }}</strong></h6>
+    </div>
+
+    <table class="table table-condensed">
+        <tbody>
+        <tr>
+            <td class="v-a-m">
+                {{ 'Status' | trans() }}
+            </td>
+            <td class="v-a-m text-right text-inverse">
+                {{ technicalMap.statusList[technicalMap.status] | trans() }}
+            </td>
+        </tr>
+        <tr>
+            <td class="v-a-m">
+                {{ 'Owner' | trans() }}
+            </td>
+            <td class="v-a-m text-right">
+                <a href="{{ path('employee_details', {'userName': technicalMap.owner.username}) }}">
+                    {{ technicalMap.owner.lastNameWithInitials }}
+                </a>
+            </td>
+        </tr>
+        <tr>
+            <td class="v-a-m">
+                {{ 'Project' | trans() }}
+            </td>
+            <td class="v-a-m text-right">
+                <a href="{{ path('project_tasks', {'id': technicalMap.project.id}) }}">
+                    {{ technicalMap.project.name }}
+                </a>
+            </td>
+        </tr>
+        <tr>
+            <td class="v-a-m">
+                {{ 'Code' | trans() }}
+            </td>
+            <td class="v-a-m text-right text-inverse">
+                {{ technicalMap.code }}
+            </td>
+        </tr>
+        <tr>
+            <td class="v-a-m">
+                {{ 'Task' | trans() }}
+            </td>
+            <td class="v-a-m text-right text-inverse">
+                {{ technicalMap.task }}
+            </td>
+        </tr>
+        <tr>
+            <td class="v-a-m">
+                {{ 'Goal' | trans() }}
+            </td>
+            <td class="v-a-m text-right text-inverse">
+                {{ technicalMap.goal }}
+            </td>
+        </tr>
+        <tr>
+            <td class="v-a-m">
+                {{ 'Created At' | trans() }}
+            </td>
+            <td class="v-a-m text-right text-inverse">
+                {{ technicalMap.createdAt | date('d.m.Y') }}
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>

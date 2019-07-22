@@ -1,0 +1,117 @@
+{% macro inputs(categories, units, purchaseRequest) %}
+    <div id="items-form" class="p-t-2">
+    </div>
+
+    <div class="new-item-template" style="display:none;">
+        <div class="form-group item">
+            <label class="col-sm-1 control-label item-number p-l-0"></label>
+            <div class="col-sm-2 p-l-0">
+                <input type="text" class="item-sku" placeholder="{{ 'item.sku' | trans() }}" value="">
+            </div>
+            <div class="col-sm-2 p-l-0">
+                <input type="text" class="item-title" placeholder="{{ 'item.title' | trans() }}" value="">
+            </div>
+            <div class="col-sm-2 p-l-0">
+                <input type="number" class="item-quantity" placeholder="{{ 'item.quantity' | trans() }}" value="">
+            </div>
+            <div class="col-sm-2 p-l-0">
+                <select class="item-units">
+                    {% for unit in units %}
+                        <option value="{{ unit.id }}">{{ unit.title }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-sm-2 p-l-0">
+                <select class="item-category">
+                    <option value="">{{ 'Select supplies category' | trans() }}</option>
+                    {% for parent, suppliesCategories in categories %}
+                        <optgroup label="{{ parent | trans()  }} ">
+                            {% for suppliesCategory in suppliesCategories %}
+                                <option value="{{ suppliesCategory.id }}"
+                                        {% if purchaseRequest.suppliesCategory.id is defined and purchaseRequest.suppliesCategory.id == suppliesCategory.id %}
+                                            {{ "selected" }}
+                                        {% endif %}>{{ suppliesCategory.title }}</option>
+                            {% endfor %}
+                        </optgroup>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-sm-1 p-l-0">
+                <a class="btn btn-danger remove-item m-b-1" data-item-id=""><i class="fa fa-minus"></i></a>
+                <a class="btn btn-success add-item"><i class="fa fa-plus"></i></a>
+            </div>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function(){
+            addNewItem();
+
+            $(document).on('click', '.add-item', function() {
+                addNewItem();
+            });
+            $(document).on('click', '.remove-item', function() {
+                removeItem($(this).data('item-id'));
+            });
+
+            $('.daterange-single-date-picker').daterangepicker({
+                singleDatePicker: true,
+                locale: {
+                    format: 'DD.MM.YYYY'
+                }
+            });
+        });
+
+        function addNewItem() {
+            var itemsForm = $('#items-form');
+            var items = itemsForm.find('.item-number').length;
+            var id = items + 1;
+
+            var newTemplate = $('.new-item-template');
+            newTemplate.find('.item').attr('id', 'item-' + id);
+
+            itemsForm.append(newTemplate.html());
+            var newItem = $('#items-form #item-' + id);
+
+            newItem.find('.item-number').text('#' + id);
+            newItem.find('.item-title')
+                    .addClass('form-control')
+                    .attr('name', 'request[items][' + items +'][title]')
+                    .attr('required', true);
+            newItem.find('.item-sku')
+                    .addClass('form-control')
+                    .attr('name', 'request[items][' + items +'][sku]')
+                    .attr('required', true);
+            newItem.find('.item-quantity')
+                    .addClass('form-control')
+                    .attr('name', 'request[items][' + items +'][quantity]')
+                    .attr('required', true);
+            newItem.find('.item-units').addClass('form-control select2-modal').attr('name', 'request[items][' + items +'][unit]');
+            newItem.find('.item-category').addClass('form-control select2-modal').attr('name', 'request[items][' + items +'][category]');
+
+            newItem.find('.remove-item').attr('data-item-id', '#item-' + id);
+            updateButtons();
+
+            $('.select2-modal').select2({width: '100%'});
+        }
+        function removeItem(itemId) {
+            $(itemId).remove();
+            updateButtons();
+        }
+
+        function updateButtons() {
+            var itemsForm = $('#items-form');
+            var items = itemsForm.find('.item');
+
+            if (items.length > 1) {
+                $('.add-item').hide();
+                $('.remove-item').hide();
+                $('.item:last-child .add-item').show();
+                $('.item:last-child .remove-item').show();
+            } else {
+                $('#item-1').find('.remove-item').hide();
+                $('#item-1').find('.add-item').show();
+            }
+
+        }
+    </script>
+{% endmacro %}

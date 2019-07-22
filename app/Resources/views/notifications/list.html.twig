@@ -1,0 +1,190 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ "Notifications" | trans() }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ breadcrumb( 'Notifications' | trans(), path('notification_list') ) }}
+{% endblock %}
+
+{% block body %}
+    <form class="form-inline filter-form" method="get" action="{{ path('notification_list') }}">
+        <div class="panel panel-default no-bg  b-gray-dark">
+            <div class="panel-body">
+                <div class="form-group">
+                    <select class="form-control filter" name="filters[type]">
+                        <option value="">{{ 'Select type' | trans() }}</option>
+                        {% for type in types %}
+                            <option {% if filters.type is defined and filters.type == type %}selected{% endif %} value="{{ type }}">
+                                {{ type | trans() }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <select class="form-control filter" name="filters[sender]">
+                        <option value="">{{ 'Sender' | trans() }}</option>
+                        {% for team, members in senders %}
+                            <optgroup label="{{ team | trans() }}">
+                                {% for member in members %}
+                                    <option value="{{ member.id }}"
+                                            {% if filters.sender is defined and filters.sender == member.id %}
+                                                {{ "selected" }}
+                                            {% endif %}
+                                    >{{ member.lastNameWithInitials }}({{ member.employeeRole }})</option>
+                                {% endfor %}
+                            </optgroup>
+                        {% endfor %}
+                        </select>
+                    <div class="form-group filter">
+                        <input class="form-control" name="filters[title]" placeholder="{{ 'Search by title' | trans() }}"
+                               value="{% if filters.title is defined %}{{ filters.title }}{% endif %}" />
+                    </div>
+                    <div class="form-group">
+                        <div class="form-group">
+                            <input class="form-control daterange-picker filter" name="filters[createdAt]"
+                                   placeholder="{{ 'Created at' | trans() }}"
+                                   value="{% if filters.createdAt is defined %}{{ filters.createdAt }}{% endif %}" />
+                        </div>
+                    </div>
+                    <div class="form-group filter">
+                        <select class="form-control" id="perPage" name="perPage">
+                            <option value="20" {{ perPage == 20 ? 'selected' }}>20</option>
+                            <option value="50" {{ perPage == 50 ? 'selected' }}>50</option>
+                            <option value="100" {{ perPage == 100 ? 'selected' }}>100</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+    <form method="post" id="form-notification">
+        <div class="panel-body">
+            <label>
+                <input type="checkbox" class="check-all-read" style="vertical-align: top">
+                {{ 'Select all' | trans() }}
+            </label>
+            <button type="submit" class="btn btn-primary" style="margin-left: 15px;">{{ 'Mark read' | trans() }}</button>
+        </div>
+        <table class="table">
+            <thead>
+            <tr>
+                <th></th>
+                <th class="small text-uppercase"><strong>{{ "Type" | trans() }}</strong></th>
+                <th class="small text-uppercase"><strong>{{ "Sender" | trans() }}</strong></th>
+                <th class="small text-uppercase"><strong>{{ "Title / Description" | trans() }}</strong></th>
+                <th class="small text-uppercase"><strong>{{ "Date and time of change" | trans() }}</strong></th>
+            </tr>
+            </thead>
+            <tbody>
+
+            {% for notification in notifications %}
+                <!-- START ROW Task -->
+                <tr>
+                    <td class="v-a-m">
+                        <input type="checkbox" class="check-read" value="{{ notification.id }}" name="readNotifications[]">
+                    </td>
+                    <td class="v-a-m">
+                        {{ notification.type | trans() }}
+                    </td>
+                    <td class="v-a-m col-sender">
+                        <div class="avatar avatar-image avatar-sm">
+                            <div class="avatar-circle">
+                                {% if notification.sender.imageUrl is not null %}
+                                    <img src="{{ notification.sender.imageUrl }}" />
+                                {% else %}
+                                    <img src="/images/noavatar.png" alt="Avatar" />
+                                {% endif %}
+                            </div>
+                            <i class="avatar-status avatar-status-bottom bg-{{ employee_service.getOnlineStatus(notification.sender).colorBadge }} b-brand-gray-darker"></i>
+                        </div>
+                        <div class="sender-name">
+                            {{ notification.sender.lastNameWithInitials }}
+                        </div>
+                    </td>
+                    <td class="v-a-m col-description" data-id="{{ notification.id }}">
+                        {{ notification.description | raw }}
+                    </td>
+                    <td class="v-a-m">
+                        {{ notification.createdAt | date("d.m.Y H:i") }}
+                    </td>
+                </tr>
+            {% endfor %}
+            <!-- END ROW Task -->
+
+            </tbody>
+        </table>
+    </form>
+    {% set vars = {
+            'route': 'notification_list',
+            'currentPage': currentPage,
+            'maxPages': maxPages,
+            'perPage': perPage
+        }
+    %}
+
+    {% include 'partial/paginator.html.twig' with vars %}
+
+    <script>
+        $(document).ready(function(){
+            $('.daterange-picker').daterangepicker({
+                timePicker: true,
+                timePickerIncrement: 30,
+                timePicker24Hour: true,
+                autoUpdateInput: false,
+                locale: {
+                    format: 'DD.MM.YYYY HH:mm', applyLabel: "Выбрать", cancelLabel: "Отменить"
+                }
+            });
+
+            $('.daterange-picker').on('apply.daterangepicker', function(ev, picker) {
+                $(this).val(picker.startDate.format('DD.MM.YYYY HH:mm') + ' - ' + picker.endDate.format('DD.MM.YYYY HH:mm'));
+
+                $(this).trigger('change');
+            });
+
+            $('.daterange-picker').on('cancel.daterangepicker', function(ev, picker) {
+                $(this).val('');
+                $(this).trigger('change');
+            });
+
+            let notificationCount = $("input.check-read").length, notificationCountC = 0;
+
+            $('.check-all-read').click(function() {
+                if ($(this).prop('checked')) {
+                    $('.check-read').prop('checked', true);
+                    notificationCountC = notificationCount;
+                } else {
+                    $('.check-read').prop('checked', false);
+                    notificationCountC = 0;
+                }
+            });
+
+            $('.check-read').click(function() {
+                if ($(this).prop('checked')) {
+                    notificationCountC++;
+                    if (notificationCount == notificationCountC) {
+                        $('.check-all-read').prop('checked', true);
+                    }
+                } else {
+                    notificationCountC--;
+                    $('.check-all-read').prop('checked', false);
+                }
+            });
+
+            $('.col-description').click(function() {
+                $(this).find('.slide-row').toggleClass('hide');
+            }).one( "click", function() {
+                $(this).append("<input type='hidden' value='" + $(this).data('id') +"' name='readNotifications[]'>");
+                sendAjax();
+            });
+
+            function sendAjax() {
+                $.ajax({
+                    url:    '/notifications',
+                    type:   "POST",
+                    data: $('#form-notification').serialize(),
+                });
+            }
+
+            $('#perPage').select2({ width: '55px' });
+        });
+    </script>
+{% endblock %}

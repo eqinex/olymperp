@@ -1,0 +1,109 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ "Materials" | trans() }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ breadcrumb( 'Materials' | trans(), path('production_materials_list') ) }}
+{% endblock %}
+
+{% block body %}
+
+    <form class="form-inline filter-form" method="get" action="{{ path('production_materials_list') }}">
+        <div class="panel panel-default no-bg  b-gray-dark">
+            <div class="panel-body">
+                <div class="form-group pull-right">
+                    <div class="btn-toolbar">
+                        <a class="btn btn-primary" data-toggle="modal" data-target=".addMaterialModal"><i class="fa fa-plus"></i> {{ "Add material" | trans() }}</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th class="small text-muted text-uppercase">#</th>
+            <th class="small text-muted text-uppercase"><strong>{{ "Name" | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ "Quantity" | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ "Comments" | trans() }}</strong></th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for material in materials %}
+            <!-- START ROW Task -->
+            <tr>
+                <td class="v-a-m" style="width: 35px;">
+                    <div class="avatar avatar-image avatar-sm">
+                        {{ material.id }}
+                    </div>
+                </td>
+                <td class="v-a-m">
+                    {{ material.name }}
+                </td>
+                <td class="v-a-m">
+                    {{ material.quantity ~ ' ' ~ material.unit | trans() }}
+                </td>
+                <td class="v-a-m">
+                    {{ material.comment }}
+                </td>
+                <td class="text-right v-a-m">
+                    <div class="dropdown">
+                        <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                            <i class="fa fa-fw fa-gear"></i> <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-right">
+                            <li><a href=""
+                                   class="editMaterialForm"
+                                   data-href="{{ path('material_edit', {'materialId': material.id}) }}"
+                                   data-id="{{ material.id }}"
+                                   data-name="{{ material.name }}"
+                                   data-quantity="{{ material.quantity }}"
+                                   data-comment="{{ material.comment }}"
+                                   data-toggle="modal"
+                                   data-target=".editMaterialModal"
+                                ><i class="fa fa-fw fa-pencil text-gray-lighter m-r-1"></i> {{ 'Edit' | trans() }}</a>
+                            </li>
+                        </ul>
+                    </div>
+                </td>
+            </tr>
+        {% endfor %}
+        <!-- END ROW Task -->
+        </tbody>
+    </table>
+
+    {% set vars = {
+        'route': 'production_materials_list',
+        'currentPage': currentPage,
+        'maxPages': maxPages,
+        'filters': filters
+    }
+    %}
+    {% include 'partial/paginator.html.twig' with vars %}
+
+    {% import 'production/materials/partial/form.html.twig' as materialForm %}
+
+    {% set addMaterialFormVars = {
+        'class': 'addMaterialModal',
+        'formId': 'addMaterialForm',
+        'title': 'Add material' | trans() ,
+        'size': 'large',
+        'formAction': path('material_add'),
+        'content': materialForm.inputs(),
+        'submitTitle': 'Add'
+    }
+    %}
+
+    {% set editMaterialFormVars = {
+        'class': 'editMaterialModal',
+        'size': 'large',
+        'formId': 'editMaterialForm',
+        'title': 'Edit material',
+        'content': materialForm.inputs(),
+        'submitTitle': 'Save'
+    } %}
+
+    {% include 'partial/modal.html.twig' with addMaterialFormVars %}
+    {% include 'partial/modal.html.twig' with editMaterialFormVars %}
+
+{% endblock %}

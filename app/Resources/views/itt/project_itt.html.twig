@@ -1,0 +1,195 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ project.name }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ breadcrumb( 'Projects' | trans(), path('projects_list') ) }}
+    {{ breadcrumb( project.name, path('project_details', {'id': project.id}) ) }}
+    {{ breadcrumb( 'ITT' | trans(), path('project_specification', {'id': project.id}) ) }}
+{% endblock %}
+
+{% block body %}
+
+    {% set vars = {'project': project} %}
+    {% include 'projects/partial/info_sidebar.html.twig' with vars %}
+
+    <div class="col-lg-9">
+
+        <!-- START Header with Option -->
+        <div class="row m-b-2">
+
+            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                <!-- START Header -->
+                <h3 class="f-w-300 m-t-1">{{ project.name }}</h3>
+            </div>
+            <div class="col-lg-6 col-md-6 col-xs-12">
+                <div class="btn-toolbar pull-right">
+                    <div class="btn-group" role="group" aria-label="...">
+                        {% set vars = {'active_page': 'project_specification'} %}
+                        {% include 'projects/partial/nav.html.twig' with vars %}
+                    </div>
+                </div>
+                <!-- END Toolbar -->
+            </div>
+
+        </div>
+        <!-- END Header with Option -->
+        <div class="panel panel-default no-bg  b-gray-dark">
+            <div class="panel-body">
+                <form class="form-inline filter-form" method="get" action="{{ path('project_specification', {'id': project.id}) }}">
+                    {#{% if project.leader.id == app.user.id %}#}
+                        <div class="form-group pull-right">
+                            <div class="btn-toolbar">
+                                <a href="" class="btn btn-primary add-itt" data-toggle="modal" data-target=".addIttModal"><i class="fa fa-plus"></i> {{ "New ITT" | trans() }}</a>
+                            </div>
+                        </div>
+                    {#{% endif %}#}
+                    <div class="btn-group pull-right m-r-2">
+                        <a class="btn btn-success" target="_blank" title="{{ 'download' | trans() }}" href="{{ path('project_export_specification', {'id': project.id}) }}">
+                            <i class="fa fa-fw fa-file-excel-o text-inverse"></i>
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!-- START Panel Sessions -->
+        <div>
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th class="small text-uppercase"><strong>{{ "Name" | trans() }}</strong></th>
+                    <th class="small text-uppercase"><strong>{{ "Material" | trans() }}</strong></th>
+                    <th class="small text-uppercase"><strong>{{ "Type" | trans() }}</strong></th>
+                    <th class="small text-uppercase"><strong>{{ "Unit" | trans() }}</strong></th>
+                    <th class="small text-uppercase"><strong>{{ "Value TT" | trans() }}</strong></th>
+                    <th class="small text-uppercase"><strong>{{ "Value ITT" | trans() }}</strong></th>
+                    <th class="small text-uppercase"><strong>{{ "The difference between a TT and a ITT" | trans() }}</strong></th>
+                    <th class="small text-uppercase"><strong>{{ "Notice" | trans() }}</strong></th>
+                    {% if project.leader.id == app.user.id %}
+                        <th class="text-right small text-uppercase"><strong>{{ "Actions" | trans() }}</strong></th>
+                    {% endif %}
+                </tr>
+                </thead>
+                <tbody>
+
+                {% for specification in specifications %}
+                    <tr>
+                        <td class="v-a-m">
+                            <span>{{ specification.name }}</span>
+                        </td>
+                        <td class="v-a-m">
+                            <span>{{ specification.ware.name }}</span>
+                        </td>
+                        <td class="v-a-m">
+                            <span>{{ specification.type | trans() }}</span>
+                        </td>
+                        <td class="v-a-m">
+                            <span>{{ specification.unit }}</span>
+                        </td>
+                        <td class="v-a-m">
+                            <span>{{ specification.valueTask }}</span>
+                        </td>
+                        <td class="v-a-m">
+                            <span>{{ specification.valueInnerTask }}</span>
+                        </td>
+                        <td class="v-a-m">
+                            {{ specification.difference }}
+                        </td>
+                        <td class="v-a-m">
+                            <span>{{ specification.notice ? specification.notice : '-' }}</span>
+                        </td>
+                        {% if project.leader.id == app.user.id %}
+                            <td class="text-right v-a-m">
+                                <div class="dropdown">
+                                    <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                        <i class="fa fa-fw fa-gear"></i> <span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-right">
+                                        <li>
+                                            <a href=""
+                                               class="edit-itt"
+                                               data-href="{{ path('project_edit_specification', {'id': specification.project.id, 'ittId': specification.id}) }}"
+                                               data-name="{{ specification.name }}"
+                                               data-ware="{{ specification.ware.id }}"
+                                               data-type="{{ specification.type }}"
+                                               data-unit="{{ specification.unit }}"
+                                               data-value-task="{{ specification.valueTask }}"
+                                               data-value-inner-task="{{ specification.valueInnerTask }}"
+                                               data-difference="{{ specification.difference }}"
+                                               data-notice="{{ specification.notice }}"
+                                               data-toggle="modal"
+                                               data-target=".editIttModal"
+                                            ><i class="fa fa-fw fa-pencil text-gray-lighter m-r-1"></i> {{ 'Edit' | trans() }}</a>
+                                        </li>
+                                        <li>
+                                            <a class="remove-itt"
+                                               href=""
+                                               data-href="{{ path('project_remove_specification', {'id': specification.project.id, 'ittId': specification.id}) }}"
+                                               data-id="{{ specification.id }}"
+                                               data-toggle="modal"
+                                               data-target=".removeIttModal"
+                                            ><i class="fa fa-fw fa-minus-square-o text-danger m-r-1"></i> {{ 'Remove' | trans() }}</a>
+
+                                        </li>
+                                    </ul>
+                                </div>
+                            </td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+                <!-- END ROW Task -->
+                </tbody>
+            </table>
+        </div>
+        {% set vars = {
+            'route': 'project_specification',
+            'currentPage': currentPage,
+            'maxPages': maxPages,
+            'filters': filters,
+            'routeParams': {
+                'id': project.id
+            }
+        }
+        %}
+
+        {% include 'partial/paginator.html.twig' with vars %}
+
+        {% import 'itt/partial/form.html.twig' as form %}
+        {% import 'itt/partial/remove_itt_form.html.twig' as removeIttForm %}
+
+        {% set addIttVars = {
+            'class': 'addIttModal',
+            'formId': 'addIttForm',
+            'title': 'New ITT',
+            'size': 'large',
+            'formAction': path('project_add_specification', {'id': project.id}),
+            'content': form.inputs(newSpecification),
+            'submitTitle': 'Create'
+        }
+        %}
+
+        {% set editIttVars = {
+            'class': 'editIttModal',
+            'formId': 'editIttForm',
+            'title': 'Edit ITT',
+            'size': 'large',
+            'content': form.inputs(newSpecification),
+            'submitTitle': 'Save'
+        }
+        %}
+
+        {% set removeIttVars = {
+            'class': 'removeIttModal',
+            'formId': 'removeIttForm',
+            'title': 'Remove ITT',
+            'content': removeIttForm.inputs(),
+            'submitTitle': 'Remove'
+        }
+        %}
+
+        {% include 'partial/modal.html.twig' with addIttVars %}
+        {% include 'partial/modal.html.twig' with editIttVars %}
+        {% include 'partial/modal.html.twig' with removeIttVars %}
+
+    </div>
+{% endblock %}

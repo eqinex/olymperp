@@ -1,0 +1,419 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ "Requests list" | trans() }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ breadcrumb( 'Requests' | trans() ) }}
+{% endblock %}
+
+{% block body %}
+
+    {% set type = app.request.get('type') %}
+    <form class="form-inline filter-form" method="get" action="{{ path('requests_list', {'type': type}) }}">
+        <input type="hidden" name="order" value="{{ order }}"/>
+        <input type="hidden" name="orderBy" value="{{ orderBy }}"/>
+        <div class="panel panel-default no-bg  b-gray-dark">
+            <div class="panel-body">
+                <div class="form-group filter">
+                    <input class="form-control" name="filters[code]" placeholder="{{ 'Search by code' | trans() }}"
+                           value="{% if filters.code is defined %}{{ filters.code }}{% endif %}" />
+                </div>
+                <div class="form-group">
+                    <select id="single" name="filters[project]" class="form-control select2-modify filter" tabindex="-1" aria-hidden="true">
+                        <option value="">{{ 'Select project' | trans() }}</option>
+                        {% for project in projects %}
+                        <option {% if filters.project is defined and filters.project == project.id %}selected{% endif %} value="{{ project.id }}">{{ project.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group checkselect" id="checkselect-status">
+                    <input type="hidden" class="not-checkselect-hide-text" value="{{ 'Select checkselect-status' | trans() }}">
+                    <input type="hidden" class="checkselect-hide-text" value="{{ 'Selected checkselect-status' | trans() }}">
+                    {% for key, status in states %}
+                        <label>
+                            <input type="checkbox" name="filters[status][]" value="{{ status }}"
+                                    {% if filters.status is defined and status in filters.status %}
+                            checked
+                                    {% endif %}>{{ (status) | trans() }}
+                        </label>
+                    {% endfor %}
+                    <label><input id='all-statuses' type="checkbox">{{ 'select_all' | trans() }}</label>
+                </div>
+                <div class="form-group">
+                    <select class="form-control select2-modify filter" name="filters[priority]">
+                        <option value="">{{ 'Select priority' | trans() }}</option>
+                        {% for id, priority in priorities %}
+                            <option {% if filters.priority is defined and filters.priority == id %}selected{% endif %} value="{{ id }}">
+                                {{ priority | trans() }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <select class="form-control select2-modify filter" name="filters[paymentStatus]">
+                        <option value="">{{ 'Select payment status' | trans() }}</option>
+                        {% for state in paymentStates %}
+                            <option {% if filters.paymentStatus is defined and filters.paymentStatus == state %}selected{% endif %} value="{{ state }}">
+                                {{ state | trans() }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <select class="form-control select2-modify filter" name="filters[deliveryStatus]">
+                        <option value="">{{ 'Select delivery status' | trans() }}</option>
+                        {% for state in deliveryStates %}
+                            <option {% if filters.deliveryStatus is defined and filters.deliveryStatus == state %}selected{% endif %} value="{{ state }}">
+                                {{ state | trans() }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <select id="single" name="filters[type]" class="form-control select2-modify filter" tabindex="-1" aria-hidden="true">
+                        <option value="">{{ 'Select type' | trans() }}</option>
+                        {% for key, type in types %}
+                            <option {% if filters.type is defined and filters.type == key %}selected{% endif %} value="{{ key }}">{{ type | trans() }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="btn-toolbar pull-right">
+                    {% if app.user.canViewFinancialInfo() %}
+                        <a class="btn btn-success" target="_blank" href="{{ path('export_requests_list', {'filters': filters}) }}"><i class="fa fa-fw fa-file-excel-o text-inverse"></i> {{ 'Export' | trans() }}</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-default no-bg b-gray-dark">
+            <div class="panel-body">
+                <div class="form-group">
+                    <select id="single" name="filters[manager]" class="form-control select2-modify filter" tabindex="-1" aria-hidden="true">
+                        <option value="">{{ 'Select purchasing manager' | trans() }}</option>
+                        {% if purchasingTeam %}
+                            {% for member in purchasingTeam.allTeamMembers %}
+                                <option {% if filters.manager is defined and filters.manager == member.id %}selected{% endif %} value="{{ member.id }}">
+                                    {{ member.fullname }} ({{ member.employeeRole ? member.employeeRole.name }})
+                                </option>
+                            {% endfor %}
+                        {% endif %}
+                    </select>
+                </div>
+
+                {% if app.user.canViewFinancialInfo() %}
+                <div class="form-group">
+                    <select id="single" name="filters[supplier]" class="form-control select2-modify filter" tabindex="-1" aria-hidden="true">
+                        <option value="">{{ 'Select supplier' | trans() }}</option>
+                        {% for supplier in suppliers %}
+                            <option {% if filters.supplier is defined and filters.supplier == supplier.id %}selected{% endif %} value="{{ supplier.id }}">
+                                {{ supplier.title }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group filter">
+                    <input class="form-control" name="filters[invoiceNumber]" placeholder="{{ 'Search by invoice' | trans() }}"
+                           value="{% if filters.invoiceNumber is defined %}{{ filters.invoiceNumber }}{% endif %}" />
+                </div>
+                {% endif %}
+                <div class="form-group">
+                    <div class="form-group">
+                        <input class="form-control daterange-picker filter" name="filters[createdAt]"
+                               placeholder="{{ 'Created at' | trans() }}"
+                               value="{% if filters.createdAt is defined %}{{ filters.createdAt }}{% endif %}" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="form-group">
+                        <input class="form-control daterange-picker filter" name="filters[relevanceDate]"
+                               placeholder="{{ 'Relevance date' | trans() }}"
+                               value="{% if filters.relevanceDate is defined %}{{ filters.relevanceDate }}{% endif %}" />
+                    </div>
+                </div>
+                <div class="form-group filter">
+                    <input class="form-control" name="filters[itemName]" placeholder="{{ 'Item name' | trans() }}"
+                           value="{% if filters.itemName is defined %}{{ filters.itemName }}{% endif %}" />
+                </div>
+                <div class="form-group filter">
+                    <input class="form-control" name="filters[itemNumber]" placeholder="{{ 'Item number' | trans() }}"
+                           value="{% if filters.itemNumber is defined %}{{ filters.itemNumber }}{% endif %}" />
+                </div>
+                <div class="form-group filter">
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox" name="filters[ownProduction]"
+                                   {% if filters.ownProduction is defined %}checked{% endif %}>
+                            {{ 'Own production' | trans() }}
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-default no-bg b-gray-dark">
+            <div class="panel-body">
+                <div class="form-group filter">
+                    <input class="form-control" name="filters[description]" placeholder="{{ 'Search by description' | trans() }}"
+                           value="{% if filters.description is defined %}{{ filters.description }}{% endif %}" />
+                </div>
+                <div class="form-group checkselect" id="checkselect-invoice">
+                    <input type="hidden" class="not-checkselect-hide-text" value="{{ 'Select checkselect-invoice' | trans() }}">
+                    <input type="hidden" class="checkselect-hide-text" value="{{ 'Selected checkselect-invoice' | trans() }}">
+                    {% for key, invoicePayment in paymentList %}
+                        <label>
+                            <input type="checkbox" name="filters[invoicePayment][]" value="{{ invoicePayment }}"
+                                    {% if filters.invoicePayment is defined and invoicePayment in filters.invoicePayment %}
+                            checked
+                                    {% endif %}>{{ (invoicePayment) | trans() }}
+                        </label>
+                    {% endfor %}
+                    <label><input id='all-statuses-invoice' type="checkbox">{{ 'select_all' | trans() }}</label>
+                </div>
+                <div class="form-group checkselect" id="checkselect-expenses">
+                    <input type="hidden" class="not-checkselect-hide-text" value="{{ 'Select checkselect-expenses' | trans() }}">
+                    <input type="hidden" class="checkselect-hide-text" value="{{ 'Selected checkselect-expenses' | trans() }}">
+                    {% for key, expensesType in expensesList %}
+                        <label>
+                            <input type="checkbox" name="filters[expensesType][]" value="{{ expensesType }}"
+                                    {% if filters.expensesType is defined and expensesType in filters.expensesType %}
+                            checked
+                                    {% endif %}>{{ (expensesType) | trans() }}
+                        </label>
+                    {% endfor %}
+                    <label><input id='all-statuses-expenses' type="checkbox">{{ 'select_all' | trans() }}</label>
+                </div>
+                <div class="form-group filter">
+                    <input class="form-control" name="filters[miscellaneous]" placeholder="{{ 'Extended search' | trans() }}"
+                           value="{% if filters.miscellaneous is defined %}{{ filters.miscellaneous }}{% endif %}" />
+                </div>
+            </div>
+        </div>
+
+    </form>
+    <div class="scrollable">
+    <table class="table table-hover">
+        <thead>
+            <tr>
+
+                {% set orderType = order == 'desc' ? 'asc' : 'desc' %}
+                {% set routeParams = {'type': type, 'currentPage': currentPage, 'filters': filters} %}
+
+                <th class="small text-muted text-uppercase">
+                    {% set routeParams = routeParams | merge({'orderBy': 'priority', 'order': orderBy == 'priority' ? orderType : 'asc'}) %}
+                    <a href="{{ path('requests_list', routeParams) }}">
+                        <strong>{{ "Priority" | trans() ~ ' ' }}</strong>
+                        <i class="fa fa-sort{{ orderBy == 'priority' ? '-' ~ order : '' }}"></i>
+                    </a>
+                </th>
+                <th class="small text-muted text-uppercase">
+                    {% set routeParams = routeParams | merge({'orderBy': 'code', 'order': orderBy == 'code' ? orderType : 'asc'}) %}
+                    <a href="{{ path('requests_list', routeParams) }}">
+                        <strong>{{ "Code" | trans() ~ ' ' }}</strong>
+                        <i class="fa fa-sort{{ orderBy == 'code' ? '-' ~ order : '' }}"></i>
+                    </a>
+                </th>
+                <th class="small text-muted text-uppercase"><strong>{{ "Status" | trans() }}</strong></th>
+                <th class="small text-muted text-uppercase"><strong>{{ "Payment status" | trans() }}</strong></th>
+                <th class="small text-muted text-uppercase"><strong>{{ "Delivery status" | trans() }}</strong></th>
+                <th class="small text-muted text-uppercase"><strong>{{ "Purchasing manager" | trans() }}</strong></th>
+                <th class="small text-muted text-uppercase"><strong>{{ "Owner" | trans() }}</strong></th>
+                <th class="small text-muted text-uppercase"><strong>{{ "Description" | trans() }}</strong></th>
+                <th class="small text-muted text-uppercase"><strong>{{ "Items" | trans() }}</strong></th>
+                <th class="small text-muted text-uppercase">
+                    {% set routeParams = routeParams | merge({'orderBy': 'project', 'order': orderBy == 'project' ? orderType : 'asc'}) %}
+                    <a href="{{ path('requests_list', routeParams) }}">
+                        <strong>{{ "Project" | trans() ~ ' ' }}</strong>
+                        <i class="fa fa-sort{{ orderBy == 'project' ? '-' ~ order : '' }}"></i>
+                    </a>
+                </th>
+                <th class="small text-muted text-uppercase"><strong>{{ "Invoices" | trans() }}</strong></th>
+                <th class="small text-muted text-uppercase">
+                    {% set routeParams = routeParams | merge({'orderBy': 'createdAt', 'order': orderBy == 'createdAt' ? orderType : 'asc'}) %}
+                    <a href="{{ path('requests_list', routeParams) }}">
+                        <strong>{{ "Created At" | trans() ~ ' ' }}</strong>
+                        <i class="fa fa-sort{{ orderBy == 'createdAt' ? '-' ~ order : '' }}"></i>
+                    </a>
+                </th>
+                <th class="small text-muted text-uppercase" >
+                    {% set routeParams = routeParams | merge({'orderBy': 'relevanceDate', 'order': orderBy == 'relevanceDate' ? orderType : 'asc'}) %}
+                    <a href="{{ path('requests_list', routeParams) }}">
+                        <strong>{{ "Relevance date" | trans() ~ ' ' }}</strong>
+                        <i class="fa fa-sort{{ orderBy == 'relevanceDate' ? '-' ~ order : '' }}"></i>
+                    </a>
+                </th>
+                {% if app.user.canViewFinancialInfo %}
+                    <th class="small text-muted text-uppercase"><strong>{{ "Total cost" | trans() }}</strong></th>
+                {% endif %}
+                <th class="small text-muted text-uppercase"></th>
+            </tr>
+        </thead>
+        <tbody>
+        {% set grandTotal = 0 %}
+        {% for request in purchaseRequests %}
+            {% if request.purchaseRequest is defined %}
+                {% set request = request.purchaseRequest %}
+            {% endif %}
+            {% set color = request.priorityLabels[request.priority] %}
+            {% set title = request.priorityTitles[request.priority] %}
+            {% if request.type == 'production' %}
+                {% set icon = 'cubes' %}
+            {% elseif request.type == 'purchase' %}
+                {% set icon = 'shopping-cart' %}
+            {% elseif request.type == 'movement' %}
+                {% set icon = 'truck' %}
+            {% endif %}
+            <tr>
+                <td class="v-a-m" style="width:25px;">
+                    <i class="fa fa-fw fa-{{ icon }} "></i>
+                    <span class="text-{{ color }}">{{ title }}</span>
+                </td>
+                <td class="v-a-m" style="width:150px;">
+                    <a class="text-{{ color }}" href="{{ path('request_details', {
+                        'id': request.project.id,
+                        'requestId': request.id})
+                    }}">{{ request.code ? request.code : '#' ~ request.id }}</a>
+                </td>
+                <td class="v-a-m">{{ request.status | trans() }}</td>
+                <td class="v-a-m">{{ (request.paymentStatus ?: '-') | trans() }}</td>
+                <td class="v-a-m">{{ (request.deliveryStatus ?: '-') | trans() }}</td>
+                <td class="v-a-m">{{ request.purchasingManager is not null ? request.purchasingManager.lastNameWithInitials : '-' }}</td>
+                <td class="v-a-m" style="width:150px;">
+                    <a class="link-comment" href="{{ path('employee_details', {'userName': request.owner.username}) }}">{{ request.owner.lastNameWithInitials }}</a>
+                </td>
+                <td class="v-a-m" style='max-width: 250px; min-width: 150px;'>
+                    {% if request.type == 'movement' %}
+                        <ul class="m-b-0">
+                            <li>{{ request.movements.first ? request.movements.first.source : '-' }}</li>
+                            <li>{{ request.movements.first ? request.movements.first.destination : '-' }}</li>
+                        </ul>
+                    {% else %}
+                        {{ request.description }}
+                    {% endif %}
+                </td>
+                <td class="v-a-m">{{ request.items | length }}</td>
+                <td class="v-a-m"><a  href="{{ path('project_details', { 'id': request.project.id }) }}">{{ request.project.name }}</a></td>
+                <td class="v-a-m">
+                    <ul class="m-b-0">
+                        {% set totalPrice = 0 %}
+                        {% for invoice, supplier in request.getInvoicesList() %}
+                        <li>{{ invoice ~ ' - ' ~ supplier['supplier']}}</li>
+                            {% set totalPrice = totalPrice + supplier['cost'] %}
+                        {% endfor %}
+                    </ul>
+                    {% set grandTotal = grandTotal + totalPrice %}
+                </td>
+                <td class="v-a-m no-wrap">{{ request.createdAt | date('d.m.Y H:i') }}</td>
+                <td class="v-a-m no-wrap">{{ request.relevanceDate ? (request.relevanceDate | date('d.m.Y H:i')) }}</td>
+                {% if app.user.canViewFinancialInfo %}
+                    <td class="v-a-m">
+                        <h5 class="m-t-0 m-b-0 f-w-300" style="white-space: nowrap;">
+                            <span>{{ totalPrice | number_format(2, '.', ',') }} <i class="fa fa-fw fa-rouble"></i> </span>
+                        </h5>
+                    </td>
+                {% endif %}
+                <td>
+                    {% set favorite = request_service.getPurchaseRequestFavorite(app.user.id, request.id) %}
+                    {% set favoriteCol = 'star-o' %}
+                    {% set href = path('purchase_request_make_favorite', { 'id': request.project.id, 'requestId': request.id }) %}
+                    {% if favorite is not null %}
+                    {% set favoriteCol = 'star' %}
+                    {% set href = path('purchase_request_remove_favorite', { 'id': request.project.id, 'requestId': request.id, 'favoriteId': favorite.id }) %}
+                    {% endif %}
+                    <a  href="{{ href }}"><i class="fa fa-fw fa-{{ favoriteCol }}"></i></a>
+                </td>
+            </tr>
+        {% endfor %}
+        <!-- END ROW Task -->
+        </tbody>
+        {% if app.user.canViewFinancialInfo %}
+        <tfoot>
+        <tr>
+            <th colspan="12"></th>
+            <th><strong>{{ "Total" | trans() }}</strong></th>
+            <th colspan="2">
+                <h4 class="m-t-0 m-b-0 f-w-300" style="white-space: nowrap;">
+                    <span>{{ grandTotal | number_format(2, '.', ',') }} <i class="fa fa-fw fa-rouble"></i> </span>
+                </h4>
+            </th>
+        </tr>
+        </tfoot>
+        {% endif %}
+    </table>
+    </div>
+
+    {% set vars = {
+            'route': 'requests_list',
+            'currentPage': currentPage,
+            'maxPages': maxPages,
+            'perPage': perPage,
+            'filters': filters,
+            'routeParams': {
+                'type': type,
+                'orderBy': orderBy,
+                'order': order
+            }
+        }
+    %}
+
+    {% include 'partial/paginator.html.twig' with vars %}
+
+    <script>
+        $(document).ready(function(){
+            $('.daterange-picker').daterangepicker({
+                timePicker: true,
+                timePickerIncrement: 30,
+                timePicker24Hour: true,
+                autoUpdateInput: false,
+                locale: {
+                    format: 'DD.MM.YYYY HH:mm', applyLabel: "Выбрать", cancelLabel: "Отменить"
+                }
+            });
+
+            $('.daterange-picker').on('apply.daterangepicker', function(ev, picker) {
+                $(this).val(picker.startDate.format('DD.MM.YYYY HH:mm') + ' - ' + picker.endDate.format('DD.MM.YYYY HH:mm'));
+
+                $(this).trigger('change');
+            });
+
+            $('.daterange-picker').on('cancel.daterangepicker', function(ev, picker) {
+                $(this).val('');
+                $(this).trigger('change');
+            });
+
+            $('.checkselect').on('change', function() {
+                $(document).on('click', function(e){
+                    if ($(e.target).closest('.checkselect').length == 0){
+                        $('.filter-form').submit();
+                    }
+                });
+            });
+
+            $('#all-statuses').click(function(){
+                if ($('#all-statuses').prop('checked')) {
+                    $('#checkselect-status input:checkbox').prop('checked', true);
+                } else {
+                    $('#checkselect-status input:checkbox').prop('checked', false);
+                }
+            });
+
+            $('#all-statuses-invoice').click(function(){
+                if ($('#all-statuses-invoice').prop('checked')) {
+                    $('#checkselect-invoice input:checkbox').prop('checked', true);
+                } else {
+                    $('#checkselect-invoice input:checkbox').prop('checked', false);
+                }
+            });
+
+            $('#all-statuses-expenses').click(function(){
+                if ($('#all-statuses-expenses').prop('checked')) {
+                    $('#checkselect-expenses input:checkbox').prop('checked', true);
+                } else {
+                    $('#checkselect-expenses input:checkbox').prop('checked', false);
+                }
+            });
+
+            jQuery(function(){
+                $('#perPage').select2({ width: '55px' });
+            });
+        });
+    </script>
+{% endblock %}

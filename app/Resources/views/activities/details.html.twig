@@ -1,0 +1,327 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ activity.project.code }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ breadcrumb( 'Activity map' | trans(), path('activities_list') ) }}
+    {{ breadcrumb( activity.activity, path('activities_details', {'id': activity.id}) ) }}
+{% endblock %}
+
+{% block body %}
+    <div class="col-lg-3 task-sidebar" >
+
+        <div class="hr-text hr-text-left m-t-0 m-b-1">
+            <h6 class="text-inverse"><strong>{{ "Details" | trans() }}</strong></h6>
+        </div>
+
+        <table class="table table-condensed">
+            <tbody>
+                <tr>
+                    <td class="v-a-m">
+                        {{ 'Activity' | trans() }}
+                    </td>
+                    <td class="v-a-m text-right">
+                        {{ activity.activity }}
+                    </td>
+                </tr>
+                <tr>
+                    <td class="v-a-m">
+                        {{ 'Project' | trans() }}
+                    </td>
+                    <td class="v-a-m text-right">
+                        <a href="{{ path('project_tasks', {'id': activity.project.id}) }}"><span>{{ activity.project.name }}</span></a>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="v-a-m">
+                        {{ 'Availability TEO, profitability' | trans() }}
+                    </td>
+                    <td class="v-a-m text-right">
+                        <h5 class="m-t-0 m-b-0 f-w-300" style="white-space: nowrap;">
+                            <span>{{ activity.profitability | number_format(2) ~ '%' }}</span>
+                        </h5>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="v-a-m">
+                        {{ 'Plan' | trans() }}
+                    </td>
+                    <td class="v-a-m text-right text-inverse">
+                        <h5 class="m-t-0 m-b-0 f-w-300" style="white-space: nowrap;">
+                            <span>{{ activity.plan | number_format(2, '.', ',') }} <i class="fa fa-fw fa-rouble"></i></span>
+                        </h5>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="v-d m">
+                        {{ 'Fact' | trans() }}
+                    </td>
+                    <td class="v-a-m text-right text-inverse">
+                        <h5 class="m-t-0 m-b-0 f-w-300" style="white-space: nowrap;">
+                            <span>{{ activity.fact | number_format(2, '.', ',') }} <i class="fa fa-fw fa-rouble"></i></span>
+                        </h5>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="v-d m">
+                        {{ 'Received' | trans() }}
+                    </td>
+                    <td class="v-a-m text-right text-inverse">
+                        <h5 class="m-t-0 m-b-0 f-w-300" style="white-space: nowrap;">
+                            <span>{{ activity.received | number_format(2, '.', ',') }} <i class="fa fa-fw fa-rouble"></i></span>
+                        </h5>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="v-a-m">
+                        {{ 'Remaining amount' | trans() }}
+                    </td>
+                    <td class="v-a-m text-right text-inverse">
+                        {% set residue = activity.fact - activity.received %}
+                        <h5 class="m-t-0 m-b-0 f-w-300" style="white-space: nowrap;">
+                            <span>{{ (residue >= 0 ? residue : 0) | number_format(2, '.', ',') }} <i class="fa fa-fw fa-rouble"></i></span>
+                        </h5>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="v-a-m">
+                        {{ 'Result' | trans() }}
+                    </td>
+                    <td class="v-a-m text-right text-inverse">
+                        <span>{{ activity.resultsList[activity.result] | trans() }}</span>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="v-a-m">
+                        {{ 'Responsible' | trans() }}
+                    </td>
+                    <td class="v-a-m text-right text-inverse">
+                        <a href="{{ path('employee_details', {'userName': activity.responsibleUser.username}) }}"><span>{{ activity.responsibleUser.lastNameWithInitials }}</span></a>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="v-a-m">
+                        {{ 'Owner' | trans() }}
+                    </td>
+                    <td class="v-a-m text-right text-inverse">
+                        <a href="{{ path('employee_details', {'userName': activity.owner.username}) }}"><span>{{ activity.owner.lastNameWithInitials }}</span></a>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="v-a-m">
+                        {{ "Created At" | trans() }}
+                    </td>
+                    <td class="v-a-m text-right">
+                        <span>{{ activity.createdAt | date("d.m.Y") }}</span>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="v-a-m">
+                        {{ "End At" | trans() }}
+                    </td>
+                    <td class="v-a-m text-right">
+                        <span>{{ activity.endAt ? activity.endAt | date('d.m.Y') : '' }}</span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="col-lg-9">
+        <div class="row">
+            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                <h3 class="f-w-300 m-t-1">{{ activity.activity }}</h3>
+            </div>
+            {% if activity.notPerformed() %}
+                <div class="dropdown pull-right m-t-1 m-r-1">
+                    <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fa fa-fw fa-gear"></i> {{ "Actions" | trans() }} <span class="caret"></span>
+                    </button>
+                    {% include 'activities/partial/activity_actions.html.twig' %}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="tabbable-line tabs">
+            <ul class="nav nav-tabs">
+                <li class="tab-activities active" role="presentation" data-target="activities">
+                    <a href="#activitiestab">{{ 'Activity' | trans() }}</a>
+                </li>
+                <li class="tab-historytab" role="presentation" data-target="history"><a href="#historytab">{{ 'History' | trans() }}
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="tab" id="activities">
+            <div class="hr-text hr-text-left m-t-0 m-b-1">
+                <h6 class="text-inverse"><strong>{{ 'Activity events' | trans() }}</strong></h6>
+                <a class="btn btn-gray-light btn-sm add-plus" data-toggle="modal" data-target=".addActivityEventModal">
+                    <i class="fa fa-plus"></i>
+                </a>
+            </div>
+            <table class="table table-condensed">
+                <tbody>
+                    {% set id = 1 %}
+                    {% for event in activity.activityEvents %}
+                        <tr>
+                            <td class="v-a-m" style="width: 10px;">
+                                {% if event.isDone() %}
+                                    <span><strike>{{ id }}</strike></span>
+                                {% else %}
+                                    <span>{{ id }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="v-a-m">
+                                {% if event.isDone() %}
+                                    <span><strike>{{ event.name }}</strike></span>
+                                {% else %}
+                                    <span>{{ event.name }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="v-a-m">
+                                {% if event.isDone() %}
+                                    <span><strike>{{ (event.isSuccessEvent ? 'Success events' : 'Additional events') | trans }}</strike></span>
+                                {% else %}
+                                    <span>{{ (event.isSuccessEvent ? 'Success events' : 'Additional events') | trans }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="v-a-m">
+                                {% if event.responsibleUser is not empty %}
+                                    {% if event.isDone() %}
+                                        <a href="{{ path('employee_details', {'userName': event.responsibleUser.username}) }}"><span><strike>{{ event.responsibleUser.lastNameWithInitials }}</strike></span></a>
+                                    {% else %}
+                                        <a href="{{ path('employee_details', {'userName': event.responsibleUser.username}) }}"><span>{{ event.responsibleUser.lastNameWithInitials }}</span></a>
+                                    {% endif %}
+                                {% else %}
+                                    <span>-</span>
+                                {% endif %}
+                            </td>
+                            <td class="v-a-m">
+                                {% if event.isDone() %}
+                                    <span><strike>{{ event.endAt | date('d.m.Y') }}</strike></span>
+                                {% else %}
+                                    <span>{{ event.endAt | date('d.m.Y') }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="v-a-m">
+                                {% if event.isDone() %}
+                                    <span><strike>{{ event.statusList[event.status] | trans() }}</strike></span>
+                                {% else %}
+                                    <span>{{ event.statusList[event.status] | trans() }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-right v-a-m">
+                                {% if event.isNotPerformed() %}
+                                    <div class="dropdown pull-right m-l-1">
+                                        <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <i class="fa fa-fw fa-gear"></i> <span class="caret"></span>
+                                        </button>
+                                        {% include 'activities/partial/activity_event_actions.html.twig' %}
+                                    </div>
+                                {% endif %}
+                            </td>
+                        <tr>
+                        {% set id = id + 1 %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="panel panel-default no-bg b-gray-dark hidden tab" id="history">
+            <div class="panel-body">
+                <div>
+                    {% if activityChanges | length %}
+                        <table class="table table-sm table-hover">
+                            <thead>
+                            <tr>
+                                <th class="small text-muted text-uppercase">{{ 'Field' | trans() }}</th>
+                                <th class="small text-muted text-uppercase">{{ 'Old value' | trans() }}</th>
+                                <th class="small text-muted text-uppercase">{{ 'New value' | trans() }}</th>
+                                <th class="small text-muted text-uppercase">{{ 'Changed by' | trans() }}</th>
+                                <th class="small text-muted text-uppercase">{{ 'Changed at' | trans() }}</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for changes in activityChanges %}
+                                <tr>
+                                    <td>{{ (changes.field | capitalize) | trans() }}</td>
+                                    <td><strike>{{ changes.oldValue | trans() }}</strike></td>
+                                    <td class="text-inverse">{{ changes.newValue | trans() }}</td>
+                                    <td>{{ changes.changedBy.fullName }}</td>
+                                    <td>{{ changes.updatedAt | date('d.m.Y H:i') }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <span class="v-a-m b-t-0 text-muted">{{ "There's no changes yet" | trans() }}</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    {% import 'activities/partial/form.html.twig' as form %}
+    {% import 'activities/partial/activity_event_form.html.twig' as ActivityEventform %}
+
+    {% set editActivityVars = {
+        'class': 'editActivityModal',
+        'formId': 'editActivityForm',
+        'title': 'Edit activity',
+        'size': 'large',
+        'content': form.inputs(users, categories, activity),
+        'submitTitle': 'Save'
+    } %}
+
+    {% set addActivityEventVars = {
+        'class': 'addActivityEventModal',
+        'formId': 'addActivityEventForm',
+        'title': 'New activity event',
+        'formAction': path('add_activity_event', {'id': activity.id}),
+        'size': 'large',
+        'content': ActivityEventform.inputs(users, types, successEvents),
+        'submitTitle': 'Create'
+    } %}
+
+    {% set editActivityEventVars = {
+        'class': 'editActivityEventModal',
+        'formId': 'editActivityEventForm',
+        'title': 'Edit activity event',
+        'size': 'large',
+        'content': ActivityEventform.inputs(users, types, successEvents),
+        'submitTitle': 'Save'
+    } %}
+
+    {% include 'partial/modal.html.twig' with editActivityVars %}
+    {% include 'partial/modal.html.twig' with addActivityEventVars %}
+    {% include 'partial/modal.html.twig' with editActivityEventVars %}
+
+    <script>
+        $(document).ready(function() {
+            $('.tabs .nav a').bind('click', function(){
+                $('.tabs .nav li').removeClass('active');
+                $('.tab').addClass('hidden');
+
+                $('#' + $(this).parent().data('target')).removeClass('hidden');
+                $(this).parent().addClass('active')
+            });
+
+            var url = window.location.href;
+            var hash = url.substring(url.indexOf('#')+1);
+
+            if (hash == 'activitiestab' || hash == 'historytab') {
+                $('.tab-' + hash + ' a').click();
+            }
+        });
+    </script>
+{% endblock %}

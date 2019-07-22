@@ -1,0 +1,22 @@
+{% macro inputs() %}
+    <div class="form-group">
+        <label class="col-sm-4 control-label">{{ "Comment" | trans() }}</label>
+        <div class="col-sm-7">
+            <textarea name="task[comment][text]" required class="form-control" id="textarea-cancel" placeholder="{{ 'Enter your message' | trans() }}"></textarea>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function(){
+            $('.cancel-task').click(function(){
+                var cancelTaskForm = $('#cancelTaskForm');
+                cancelTaskForm.attr('action', $(this).data('href'));
+            });
+        });
+        $('#textarea-cancel').focusout(function(){
+            var str = $('#textarea-cancel').val().trim();
+            if (str == '') {
+                $('#textarea-cancel').val('');
+            }
+        });
+    </script>
+{% endmacro %}

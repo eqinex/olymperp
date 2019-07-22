@@ -1,0 +1,321 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'Engineering Document Catalog' | trans() }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ breadcrumb( 'Engineering Document Catalog' | trans(), path('engineering_document_list') ) }}
+{% endblock %}
+
+{% block body %}
+    <div class="panel panel-default no-bg  b-gray-dark">
+        <div class="panel-body">
+            <form class="form-inline filter-form" method="get" action="{{ path('engineering_document_list') }}">
+                <input type="hidden" name="order" value="{{ order }}"/>
+                <input type="hidden" name="orderBy" value="{{ orderBy }}"/>
+                <div class="form-group filter">
+                    <input class="form-control" name="filters[inventoryNumber]" placeholder="{{ 'Search by inventory number' | trans() }}"
+                           value="{% if filters.inventoryNumber is defined %}{{ filters.inventoryNumber }}{% endif %}" />
+                </div>
+                <div class="form-group filter">
+                    <input class="form-control" name="filters[designation]" placeholder="{{ 'Search by designation' | trans() }}"
+                           value="{% if filters.designation is defined %}{{ filters.designation }}{% endif %}" />
+                </div>
+                <div class="form-group filter">
+                    <input class="form-control" name="filters[title]" placeholder="{{ 'Search by engineering.title' | trans() }}"
+                           value="{% if filters.title is defined %}{{ filters.title }}{% endif %}" />
+                </div>
+                <div class="form-group filter">
+                    <input class="form-control" name="filters[notice]" placeholder="{{ 'Search by notice' | trans() }}"
+                           value="{% if filters.notice is defined %}{{ filters.notice }}{% endif %}" />
+                </div>
+                <div class="form-group filter">
+                    <select name="filters[project]" class="form-control select2-modify filter" tabindex="-1" aria-hidden="true">
+                        <option value="">{{ 'Select project' | trans() }}</option>
+                        {% for project in projects %}
+                            <option {% if filters.project is defined and filters.project == project.id %}selected{% endif %} value="{{ project.id }}">{{ project.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group filter">
+                    <select class="form-control" name="filters[owner]">
+                        <option value="">{{ 'Select owner' | trans() }}</option>
+                        {% for team, members in employee_service.getUsersGroupedByTeams() %}
+                            <optgroup label="{{ team | trans() }}">{{ engineeringDocument.owner.id is defined ? engineeringDocument.owner.id }}
+                                {% for member in members %}
+                                    <option {% if filters.owner is defined and filters.owner == member.id %}selected{% endif %} value="{{ member.id }}">
+                                        {{ member.fullName }} ({{ member.employeeRole }})</option>
+                                {% endfor %}
+                            </optgroup>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% if app.user.canEditEngineeringDocument() %}
+                    <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target=".addEngineeringDocumentModal"><i class="fa fa-plus"></i> {{ 'Add Engineering Document' | trans() }}</button>
+                    <button type="button" class="btn btn-success pull-right m-r-1" data-toggle="modal" data-target=".importEngineeringDocumentModal"><i class="fa fa-fw fa-upload"></i> {{ 'Import' | trans() }}</button>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            {% set orderType = order == 'desc' ? 'asc' : 'desc' %}
+            {% set routeParams = { 'filters': filters} %}
+
+            <th class="small text-muted text-uppercase">
+                {% set routeParams = routeParams | merge({'orderBy': 'inventoryNumber', 'order': orderBy == 'inventoryNumber' ? orderType : 'desc'}) %}
+                <a href="{{ path('engineering_document_list', routeParams) }}">
+                    <strong>{{ "Inventory number" | trans() ~ ' ' }}</strong>
+                    <i class="fa fa-sort{{ orderBy == 'inventoryNumber' ? '-' ~ order : '' }}"></i>
+                </a>
+            </th>
+            <th class="small text-muted text-uppercase">
+                {% set routeParams = routeParams | merge({'orderBy': 'createdAt', 'order': orderBy == 'createdAt' ? orderType : 'asc'}) %}
+                <a href="{{ path('engineering_document_list', routeParams) }}">
+                    <strong>{{ "Registration Date" | trans() ~ ' ' }}</strong>
+                    <i class="fa fa-sort{{ orderBy == 'createdAt' ? '-' ~ order : '' }}"></i>
+                </a>
+            </th>
+            <th class="small text-muted text-uppercase">
+                {% set routeParams = routeParams | merge({'orderBy': 'designation', 'order': orderBy == 'designation' ? orderType : 'asc'}) %}
+                <a href="{{ path('engineering_document_list', routeParams) }}">
+                    <strong>{{ "Designation" | trans() ~ ' ' }}</strong>
+                    <i class="fa fa-sort{{ orderBy == 'designation' ? '-' ~ order : '' }}"></i>
+                </a>
+            </th>
+            <th class="small text-muted text-uppercase">
+                {% set routeParams = routeParams | merge({'orderBy': 'title', 'order': orderBy == 'title' ? orderType : 'asc'}) %}
+                <a href="{{ path('engineering_document_list', routeParams) }}">
+                    <strong>{{ "item.title" | trans() ~ ' ' }}</strong>
+                    <i class="fa fa-sort{{ orderBy == 'title' ? '-' ~ order : '' }}"></i>
+                </a>
+            </th>
+            <th class="small text-muted text-uppercase">
+                {% set routeParams = routeParams | merge({'orderBy': 'owner', 'order': orderBy == 'owner' ? orderType : 'asc'}) %}
+                <a href="{{ path('engineering_document_list', routeParams) }}">
+                    <strong>{{ "Owner" | trans() ~ ' ' }}</strong>
+                    <i class="fa fa-sort{{ orderBy == 'owner' ? '-' ~ order : '' }}"></i>
+                </a>
+            </th>
+            <th class="small text-muted text-uppercase">
+                {% set routeParams = routeParams | merge({'orderBy': 'project', 'order': orderBy == 'project' ? orderType : 'asc'}) %}
+                <a href="{{ path('engineering_document_list', routeParams) }}">
+                    <strong>{{ "Project" | trans() ~ ' ' }}</strong>
+                    <i class="fa fa-sort{{ orderBy == 'project' ? '-' ~ order : '' }}"></i>
+                </a>
+            </th>
+            <th class="small text-muted text-uppercase"><strong>{{ "Notice" | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ "attachment" | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase text-right"><strong>{{ "Actions" | trans() }}</strong></th>
+        </tr>
+        </thead>
+        <tbody>
+        <!-- START ROW Task -->
+        {% for engineeringDocument in engineeringDocuments %}
+            <tr {% if engineeringDocument.documentExecution %}class="execution-engineering-document"{% endif %}>
+                <td class="v-a-m">
+                    <a href=""
+                       class="info-engineering-document"
+                       data-document-execution="{{ engineeringDocument.documentExecution }}"
+                       data-inventory-number="{{ engineeringDocument.inventoryNumber }}"
+                       data-created-at="{{ engineeringDocument.createdAt | date('d.m.Y') }}"
+                       data-number-of-pages="{{ engineeringDocument.numberOfPages }}"
+                       data-format="{{ engineeringDocument.format }}"
+                       data-title="{{ engineeringDocument.title }}"
+                       data-owner="{{ engineeringDocument.owner ? engineeringDocument.owner.id : '-' }}"
+                       data-notice="{{ engineeringDocument.notice }}"
+                       data-code="{{ engineeringDocument.code }}"
+                       data-classifier-code="{{ engineeringDocument.classifierCode }}"
+                       data-index-number="{{ engineeringDocument.indexNumber }}"
+                       data-type-of-document="{{ engineeringDocument.typeOfDocument }}"
+                       data-decryption-code="{{ engineeringDocument.decryptionCode }}"
+                       data-project="{{ engineeringDocument.project ? engineeringDocument.project.id : '-' }}"
+                       data-toggle="modal"
+                       data-target=".infoEngineeringDocumentModal"
+                    >{{ engineeringDocument ? engineeringDocument.inventoryNumber : engineeringDocument.inventoryNumber }}
+                    </a>
+                </td>
+                <td class="v-a-m">{{ engineeringDocument.createdAt | date('d.m.Y') }}</td>
+                <td class="v-a-m">{{ engineeringDocument.designation }}</td>
+                <td class="v-a-m">{{ engineeringDocument.title != null ? engineeringDocument.title : '-' }}</td>
+                <td class="v-a-m">
+                    {% if engineeringDocument.owner is not null %}
+                        <a class="link-comment" href="{{ path('employee_details', {'userName': engineeringDocument.owner.username}) }}">{{ engineeringDocument.owner.lastNameWithInitials }}</a>
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+                <td class="v-a-m">
+                    {% if engineeringDocument.project is not null %}
+                        <a  href="{{ path('project_details', {'id': engineeringDocument.project.id}) }}">{{ engineeringDocument.project.name }}</a>
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+                <td class="v-a-m">{{ engineeringDocument.notice }}</td>
+                <td class="v-a-m">
+                    {% if engineeringDocument.file %}
+                        {% if app.user.canEditEngineeringDocument() or (engineeringDocument.owner is not null and app.user.id == engineeringDocument.owner.id) %}
+                            <a href="{{ path('engineering_document_download_file', {'engineeringDocumentId': engineeringDocument.id, 'fileId': engineeringDocument.file.id}) }}">
+                                {{ engineeringDocument.file.fileName }}
+                            </a>
+                        {% else %}
+                            {{ engineeringDocument.file.fileName }}
+                        {% endif %}
+                    {% endif %}
+                </td>
+                <td class="text-right v-a-m">
+                    {% if app.user.canEditEngineeringDocument() or (engineeringDocument.owner is not null and app.user.id == engineeringDocument.owner.id) %}
+                        <div class="dropdown">
+                            <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                <i class="fa fa-fw fa-gear"></i><span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-right">
+                                <li>
+                                    <a href=""
+                                       data-href="{{ path('engineering_document_edit', {'engineeringDocumentId': engineeringDocument.id}) }}"
+                                       class="edit-engineering-document"
+                                       data-document-execution="{{ engineeringDocument.documentExecution }}"
+                                       data-inventory-number="{{ engineeringDocument.inventoryNumber }}"
+                                       data-created-at="{{ engineeringDocument.createdAt | date('d.m.Y') }}"
+                                       data-number-of-pages="{{ engineeringDocument.numberOfPages }}"
+                                       data-format="{{ engineeringDocument.format }}"
+                                       data-title="{{ engineeringDocument.title }}"
+                                       data-code="{{ engineeringDocument.code }}"
+                                       data-classifier-code="{{ engineeringDocument.classifierCode }}"
+                                       data-index-number="{{ engineeringDocument.indexNumber }}"
+                                       data-type-of-document="{{ engineeringDocument.typeOfDocument }}"
+                                       data-decryption-code="{{ engineeringDocument.decryptionCode }}"
+                                       data-owner="{{ engineeringDocument.owner ? engineeringDocument.owner.id : '-' }}"
+                                       data-project="{{ engineeringDocument.project ? engineeringDocument.project.id : '-' }}"
+                                       data-notice="{{ engineeringDocument.notice }}"
+                                       data-toggle="modal"
+                                       data-target=".editEngineeringDocumentModal"
+                                    ><i class="fa fa-fw fa-pencil"></i> {{ 'Edit' | trans() }}</a>
+                                    <a href=""
+                                       data-href="{{ path('engineering_document_upload_file', {'engineeringDocumentId': engineeringDocument.id, 'fileId': engineeringDocument.file ? engineeringDocument.file.id }) }}"
+                                       class="upload-engineering-document-file"
+                                       data-id="{{ engineeringDocument.id }}"
+                                       data-toggle="modal"
+                                       data-target=".uploadEngineeringDocumentFileModal"
+                                    ><i class="fa fa-fw fa-upload"></i> {{ 'Upload File' | trans() }}</a></a>
+                                    <a href=""
+                                       class="add-engineering-document-copy"
+                                       data-toggle="modal"
+                                       data-target=".registerEngineeringDocumentCopyModal"
+                                    ><i class="fa fa-fw fa-copy"></i> {{ 'Register a copy' | trans() }}</a>
+                                    {% if not engineeringDocument.documentExecution %}
+                                        <a href=""
+                                           data-href="{{ path('add_engineering_document_executions') }}"
+                                           class="add-executions"
+                                           data-code="{{ engineeringDocument.code }}"
+                                           data-classifier-code="{{ engineeringDocument.classifierCode }}"
+                                           data-index-number="{{ engineeringDocument.indexNumber }}"
+                                           data-type-of-document="{{ engineeringDocument.typeOfDocument }}"
+                                           data-decryption-code="{{ engineeringDocument.decryptionCode }}"
+                                           data-project="{{ engineeringDocument.project ? engineeringDocument.project.id : '-' }}"
+                                           data-toggle="modal"
+                                           data-target=".addEngineeringDocumentExecutionsModal"
+                                        ><i class="fa fa-fw fa-plus"></i> {{ 'Make changes' | trans() }}</a>
+                                    {% endif %}
+                                </li>
+                            </ul>
+                        </div>
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+        <!-- END ROW Task -->
+        </tbody>
+    </table>
+
+    {% set vars = {
+        'route': 'engineering_document_list',
+        'currentPage': currentPage,
+        'maxPages': maxPages,
+        'filters': filters,
+        'routeParams': {
+            'order': order,
+            'orderBy': orderBy
+        }
+    } %}
+
+    {% import 'development/engineering_document/partial/form.html.twig' as form %}
+    {% import 'development/engineering_document/partial/import_form.html.twig' as importEngineeringDocumentForm %}
+    {% import 'development/engineering_document/partial/upload_form.html.twig' as uploadEngineeringDocumentFileForm %}
+    {% import 'development/engineering_document/partial/register_copy_form.html.twig' as registerEngineeringDocumentCopyForm %}
+    {% import 'development/engineering_document/partial/add_executions_form.html.twig' as addEngineeringDocumentExecutionsForm %}
+
+    {% set addEngineeringDocumentVars = {
+        'class': 'addEngineeringDocumentModal',
+        'formId': 'addEngineeringDocumentForm',
+        'title': 'Add Engineering Document',
+        'size': 'large',
+        'content': form.inputs(classifierClasses),
+        'formAction': path('engineering_document_add'),
+        'submitTitle': 'Add'
+    } %}
+
+    {% set editEngineeringDocumentVars = {
+        'class': 'editEngineeringDocumentModal',
+        'formId': 'editEngineeringDocumentForm',
+        'title': 'Edit Engineering Document',
+        'size': 'large',
+        'content': form.inputs(classifierClasses),
+        'submitTitle': 'Save'
+    } %}
+
+    {% set infoEngineeringDocumentVars = {
+        'class': 'infoEngineeringDocumentModal',
+        'formId': 'infoEngineeringDocumentForm',
+        'title': 'Engineering Document Catalog',
+        'size': 'large',
+        'content': form.inputs(classifierClasses),
+    } %}
+
+    {% set importEngineeringDocumentVars = {
+        'class': 'importEngineeringDocumentModal',
+        'formId': 'importEngineeringDocumentModal',
+        'title': 'Import Engineering Document',
+        'content': importEngineeringDocumentForm.inputs(),
+        'submitTitle': 'Import',
+        'formAction': path('engineering_document_import')
+    } %}
+
+    {% set uploadEngineeringDocumentFileVars = {
+        'class': 'uploadEngineeringDocumentFileModal',
+        'formId': 'uploadEngineeringDocumentFileForm',
+        'title': 'Upload File',
+        'content': uploadEngineeringDocumentFileForm.inputs(),
+        'submitTitle': 'Upload File',
+        'formAction': path('engineering_document_upload_file')
+    } %}
+
+    {% set registerEngineeringDocumentCopyVars = {
+        'class': 'registerEngineeringDocumentCopyModal',
+        'formId': 'registerEngineeringDocumentCopyForm',
+        'content': registerEngineeringDocumentCopyForm.inputs(),
+        'title': 'Registering a copy of the Engineering Document',
+        'submitTitle': 'Save',
+    } %}
+
+    {% set addEngineeringDocumentExecutionsVars = {
+        'class': 'addEngineeringDocumentExecutionsModal',
+        'formId': 'addEngineeringDocumentExecutionsForm',
+        'content': addEngineeringDocumentExecutionsForm.inputs(),
+        'title': 'Alteration Engineering Document',
+        'submitTitle': 'Save',
+    } %}
+
+
+    {% include 'partial/modal.html.twig' with addEngineeringDocumentVars %}
+    {% include 'partial/modal.html.twig' with editEngineeringDocumentVars %}
+    {% include 'partial/modal.html.twig' with infoEngineeringDocumentVars %}
+    {% include 'partial/modal.html.twig' with importEngineeringDocumentVars %}
+    {% include 'partial/modal.html.twig' with uploadEngineeringDocumentFileVars %}
+    {% include 'partial/modal.html.twig' with registerEngineeringDocumentCopyVars %}
+    {% include 'partial/modal.html.twig' with addEngineeringDocumentExecutionsVars %}
+
+    {% include 'partial/paginator.html.twig' with vars %}
+{% endblock %}
+

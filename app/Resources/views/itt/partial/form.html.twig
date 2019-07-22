@@ -1,0 +1,83 @@
+{% macro inputs(newSpecification) %}
+    <input type="hidden" class="form-control itt-id" value="" name="id">
+    <div class="form-group">
+        <label class="col-lg-2 control-label"><span class="text-danger">*</span> {{ 'Name' | trans() }}</label>
+        <div class="col-lg-9">
+            <input type="text" class="form-control itt-name" required placeholder="{{ 'Name' | trans() }}" value="" name="itt[name]">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ "Material" | trans() }}</label>
+        <div class="col-sm-3">
+            <select class="form-control itt-ware select2-modal" name="itt[ware]" required>
+                <option value="">{{ 'Select product' | trans() }}</option>
+                {% for ware in newSpecification.project.getWares() %}
+                    <option value="{{ ware.id }}"
+                            {% if newSpecification.ware.id is defined and newSpecification.ware.id == ware.id %}
+                                {{ "selected" }}
+                            {% endif %}>{{ ware.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <label class="col-sm-2 control-label">{{ "Type" | trans() }}</label>
+        <div class="col-sm-4">
+            <select class="form-control itt-type select2-modal" required name="itt[type]">
+                <option value="">{{ 'Select type' | trans() }}</option>
+                {% for key, type in newSpecification.typesList %}
+                    <option value="{{ key }}"
+                            {% if newSpecification.type == key %}
+                                {{ "selected" }}
+                            {% endif %}
+                    >{{ type | trans()}}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-lg-2 control-label">{{ 'Value TT' | trans() }}</label>
+        <div class="col-lg-3">
+            <input type="text" class="form-control itt-value-task" required value="" name="itt[valueTask]">
+        </div>
+        <label class="col-lg-2 control-label">{{ 'Value ITT' | trans() }}</label>
+        <div class="col-lg-4">
+            <input type="text" class="form-control itt-value-inner-task" required value="" name="itt[valueInnerTask]">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-lg-2 control-label">{{ 'Unit' | trans() }}</label>
+        <div class="col-lg-2">
+            <input type="text" class="form-control itt-unit" required value="" name="itt[unit]">
+        </div>
+        <label class="col-lg-3 control-label">{{ 'The difference between a TT and a ITT' | trans() }}</label>
+        <div class="col-lg-4">
+            <input type="text" class="form-control itt-difference" required value="" name="itt[difference]">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-lg-2 control-label">{{ 'Notice' | trans() }}</label>
+        <div class="col-lg-9">
+            <textarea class="form-control itt-notice" name="itt[notice]"></textarea>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function(){
+            moment.locale('ru');
+
+            $('.edit-itt').bind('click', function () {
+                var editIttForm = $('#editIttForm');
+                editIttForm.attr('action', $(this).data('href'));
+                editIttForm.find('.itt-id').val($(this).data('id'));
+                editIttForm.find('.itt-name').val($(this).data('name'));
+                editIttForm.find('.itt-ware').val($(this).data('ware'));
+                editIttForm.find('.itt-type').val($(this).data('type'));
+                editIttForm.find('.itt-unit').val($(this).data('unit'));
+                editIttForm.find('.itt-value-task').val($(this).data('valueTask'));
+                editIttForm.find('.itt-value-inner-task').val($(this).data('valueInnerTask'));
+                editIttForm.find('.itt-difference').val($(this).data('difference'));
+                editIttForm.find('.itt-notice').val($(this).data('notice'));
+
+                $('.select2-modal').select2({ width: '100%' });
+            });
+        });
+    </script>
+{% endmacro %}

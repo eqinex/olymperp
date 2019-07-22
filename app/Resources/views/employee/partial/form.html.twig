@@ -1,0 +1,127 @@
+{% macro inputs(employeeStatuses, employeeRoles, genders, teams) %}
+    <input type="hidden" class="form-control employee-id" value="" name="id">
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ "First name" | trans() }}</label>
+        <div class="col-sm-3">
+            <input type="text" class="employee-firstname form-control" placeholder="{{ ('First name' | trans()) }}  " value="" name="employee[firstname]" required>
+        </div>
+        <label class="col-sm-2 control-label">{{ "Last name" | trans() }}</label>
+        <div class="col-sm-3">
+            <input type="text" class="employee-lastname form-control" placeholder="{{ ('Last name' | trans()) }}  " value="" name="employee[lastname]" >
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ "Middle name" | trans() }}</label>
+        <div class="col-sm-3">
+            <input type="text" class="form-control employee-middlename" placeholder="{{ 'Middle name' | trans() }}" value="" name="employee[middlename]">
+        </div>
+        <label class="col-sm-2 control-label">{{ "Gender" | trans() }}</label>
+        <div class="col-sm-3">
+            <select class="form-control employee-gender select2-modal" name="employee[gender]">
+                {% for key, gender in genders %}
+                    <option value="{{ gender }}"> {{ key | trans() }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ "User name" | trans() }}</label>
+        <div class="col-sm-3">
+            <input type="text" class="employee-user-name form-control" placeholder="{{ 'User name' | trans() }}  " value="" name="employee[userName]" required>
+        </div>
+        <label class="col-sm-2 control-label">{{ "Team" | trans() }}</label>
+        <div class="col-sm-3">
+            <select class="form-control employee-team select2-modal" name="employee[team]">
+                <option value="">{{ 'Select team' | trans() }}</option>
+                {% for team in teams %}
+                    <option value="{{ team.id }}"> {{ team | trans() }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ ("Date of birth" | trans()) }}</label>
+        <div class="col-sm-3">
+            <input type="text" class="daterange-single-date-picker employee-date-of-birth form-control" placeholder="{{ ('Date of birth' | trans()) }}  " value=""  name="employee[dateOfBirth]">
+        </div>
+        <label class="col-sm-2 control-label" style="margin-top: -8px;">{{ ("Employment date" | trans()) }}</label>
+        <div class="col-sm-3">
+            <input type="text" class="daterange-single-date-picker employee-employment-date form-control" placeholder="{{ ("Employment date" | trans()) }}" value="" name="employee[employmentDate]">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label" style="margin-top: -8px;">{{ "Employee status" | trans() }}</label>
+        <div class="col-sm-3">
+            <select class="form-control employee-employee-status select2-modal" name="employee[employeeStatus]" required>
+                <option value="">{{ 'Select status' | trans() }}</option>
+                {% for key, status in employeeStatuses %}
+                    <option value="{{ key }}"> {{ status | trans() }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <label class="col-sm-2 control-label">{{ "Employee Role" | trans() }}</label>
+        <div class="col-sm-3">
+            <select class="form-control employee-employee-role select2-modal" name="employee[employeeRole]">
+                <option value="">{{ 'Select role' | trans() }}</option>
+                {% for employeeRole in employeeRoles %}
+                    <option value="{{ employeeRole.id }}"> {{ employeeRole }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ "Room" | trans() }}</label>
+        <div class="col-sm-3">
+            <input type="text" class="form-control employee-room" placeholder="{{ 'Room' | trans() }}" value="" name="employee[room]">
+        </div>
+        <label class="col-sm-2 control-label">{{ "Phone" | trans() }}</label>
+        <div class="col-sm-3">
+            <input type="tel" pattern="\+7\s?[\(]{0,1}[0-9]{3}[\)]{0,1}\s?\d{3}[-]{0,1}\d{2}[-]{0,1}\d{2}" class="employee-phone form-control" placeholder="{{ 'Phone' | trans() }}" value="" name="employee[phone]" required>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ "Email" | trans() }}</label>
+        <div class="col-sm-3">
+            <input type="email" class="employee-email form-control" placeholder="{{ 'Email' | trans() }}  " value="" name="employee[email]" required>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function(){
+            moment.locale('ru');
+
+            $('.daterange-single-date-picker').daterangepicker({
+                singleDatePicker: true,
+                showDropdowns: true,
+                timePicker24Hour: true,
+                timePickerIncrement: 30,
+                opens: "left",
+                drops: "down",
+                locale: {
+                    format: 'DD.MM.YYYY', applyLabel: "Выбрать", cancelLabel: "Отменить"
+                }
+            });
+
+            $('.edit-employee').bind('click', function(){
+                var editEmployeeForm = $('#editEmployeeForm');
+                editEmployeeForm.attr('action', $(this).data('href'));
+                editEmployeeForm.find('.employee-id').val($(this).data('id'));
+                editEmployeeForm.find('.employee-firstname').val($(this).data('firstname'));
+                editEmployeeForm.find('.employee-middlename').val($(this).data('middlename'));
+                editEmployeeForm.find('.employee-lastname').val($(this).data('lastname'));
+                editEmployeeForm.find('.employee-date-of-birth').val($(this).data('dateOfBirth'));
+                editEmployeeForm.find('.employee-employment-date').val($(this).data('employmentDate'));
+                editEmployeeForm.find('.employee-room').val($(this).data('room'));
+                editEmployeeForm.find('.employee-employee-status').val($(this).data('employeeStatus'));
+                editEmployeeForm.find('.employee-team').val($(this).data('team'));
+                editEmployeeForm.find('.employee-gender').val($(this).data('gender'));
+                editEmployeeForm.find('.employee-employee-role').val($(this).data('employeeRole'));
+                editEmployeeForm.find('.employee-phone').val($(this).data('phone'));
+                editEmployeeForm.find('.employee-email').val($(this).data('email'));
+                editEmployeeForm.find('.employee-user-name').val($(this).data('userName'));
+
+                $('.select2-modal').select2({ width: '100%' });
+            });
+        });
+    </script>
+{% endmacro %}

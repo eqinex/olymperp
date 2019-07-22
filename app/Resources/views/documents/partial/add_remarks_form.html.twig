@@ -1,0 +1,26 @@
+{% macro inputs(textHolder) %}
+    <div class="form-group">
+        <div class="col-sm-10 remarks-form">
+            <textarea name="remarks[comment][text]" id="textarea-remarks" required class="form-control trumbowyg-textarea" placeholder="{{ textHolder | trans() }}"></textarea>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function(){
+            $('.signatory-remarks').click(function(){
+                var remarksForm = $('#addRemarksForm');
+                remarksForm.attr('action', $(this).data('href'));
+            });
+            $('.signatory-reason').click(function(){
+                var remarksForm = $('#addReasonForm');
+                remarksForm.attr('action', $(this).data('href'));
+            });
+
+            $('#textarea-finish').focusout(function(){
+                var str = $('#textarea-remarks').val().trim();
+                if (str == '') {
+                    $('#textarea-remarks').val('');
+                }
+            });
+        });
+    </script>
+{% endmacro %}

@@ -1,0 +1,165 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ "Files" | trans() }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ breadcrumb( 'Files' | trans(), path('files_list') ) }}
+{% endblock %}
+
+{% block body %}
+
+    <div class="panel panel-default no-bg  b-gray-dark">
+     <div class="panel-body">
+        <form class="form-inline filter-form" method="get" action="{{ path('files_list') }}">
+            <div class="form-group filter">
+                <input type="text" class="form-control" name = filters[filename] placeholder="{{ 'Name' | trans }}" value="{{ filters.filename is defined ? filters.filename : ''}}">
+            </div>
+            <div class="form-group filter">
+                <select name="filters[project]" class="form-control select2-modify filter" tabindex="-1" aria-hidden="true">
+                    <option value="">{{ 'Select project' | trans() }}</option>
+                    {% for project in projects %}
+                        <option {% if filters.project is defined and filters.project == project.id %}selected{% endif %} value="{{ project.id }}">{{ project.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <select class="form-control select2-modify filter" name="filters[format]">
+                    <option value="">{{ 'Select file type' | trans() }}</option>
+                    {% for format in formatFiles %}
+                        <option {% if filters.format is defined and filters.format == format.format %}selected{% endif %} value="{{ format.format }}">
+                            {{ format.format}}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </form>
+     </div>
+    </div>
+
+    <table class="table table-hover">
+    <thead>
+    <tr>
+        <th class="small text-muted text-uppercase" style="width: 40px;"><strong>{{ "Type" | trans() }}</strong></th>
+        <th class="small text-muted text-uppercase"><strong>{{ "Filename" | trans() }}</strong></th>
+        <th class="small text-muted text-uppercase"><strong>{{ "Size" | trans() }}</strong></th>
+        <th class="small text-muted text-uppercase"><strong>{{ "task" | trans() }}</strong></th>
+        <th class="small text-muted text-uppercase"><strong>{{ "Project" | trans() }}</strong></th>
+        <th class="small text-muted text-uppercase"><strong>{{ "Owner" | trans() }}</strong></th>
+        <th class="small text-muted text-uppercase"><strong>{{ "Created At" | trans() }}</strong></th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for files in allFiles %}
+        <tr>
+            <td class="v-a-m media">
+                {% set icon = '' %}
+                {% set color = 'gray-lighter' %}
+                {% if files.format == 'doc' or files.format == 'docx' %}
+                    {% set icon = '-word' %}
+                    {% set color = 'primary' %}
+                {% elseif files.format == 'mp4' or files.format == 'avi' %}
+                    {% set icon = '-video' %}
+                    {% set color = 'primary' %}
+                {% elseif files.format == 'xls' or files.format == 'xlsx' %}
+                    {% set icon = '-excel' %}
+                    {% set color = 'success' %}
+                {% elseif files.format == 'ppt' or files.format == 'pptx' %}
+                    {% set icon = '-powerpoint' %}
+                    {% set color = 'danger' %}
+                {% elseif files.format == 'zip' or files.format == 'rar' or files.format == '7z' %}
+                    {% set icon = '-archive' %}
+                    {% set color = 'warning' %}
+                {% elseif files.format == 'pdf' %}
+                    {% set icon = '-pdf' %}
+                    {% set color = 'info' %}
+                {% endif %}
+                {% if files.storedPreviewFileName is defined and files.storedPreviewFileName is not null and
+                    (files.format == 'jpg' or files.format == 'jpeg' or files.format == 'png') %}
+                    {% if files.task is defined and files.task is not null %}
+                        {% set originalImageUrl =  path('task_download_file',
+                            {'id': files.project.id, 'fileId': files.id, 'taskId': files.task.id}) %}
+                        {% set originalImageUrlPreview =  path('task_download_file',
+                            {'id': files.project.id, 'fileId': files.id, 'taskId': files.task.id, 'preview': true}) %}
+                    {% else %}
+                        {% set originalImageUrl =  path('project_download_file',
+                            {'id': files.project.id, 'fileId': files.id}) %}
+                        {% set originalImageUrlPreview =  path('project_download_file',
+                            {'id': files.project.id, 'fileId': files.id, 'preview': true}) %}
+                    {% endif %}
+
+                    <a href="#"
+                       class="preview-image"
+                       data-toggle="modal"
+                       data-target=".previewModal"
+                       data-original-attachment-class=".original-attachment-{{ files.id }}"
+                       data-original-image="{{ originalImageUrl }}">
+                        <img class="attachment-preview" src="{{ originalImageUrlPreview }}" />
+                    </a>
+                    <div style="display:none;">
+                        <img class="original-attachment-{{ files.id }}" src="" style="width: 100%">
+                    </div>
+                {% else %}
+                    <span class="fa-stack fa-lg">
+                        <i class="fa fa-square fa-stack-2x text-{{ color }}"></i>
+                        <i class="fa fa-file{{ icon }}-o fa-stack-1x fa-inverse text-inverse"></i>
+                    </span>
+                {% endif %}
+            </td>
+            <td class="v-a-m">
+                {% if files.task is defined and files.task is not null %}
+                <a href="{{ path('task_download_file', {'id': files.task.project.id,
+                    'fileId': files.id, 'taskId': files.task.id}) }}">
+                    {{ files.FileName }}
+                </a>
+                {% else %}
+                    <a href="{{ path('project_download_file', {'id': files.project.id,
+                        'fileId': files.id}) }}">
+                        {{ files.FileName }}
+                    </a>
+                {% endif %}
+            </td>
+            <td class="v-a-m">
+                {{ (files.FileSize/1024) | number_format ~ ' Kb' }}
+            </td>
+            <td class="v-a-m">
+            {% if files.task is defined and files.task is not null %}
+                <a  href="{{ path('project_edit_task', {'id': files.task.project.id, 'taskId': files.task.id}) }}">
+                    <span>{{ files.task.title }}</span>
+                </a>
+            {% endif %}
+            </td>
+            <td class="v-a-m">
+            {% if files.project is defined and files.project is not null %}
+                <a  href="{{ path('project_details', {'id': files.project.id}) }}">
+                    <span>{{ files.project.name }}</span>
+                </a>
+            {% endif %}
+            </td>
+            <td class="v-a-m">
+                {{ files.owner.lastNameWithInitials }}
+            </td>
+            <td class="v-a-m">
+                {{ files.uploadedAt | date('d.m.Y H:i') }}
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+    </table>
+
+    {% import 'partial/preview_form.html.twig' as previewForm %}
+
+    {% set previewFormVars = {
+            'class': 'previewModal',
+            'formId': 'previewForm',
+            'size': 'large',
+            'title': 'Image preview',
+            'content': previewForm.inputs(),
+        }
+    %}
+
+    {% include 'partial/modal.html.twig' with previewFormVars %}
+
+    {% set vars = {'route': 'files_list', 'currentPage': currentPage, 'maxPages': maxPages, 'filters': filters} %}
+    {% include 'partial/paginator.html.twig' with vars %}
+
+{% endblock %}

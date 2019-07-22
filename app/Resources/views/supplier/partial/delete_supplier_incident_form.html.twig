@@ -1,0 +1,11 @@
+{% macro inputs() %}
+    <div class="text-center">{{ "Are you sure you want to delete incident from the list" | trans() }}</div>
+
+    <script>
+        $(document).ready(function(){
+            $('.delete-supplier-incident').bind('click', function() {
+                $('#deleteSupplierIncidentForm').attr('action', $(this).data('href'));
+            });
+        });
+    </script>
+{% endmacro %}

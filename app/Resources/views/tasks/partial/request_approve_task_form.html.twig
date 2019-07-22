@@ -1,0 +1,21 @@
+{% macro inputs() %}
+    <div class="form-group">
+        <label class="col-sm-4 control-label">{{ "Original estimate" | trans() }}</label>
+        <div class="col-sm-7">
+            <input type="text" class="form-control request-approve-task-original-estimate" name="task[originalEstimate]" value=""
+                   required pattern="^[0-9.]+[hmdчдм]">
+            <span class="help-block">{{ '1m/1м - 1 minute, 1h/1ч - 1 hour, 1d/1д - 1 day' | trans() }}</span>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function(){
+            $('.request-approve-task').click(function(){
+                $('.request-approve-task-original-estimate').val($(this).data('original-estimate'));
+
+                var requestApproveTaskForm = $('#requestApproveTaskForm');
+                requestApproveTaskForm.attr('action', $(this).data('href'));
+            });
+        });
+    </script>
+{% endmacro %}

@@ -1,0 +1,107 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ "Work Logs" | trans() }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ breadcrumb( 'Work Logs' | trans(), path('worklog_list') ) }}
+{% endblock %}
+
+{% block body %}
+    <div class="panel panel-default no-bg  b-gray-dark">
+        <div class="panel-body">
+            <form class="form-inline filter-form" method="get" action="{{ path('worklog_list') }}">
+                <div class="form-group filter">
+                    <label class="col-sm-3 control-label">{{ "Logged Day" | trans() }}</label>
+                    <div class="col-sm-4">
+                        <input type="hidden" name = filters[owner] value="{{ filters.owner }}">
+                        <input type="text" required class="form-control daterange-picker"
+                               name="filters[loggedDay]" value="{% if filters.loggedDay is defined %}{{  filters.loggedDay }}{% else %}{{ 'now' | date('d.m.Y') }}{% endif %}">
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th class="small text-muted text-uppercase"><strong>{{ "Fullname" | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ "Logged Day" | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ "task" | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ "Project" | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ "Time spent" | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ "Time" | trans() }}<br></strong>{{ "TSpent" | trans() ~ ' / ' ~ "Original estimate time" | trans()}}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ "Created At" | trans() }}</strong></th>
+        </tr>
+        </thead>
+
+        <tbody>
+        {% for workLog in workLogs %}
+            <!-- START ROW Task -->
+            <tr>
+                <td class="v-a-m">
+                    {{ workLog.owner.lastNameWithInitials }}
+                </td>
+                <td class="v-a-m">
+                    {{ workLog.loggedDay | date('d.m.y')}}
+                </td>
+                <td class="v-a-m">
+                    {% if workLog.task.epic is not null %}
+                        <a class="label m-r-1 label-{{ task_service.getEpicLabel(workLog.task.epic) }}"
+                           href="{{ path('project_task_details', {'id': workLog.task.project.id, 'taskId': workLog.task.epic.id}) }}">
+                            <span>{{ workLog.task.epic.title | upper }}</span>
+                        </a>
+                    {% endif %}
+                    <a  href="{{ path('project_edit_task', {'id': workLog.task.project.id, 'taskId': workLog.task.id}) }}">
+                        <span>{{ workLog.task.title }}</span>
+                    </a>
+                </td>
+                <td class="v-a-m">
+                    <a  href="{{ path('project_tasks', {'id': workLog.task.project.id}) }}">{{ workLog.task.project.name }}</a>
+                </td>
+                <td class="v-a-m">
+                    <span>
+                        {{ workLog.getFormattedTime(workLog.loggedHours) }}
+                    </span>
+                </td>
+                <td class="v-a-m">
+                   {{ workLog.getFormattedTime(workLog.loggedHours)  ~ ' / ' ~ workLog.task.getFormattedTime(workLog.task.originalEstimate)}}
+                </td>
+                <td class="v-a-m">
+                    {{ workLog.createdAt | date('d.m.y / H:i') }}
+                </td>
+            </tr>
+        {% endfor %}
+        <!-- END ROW Task -->
+        </tbody>
+    </table>
+
+    {% set vars = {'route': 'worklog_list', 'currentPage': currentPage, 'maxPages': maxPages, 'filters': filters} %}
+    {% include 'partial/paginator.html.twig' with vars %}
+
+    <script>
+        $(document).ready(function() {
+            moment.locale('ru');
+            $('.daterange-picker').daterangepicker({
+                timePickerIncrement: 30,
+                timePicker24Hour: true,
+                autoUpdateInput: false,
+                locale: {
+                    format: 'DD.MM.YYYY', applyLabel: "Выбрать", cancelLabel: "Отменить"
+                }
+            });
+
+            $('.daterange-picker').on('apply.daterangepicker', function(ev, picker) {
+                $(this).val(picker.startDate.format('DD.MM.YYYY') + ' - ' + picker.endDate.format('DD.MM.YYYY'));
+
+                $(this).trigger('change');
+            });
+
+            $('.daterange-picker').on('cancel.daterangepicker', function(ev, picker) {
+                $(this).val('');
+                $(this).trigger('change');
+            });
+
+        });
+    </script>
+{% endblock %}

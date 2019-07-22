@@ -1,0 +1,19 @@
+<li>
+    <a href=""
+       data-href="{{ path('edit_supplier_incident', {'id': supplier.id, 'incidentId': incident.id}) ~ '#incidentstab' }}"
+       class="edit-supplier-incident"
+       data-comment="{{ incident.comment }}"
+       data-criticality="{{ incident.criticality }}"
+       data-date="{{ incident.date | date('d.m.Y') }}"
+       data-target=".editSupplierIncidentModal"
+       data-toggle="modal">
+        <i class="fa fa-fw fa-pencil"></i> {{ 'Edit' | trans() }}</a>
+</li>
+<li>
+    <a href=""
+       data-href="{{ path('delete_supplier_incident', {'id': supplier.id, 'incidentId': incident.id}) ~ '#incidentstab' }}"
+       class="delete-supplier-incident"
+       data-target=".deleteSupplierIncidentModal"
+       data-toggle="modal">
+        <i class="fa fa-fw fa-close text-danger"></i> {{ 'Delete' | trans() }}</a>
+</li>

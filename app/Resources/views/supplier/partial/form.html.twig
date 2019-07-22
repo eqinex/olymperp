@@ -1,0 +1,292 @@
+{% macro inputs(clients, suppliesCategoriesGrouped, legalForms) %}
+    <div class="form-group">
+        <label class="col-sm-2 control-label" style="margin-top: -10px;">{{ 'Short name' | trans() }}</label>
+        <div class="col-lg-4">
+            <input type="text" class="supplier-title form-control  validate-supplier-name" name="supplier[title]" placeholder="{{ 'Short name' | trans() }}" value="" required>
+        </div>
+        <label class="col-sm-2 control-label"  style="margin-top: -10px;">{{ 'Legal form' | trans() }}</label>
+        <div class="col-sm-3">
+            <select class="form-control select2-modal supplier-legal-form" name="supplier[legalForm]" required>
+                <option value="">{{ 'Select legal form' | trans() }}</option>
+                {% for legalForm in legalForms %}
+                    <option value="{{ legalForm.id }}">{{ legalForm.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ 'Full name' | trans() }}</label>
+        <div class="col-lg-9">
+            <textarea class="supplier-full-title form-control  validate-supplier-full-name" name="supplier[fullTitle]" placeholder="{{ 'Full name' | trans() }}" required></textarea>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ 'Supplies Categories' | trans() }}</label>
+        <div class="col-sm-9">
+            <select class="form-control select2-modal supplies-categories" name="supplier[supplies-categories][]" multiple="multiple">
+                {% for parent, suppliesCategories in suppliesCategoriesGrouped %}
+                    <optgroup label="{{ parent | trans() }}">
+                    {% for suppliesCategory in suppliesCategories %}
+                        <option value="{{ suppliesCategory.id }}">{{ suppliesCategory.title }}</option>
+                    {% endfor %}
+                    </optgroup>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label"  title="{{ 'Legal Address' | trans() }}">{{ 'Legal Address' | trans() }}</label>
+        <div class="col-lg-9">
+            <textarea class="form-control supplier-legal-address" style="height: 50px;" placeholder="{{ 'Legal Address' | trans() }}" name="supplier[legalAddress]"></textarea>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label"  title="{{ 'Actual Address' | trans() }}">{{ 'Actual Address' | trans() }}</label>
+        <div class="col-lg-9">
+            <textarea class="form-control supplier-actual-address" style="height: 50px;" placeholder="{{ 'Actual Address' | trans() }}" name="supplier[actualAddress]"></textarea>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label"  title="{{ 'Postal Address' | trans() }}">{{ 'Postal Address' | trans() }}</label>
+        <div class="col-lg-9">
+            <input type="text" class="supplier-postal-address form-control" name="supplier[postalAddress]" placeholder="{{ 'Postal Address' | trans() }}" value="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">Email</label>
+        <div class="col-sm-4">
+            <input type="email" class="supplier-email form-control" name="supplier[email]" placeholder="Email" value="">
+        </div>
+        <label class="col-sm-1 control-label">{{ 'Site' | trans() }}</label>
+        <div class="col-sm-4">
+            <input type="text" class="supplier-site form-control" name="supplier[site]" placeholder="{{ 'Site' | trans() }}" value="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ 'Phone' | trans() }}</label>
+        <div class="col-sm-4">
+            <input type="tel" pattern="\+7\s?[\(]{0,1}[0-9]{3}[\)]{0,1}\s?\d{3}[-]{0,1}\d{2}[-]{0,1}\d{2}" class="supplier-phone form-control" name="supplier[phone]" placeholder="{{ 'Phone' | trans() }}" value="">
+        </div>
+        <label class="col-sm-1 control-label">{{ 'Fax' | trans() }}</label>
+        <div class="col-sm-4">
+            <input type="text" class="supplier-fax form-control" name="supplier[fax]" placeholder="{{ 'Fax' | trans() }}" value="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ 'Ogrn' | trans() }}</label>
+        <div class="col-sm-4">
+            <input type="text" pattern="^[0-9]+$" class="supplier-ogrn form-control" name="supplier[ogrn]" placeholder="{{ 'Ogrn' | trans() }}" value="">
+        </div>
+        <label class="col-sm-1 control-label">{{ 'Okpo' | trans() }}</label>
+        <div class="col-sm-4">
+            <input type="text" pattern="^[0-9]+$" class="supplier-okpo form-control" name="supplier[okpo]" placeholder="{{ 'Okpo' | trans() }}" value="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ 'ITN' | trans() }}</label>
+        <div class="col-sm-2">
+            <input name="supplier[itn]" pattern="[0-9]{10,12}" type="text" class="supplier-itn form-control" placeholder="{{ 'ITN' | trans() }}" value="" required>
+        </div>
+        <label class="col-sm-1 control-label">{{ 'Kpp' | trans() }}</label>
+        <div class="col-sm-2">
+            <input name="supplier[kpp]" pattern="^[0-9]+$" type="text" class="supplier-kpp form-control" placeholder="{{ 'Kpp' | trans() }}" value="" >
+        </div>
+        <label class="col-sm-2 control-label">{{ 'Registered At' | trans() }}</label>
+        <div class="col-sm-2">
+            <input type="text" class="form-control supplier-registered-at daterange-single-date-picker"
+                   name="supplier[registeredAt]" value="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ 'Okved' | trans() }}</label>
+        <div class="col-sm-6">
+            <input name="supplier[okved]" type="text" class="supplier-okved form-control" placeholder="{{ 'Okved' | trans() }}" value="">
+        </div>
+        <label class="col-sm-1 control-label">{{ 'Okfs' | trans() }}</label>
+        <div class="col-sm-2">
+            <input name="supplier[okfs]" pattern="^[0-9]+$" type="text" class="supplier-okfs form-control" placeholder="{{ 'Okfs' | trans() }}" value="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ 'Okato' | trans() }}</label>
+        <div class="col-sm-6">
+            <input name="supplier[okato]" pattern="^[0-9]+$" type="text" class="supplier-okato form-control" placeholder="{{ 'Okato' | trans() }}" value="">
+        </div>
+        <label class="col-sm-1 control-label">{{ 'Okopf' | trans() }}</label>
+        <div class="col-sm-2">
+            <input name="supplier[okopf]" type="text" class="supplier-okopf form-control" placeholder="{{ 'Okopf' | trans() }}" value="">
+        </div>
+    </div>
+    <hr>
+    <div class="form-group">
+        <label class="col-sm-2 control-label" style="margin-top: -18px;">{{ 'Bank Short Name' | trans() }}</label>
+        <div class="col-sm-9">
+            <input name="supplier[bankShortName]" type="text" class="supplier-bank-short-name form-control" placeholder="{{ 'Bank Short Name' | trans() }}" value="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label" style="margin-top: -10px;">{{ 'Bank Full Name' | trans() }}</label>
+        <div class="col-sm-9">
+            <textarea class="supplier-bank-full-name form-control" name="supplier[bankFullName]" placeholder="{{ 'Bank Full Name' | trans() }}" required></textarea>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ 'Checking Account' | trans() }}</label>
+        <div class="col-sm-9">
+            <input name="supplier[checkingAccount]" pattern="^[0-9]+$" type="text" class="supplier-checking-account form-control" placeholder="{{ 'Checking Account' | trans() }}" value="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ 'Bic' | trans() }}</label>
+        <div class="col-sm-2">
+            <input name="supplier[bic]" type="text" class="supplier-bic form-control" placeholder="{{ 'Bic' | trans() }}" value="">
+        </div>
+        <label class="col-sm-3 control-label">{{ 'Correspondent Account' | trans() }}</label>
+        <div class="col-sm-4">
+            <input name="supplier[correspondentAccount]" pattern="^[0-9]+$" type="text" class="supplier-correspondent-account form-control" placeholder="{{ 'Correspondent Account' | trans() }}" value="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label"  title="{{ 'Bank Mailing Address' | trans() }}">{{ 'Bank Mailing Address' | trans() }}</label>
+        <div class="col-lg-9">
+            <textarea class="form-control supplier-bank-mailing-address" style="height: 50px;" placeholder="{{ 'Bank Mailing Address' | trans() }}" name="supplier[bankMailingAddress]"></textarea>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label"  title="{{ 'Bank Legal Address' | trans() }}">{{ 'Bank Legal Address' | trans() }}</label>
+        <div class="col-lg-9">
+            <textarea class="form-control supplier-bank-legal-address" style="height: 50px;" placeholder="{{ 'Bank Legal Address' | trans() }}" name="supplier[bankLegalAddress]"></textarea>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label"  title="{{ 'Bank Actual Address' | trans() }}">{{ 'Bank Actual Address' | trans() }}</label>
+        <div class="col-lg-9">
+            <textarea class="form-control supplier-bank-actual-address" style="height: 50px;" placeholder="{{ 'Bank Actual Address' | trans() }}" name="supplier[bankActualAddress]"></textarea>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ 'Bank Itn' | trans() }}</label>
+        <div class="col-sm-3">
+            <input type="text" pattern="^[0-9]+$" class="supplier-bank-itn form-control" name="supplier[bankItn]" placeholder="{{ 'Bank Itn' | trans() }}" value="">
+        </div>
+        <label class="col-sm-2 control-label">{{ 'Bank Kpp' | trans() }}</label>
+        <div class="col-sm-4">
+            <input type="text" pattern="^[0-9]+$" class="supplier-bank-kpp form-control" name="supplier[bankKpp]" placeholder="{{ 'Bank Kpp' | trans() }}" value="">
+        </div>
+    </div>
+    <hr>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ 'Director' | trans() }}</label>
+        <div class="col-sm-9">
+            <input name="supplier[director]" type="text" class="supplier-director form-control" placeholder="{{ 'Director' | trans() }}" value="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ 'Chief Accountant' | trans() }}</label>
+        <div class="col-sm-9">
+            <input name="supplier[accountant]" type="text" class="supplier-accountant form-control" placeholder="{{ 'Chief Accountant' | trans() }}" value="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ 'Client' | trans() }}</label>
+        <div class="col-sm-3">
+            <select class="form-control select2-modal supplier-client" name="supplier[client]">
+                <option value="">{{ 'Select client' | trans() }}</option>
+                {% for client in clients %}
+                    <option value="{{ client.id }}"
+                            {% if supplier.client.id is defined and supplier.client.id == client.id %}
+                                {{ "selected" }}
+                            {% endif %}>{{ client.shortName }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <label class="col-sm-4 control-label">{{ 'Director based' | trans() }}</label>
+        <div class="col-sm-2">
+            <input name="supplier[basis]" type="text" class="supplier-basis form-control" placeholder="" value="">
+        </div>
+    </div>
+    <script>
+        $(document).ready(function () {
+            moment.locale('ru');
+            $('.daterange-single-date-picker').daterangepicker({
+                singleDatePicker: true,
+                showDropdowns: true,
+                timePicker: true,
+                timePicker24Hour: true,
+                timePickerIncrement: 30,
+                opens: "left",
+                drops: "up",
+                locale: {
+                    format: 'DD.MM.YYYY', applyLabel: "Выбрать", cancelLabel: "Отменить"
+                }
+            });
+
+            $('.modal-submit-btn').bind('click', function () {
+                fixTitle('.validate-supplier-name');
+                fixTitle('.validate-supplier-full-name');
+            });
+
+            function fixTitle(elementClass) {
+                let value = $.trim($(elementClass).val());
+                if (value.length > 0) {
+                    value = value.replace(/«/g, '"');
+                    value = value.replace(/»/g, '"');
+                    $(elementClass).val(value);
+                }
+            }
+
+            $('.edit-supplier').bind('click', function () {
+                var editSupplierForm = $('#editSupplierForm');
+                editSupplierForm.attr('action', $(this).data('href'));
+                editSupplierForm.find('.supplier-title').val($(this).data('title'));
+                editSupplierForm.find('.supplier-legal-form').val($(this).data('legalForm'));
+                editSupplierForm.find('.supplier-full-title').val($(this).data('fullTitle'));
+                editSupplierForm.find('.supplier-legal-address').val($(this).data('legalAddress'));
+                editSupplierForm.find('.supplier-actual-address').val($(this).data('actualAddress'));
+                editSupplierForm.find('.supplier-postal-address').val($(this).data('postalAddress'));
+                editSupplierForm.find('.supplier-email').val($(this).data('email'));
+                editSupplierForm.find('.supplier-site').val($(this).data('site'));
+                editSupplierForm.find('.supplier-phone').val($(this).data('phone'));
+                editSupplierForm.find('.supplier-fax').val($(this).data('fax'));
+                editSupplierForm.find('.supplier-ogrn').val($(this).data('ogrn'));
+                editSupplierForm.find('.supplier-itn').val($(this).data('itn'));
+                editSupplierForm.find('.supplier-kpp').val($(this).data('kpp'));
+                editSupplierForm.find('.supplier-okpo').val($(this).data('okpo'));
+                editSupplierForm.find('.supplier-okved').val($(this).data('okved'));
+                editSupplierForm.find('.supplier-okfs').val($(this).data('okfs'));
+                editSupplierForm.find('.supplier-okopf').val($(this).data('okopf'));
+                editSupplierForm.find('.supplier-okato').val($(this).data('okato'));
+                editSupplierForm.find('.supplier-director').val($(this).data('director'));
+                editSupplierForm.find('.supplier-basis').val($(this).data('basis'));
+                editSupplierForm.find('.supplier-accountant').val($(this).data('accountant'));
+                editSupplierForm.find('.supplier-registered-at').val($(this).data('registeredAt'));
+                editSupplierForm.find('.supplier-checking-account').val($(this).data('checkingAccount'));
+                editSupplierForm.find('.supplier-bank-short-name').val($(this).data('bankShortName'));
+                editSupplierForm.find('.supplier-bank-full-name').val($(this).data('bankFullName'));
+                editSupplierForm.find('.supplier-correspondent-account').val($(this).data('correspondentAccount'));
+                editSupplierForm.find('.supplier-bic').val($(this).data('bic'));
+                editSupplierForm.find('.supplier-bank-mailing-address').val($(this).data('bankMailingAddress'));
+                editSupplierForm.find('.supplier-bank-legal-address').val($(this).data('bankLegalAddress'));
+                editSupplierForm.find('.supplier-bank-actual-address').val($(this).data('bankActualAddress'));
+                editSupplierForm.find('.supplier-bank-itn').val($(this).data('bankItn'));
+                editSupplierForm.find('.supplier-bank-kpp').val($(this).data('bankKpp'));
+                editSupplierForm.find('.supplier-client').val($(this).data('client'));
+
+                let selectedCategories = $(this).data('supplies-categories');
+
+                for (let keyCat in selectedCategories) {
+                    editSupplierForm.find('.supplies-categories option').each(function(){
+
+                        if (selectedCategories[keyCat] == $(this).val()) {
+                            $(this).attr('selected', true);
+                        } else {
+                            $(this).attr('selected', false);
+                        }
+                    });
+                }
+
+                $('.select2-modal').select2({width: '100%'});
+            });
+        });
+    </script>
+{% endmacro %}

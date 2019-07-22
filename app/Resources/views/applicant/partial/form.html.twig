@@ -1,0 +1,78 @@
+{% macro inputs(employeeRoles, statusList) %}
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ 'First name' | trans() }}</label>
+        <div class="col-lg-3">
+            <input type="text" class="applicant-first-name form-control" name="applicant[firstname]" placeholder="{{ 'First name' | trans() }}" value="" required>
+        </div>
+        <label class="col-sm-3 control-label">{{ 'Last name' | trans() }}</label>
+        <div class="col-lg-3">
+            <input type="text" class="applicant-last-name form-control" name="applicant[lastname]" placeholder="{{ 'Last name' | trans() }}" value="" required>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ 'Middle name' | trans() }}</label>
+        <div class="col-lg-3">
+            <input type="text" class="applicant-middle-name form-control" name="applicant[middlename]" placeholder="{{ 'Middle name' | trans() }}" value="">
+        </div>
+        <label class="col-sm-3 control-label">{{ 'Select role' | trans() }}</label>
+        <div class="col-lg-3">
+            <select class="form-control applicant-employee-role select2-modal" name="applicant[employeeRole]" required>
+                <option value="">{{ 'Select role' | trans() }}</option>
+                {% for employeeRole in employeeRoles %}
+                    <option value="{{ employeeRole.id }}">
+                        {{ employeeRole.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ 'Phone' | trans() }}</label>
+        <div class="col-lg-3">
+            <input type="tel" pattern="\+7\s?[\(]{0,1}[0-9]{3}[\)]{0,1}\s?\d{3}[-]{0,1}\d{2}[-]{0,1}\d{2}" class="applicant-phone form-control" name="applicant[phone]" placeholder="{{ 'Phone' | trans() }}" required>
+        </div>
+        <label class="col-sm-3 control-label">{{ 'Email' | trans() }}</label>
+        <div class="col-lg-3">
+            <input type="email" class="applicant-email form-control" name="applicant[email]" placeholder="{{ 'Email' | trans() }}" value="" required>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ 'Select status' | trans() }}</label>
+        <div class="col-lg-3">
+            <select class="form-control applicant-status select2-modal" name="applicant[status]" required>
+                <option value="">{{ 'Select status' | trans() }}</option>
+                {% for status in statusList %}
+                    <option value="{{ status.id }}">
+                        {{ status.status }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-lg-2 control-label">{{ 'Add notice' | trans() }}</label>
+        <div class="col-lg-9">
+            <textarea class="applicant-notice form-control" rows="4" placeholder="{{ 'Notice' | trans() }}" name="applicant[notice]"></textarea>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            $('.editApplicant').bind('click', function () {
+                var editApplicantForm = $('#editApplicantForm');
+                editApplicantForm.attr('action', $(this).data('href'));
+                editApplicantForm.find('.applicant-first-name').val($(this).data('firstName'));
+                editApplicantForm.find('.applicant-last-name').val($(this).data('lastName'));
+                editApplicantForm.find('.applicant-middle-name').val($(this).data('middleName'));
+                editApplicantForm.find('.applicant-employee-role').val($(this).data('employeeRole'));
+                editApplicantForm.find('.applicant-status').val($(this).data('status'));
+                editApplicantForm.find('.applicant-notice').val($(this).data('notice'));
+                editApplicantForm.find('.applicant-phone').val($(this).data('phone'));
+                editApplicantForm.find('.applicant-email').val($(this).data('email'));
+
+                $('.select2-modal').select2({width: '100%'});
+            });
+        });
+    </script>
+{% endmacro %}

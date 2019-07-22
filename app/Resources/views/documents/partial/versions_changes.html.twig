@@ -1,0 +1,43 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ document.code ~ ' ' ~ 'Revision' | trans() ~ ' ' ~ versions.version }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ breadcrumb( 'Contracts' | trans(), path('documents_list') ) }}
+    {{ breadcrumb( document.code, path('document_details', {'id': document.id}) ) }}
+    {{ breadcrumb( 'Revision' | trans() ~ ' ' ~ versions.version ) }}
+{% endblock %}
+
+{% block body %}
+
+    <div>
+        <div class="row m-b-2">
+            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                <h3 class="f-w-300 m-t-1">{{ 'Changes' | trans() }}</h3>
+            </div>
+        </div>
+        <div class="panel panel-default no-bg b-gray-dark">
+            <div class="panel-body">
+               <div id="output">
+                     <div class="before-load">
+                        <img src="/images/preloaders/{{ app.user.theme }}-theme-preloader.gif">
+                     </div>
+               </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    <script type="text/javascript">
+        $(window).on('load', function() {
+            let originalHTML = `{{ versions.previousRevision is not null ? versions.previousRevision.content | raw }}`;
+            let newHTML = `{{ versions.content | raw }}`;
+
+            let output = htmldiff(originalHTML, newHTML);
+
+            document.getElementById("output").innerHTML = output;
+        });
+    </script>
+{% endblock %}

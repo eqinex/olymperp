@@ -1,0 +1,11 @@
+{% macro inputs() %}
+    <div class="text-center">{{ "Are you sure you want to remove supplier from the blacklist" | trans() }}</div>
+
+    <script>
+        $(document).ready(function(){
+            $('.remove-blacklist-supplier').bind('click', function() {
+                $('#removeBlackListSupplierForm').attr('action', $(this).data('href'));
+            });
+        });
+    </script>
+{% endmacro %}

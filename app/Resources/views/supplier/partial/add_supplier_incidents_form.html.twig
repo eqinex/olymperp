@@ -1,0 +1,108 @@
+{% macro inputs(criticalities) %}
+    <div id="supplier-incidents-form" class="p-t-2">
+    </div>
+
+    <div class="new-supplier-incident-template" style="display:none;">
+        <div class="incident">
+            <div class="form-group">
+                <label class="col-sm-1 control-label incident-number p-l-0"></label>
+                <div class="col-sm-9 p-l-2">
+                    <textarea class="incident-comment" placeholder="{{ "Incident" | trans() }}" rows="2" maxlength="255"></textarea>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-1 p-l-0"></div>
+                <div class="col-sm-5 p-l-1">
+                    <select class="incident-criticality">
+                        <option value="">{{ 'Select criticality' | trans() }}</option>
+                        {% for key, criticality in criticalities %}
+                            <option value="{{ key }}">{{ criticality | trans() }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-sm-4 p-l-0">
+                    <input type="text" class="incident-at">
+                </div>
+                <div class="col-sm-1 p-l-0">
+                    <a class="btn btn-danger remove-incident m-b-1" data-incident-id=""><i class="fa fa-minus"></i></a>
+                    <a class="btn btn-success add-incident pull-left"><i class="fa fa-plus"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function(){
+            addNewIncident();
+
+            $('.add-supplier-incidents').bind('click', function () {
+                $('#addSupplierIncidentsForm').attr('action', $(this).data('href'));
+            });
+
+            $(document).on('click', '.add-incident', function() {
+                addNewIncident();
+            });
+            $(document).on('click', '.remove-incident', function() {
+                removeIncident($(this).data('incident-id'));
+            });
+        });
+
+        function addNewIncident() {
+            var incidentsForm = $('#supplier-incidents-form');
+            var incidents = incidentsForm.find('.incident-number').length;
+            var id = incidents + 1;
+
+            var newTemplate = $('.new-supplier-incident-template');
+            newTemplate.find('.incident').attr('id', 'incident-' + id);
+
+            incidentsForm.append(newTemplate.html());
+            var newIncident = $('#supplier-incidents-form #incident-' + id);
+
+            newIncident.find('.incident-number').text('#' + id);
+            newIncident.find('.incident-comment')
+                .addClass('form-control')
+                .attr('name', 'incident[incidents][' + incidents +'][comment]')
+                .attr('required', true);
+            newIncident.find('.incident-criticality')
+                .addClass('form-control select2-modal')
+                .attr('name', 'incident[incidents][' + incidents +'][criticality]')
+                .attr('required', true);
+            newIncident.find('.incident-at')
+                .addClass('form-control daterange-single-date-picker')
+                .attr('name', 'incident[incidents][' + incidents +'][date]')
+                .attr('required', true);
+            newIncident.find('.remove-incident').attr('data-incident-id', '#incident-' + id);
+            updateButtons();
+
+            $('.select2-modal').select2({width: '100%'});
+
+            $('.daterange-single-date-picker').daterangepicker({
+                singleDatePicker: true,
+                showDropdowns: true,
+                locale: {
+                    format: 'DD.MM.YYYY', applyLabel: "Выбрать", cancelLabel: "Отменить"
+                }
+            });
+        }
+
+        function removeIncident(incidentId) {
+            $(incidentId).remove();
+            updateButtons();
+        }
+
+        function updateButtons() {
+            var incidentsForm = $('#supplier-incidents-form');
+            var incidents = incidentsForm.find('.incident');
+
+            if (incidents.length > 1) {
+                $('.add-incident').hide();
+                $('.remove-incident').hide();
+                $('.incident:last-child .add-incident').show();
+                $('.incident:last-child .remove-incident').show();
+            } else {
+                $('#incident-1').find('.remove-incident').hide();
+                $('#incident-1').find('.add-incident').show();
+            }
+        }
+    </script>
+{% endmacro %}

@@ -1,0 +1,65 @@
+<div class="dropdown">
+    <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+        <i class="fa fa-fw fa-gear"></i> <span class="caret"></span>
+    </button>
+    <ul class="dropdown-menu dropdown-menu-right">
+        {% if purchaseRequest.canAddDeliveryItem(app.user) %}
+            <li>
+                <a href=""
+                   class="add-delivery-item"
+                   data-action="{{ path('purchase_request_add_delivery_item', {"id": purchaseRequest.id, "itemId": item.id}) }}"
+                   data-target=".addDeliveryItemModal"
+                   data-toggle="modal"
+                   title="{{ 'Add delivery' | trans() }}"><i class="fa fa-fw fa-bus m-r-1"></i>{{ 'Add delivery' | trans() }}</a>
+            </li>
+        {% endif %}
+        {% if app.user.canViewFinancialInfo and (canManagerPreliminaryEstimate or canManagerFinishWork) %}
+            <li>
+                <a href=""
+                   class="supplier-refresh"
+                   data-action="{{ path('refresh_supplier', {'id': purchaseRequest.id, 'itemId': item.id}) }}"
+                   data-id="{{ item.id }}"
+                        {% if item.invoice is not null %}
+                            data-supplier="{{ item.invoice.supplier.id ? : '' }}"
+                            data-invoice="{{ item.invoice.invoiceNumber ? : '' }}"
+                        {% endif %}
+                   data-target=".refreshSupplierModal"
+                   data-toggle="modal"
+                   title="{{ 'Refresh supplier' | trans() }}"><i class="fa fa-fw fa-refresh m-r-1"></i>{{ 'Refresh supplier' | trans() }}</a>
+            </li>
+        {% endif %}
+        {% if purchaseRequest.isOwner(app.user) %}
+            <li>
+                <a href=""
+                   class="add-item-notice"
+                   data-form-action="{{ path('purchase_request_add_item_notice', {"id": purchaseRequest.id, "itemId": item.id}) }}"
+                   data-target=".noticeFormModal"
+                   data-toggle="modal"
+                   title="{{ 'Add notice' | trans() }}"><i class="fa fa-fw fa-comment m-r-1"></i>{{ 'Add notice' | trans() }}</a>
+            </li>
+            {% if purchaseRequest.canEditItems(app.user) %}
+                <li>
+                    <a href=""
+                       class="edit-item"
+                       data-form-action="{{ path('purchase_request_edit_item', {"id": purchaseRequest.id, "itemId": item.id}) }}"
+                       data-target=".editItemModal"
+                       data-toggle="modal"
+                       data-title="{{ item.title }}"
+                       data-sku="{{ item.sku }}"
+                       data-quantity="{{ item.singleProductQuantity() }}"
+                       data-unit="{{ item.unit ? item.unit.id : '' }}"
+                       data-category="{{ item.suppliesCategory is not null ? item.suppliesCategory.id : ''}}"
+                       title="{{ 'Edit item' | trans() }}"><i class="fa fa-fw fa-pencil m-r-1"></i>{{ 'Edit item' | trans() }}</a>
+                </li>
+                <li>
+                    <a href=""
+                       class="remove-item"
+                       data-form-action="{{ path('purchase_request_remove_item', {"id": purchaseRequest.id, "itemId": item.id}) }}"
+                       data-target=".removeItemModal"
+                       data-toggle="modal"
+                       title="{{ 'Remove item' | trans() }}"><i class="fa fa-fw fa-close text-danger m-r-1"></i>{{ 'Remove item' | trans() }}</a>
+                </li>
+            {% endif %}
+        {% endif %}
+    </ul>
+</div>

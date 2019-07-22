@@ -1,0 +1,21 @@
+{% macro tree(team) %}
+    {% import _self as m %}
+    {% for u in team.getAllTeamMembers %}
+        {
+            id: {{ u.id }},
+            parentId: '{{ u.team.leader.id != u.id ? u.team.leader.id : '' }}',
+            name: "<a href='{{ path('employee_details', {'userName': u.username}) }}' style='cursor: pointer; color: #fff;'>{{ u.fullName }}</a>",
+            title: "{{ u.employeeRole }}",
+            phone: "{{ u.phone }}",
+            mail: "{{ u.email }}",
+            room: "{{ u.room }}",
+            team: "{{ team.title }}",
+            image: "{% if u.imageUrl is not null %}{{ u.imageUrl }}{% else %}{{ '/images/noavatar.png' }}{% endif %}"
+        },
+    {% endfor %}
+    {% if team.childTeams | length %}
+        {% for childTeam in team.childTeams %}
+            {{ m.tree(childTeam) }}
+        {% endfor %}
+    {% endif %}
+{% endmacro %}

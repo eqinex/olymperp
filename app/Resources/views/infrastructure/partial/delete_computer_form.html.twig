@@ -1,0 +1,13 @@
+{% macro inputs(message) %}
+    <div class="text-center">{{ message | trans() }}</div>
+    <input type="hidden" class="computer-list-path" name="listPath">
+    <script>
+        $(document).ready(function(){
+            $('.deleteComputer').bind('click', function() {
+                var deleteComputerForm = $('#deleteComputerForm');
+                deleteComputerForm.attr('action', $(this).data('form-action'));
+                deleteComputerForm.find('.computer-list-path').val($(this).data('listPath'));
+            });
+        });
+    </script>
+{% endmacro %}

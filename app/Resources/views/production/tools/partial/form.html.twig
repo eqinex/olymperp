@@ -1,0 +1,75 @@
+{% macro inputs() %}
+    <input type="hidden" class="form-control toolWorkLog-id" value="" name="id">
+    <input type="hidden" class="form-control toolWorkLog-tool" value="" name="item[tool]">
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ "item.designation" | trans() }}</label>
+        <div class="col-sm-4">
+            <input type="text" class="item-designation form-control toolWorkLog-designation" placeholder="{{ ('item.designation' | trans()) ~ ' "АТ. "' }} " value="" name="item[designation]" required="required">
+            <span class="help-block">{{ 'Starts with АТ.' | trans() }}</span>
+        </div>
+        <label class="col-sm-2 control-label">{{ ("item.title" | trans()) | capitalize }}</label>
+        <div class="col-sm-4">
+            <input type="text" class="item-title form-control toolWorkLog-title" placeholder="{{ ("item.title" | trans()) | capitalize }}" value="" name="item[title]" required="required">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ "Project" | trans() }}</label>
+        <div class="col-sm-4">
+            <input type="hidden" class="form-control toolWorkLog-project" value="" name="item[project]">
+            <select class="form-control select2-modal toolWorkLog-project" name="item[project]" required>
+                {% for project in project_service.getAvailableProjects(app.user) %}
+                    <option value="{{ project.id }}"
+                            {% if toolWorkLog.project.id is defined and toolWorkLog.project.id == project.id %}
+                                {{ "selected" }}
+                            {% endif %}>{{ project.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <label class="col-sm-2 control-label">{{ ('item.quantity' | trans()) | capitalize }}</label>
+        <div class="col-sm-4">
+            <input type="number" class="item-quantity form-control toolWorkLog-quantity" placeholder="{{ ('item.quantity' | trans()) | capitalize  }}" value="" name="item[quantity]" required="required">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ "item.consumption of basic materials" | trans() }}</label>
+        <div class="col-sm-4">
+            <input type="text" pattern="\d+(\.\d{0,10})?" class="form-control toolWorkLog-consumption-of-basic-materials" placeholder="{{ 'item.consumption of basic materials' | trans() }}" value="" name="item[consumptionOfBasicMaterials]" required="required">
+        </div>
+        <label class="col-sm-2 control-label">{{ "item.support materials consumption" | trans() }}</label>
+        <div class="col-sm-4">
+            <input type="text" pattern="\d+(\.\d{0,10})?" class="form-control toolWorkLog-support-materials-consumption" placeholder="{{ 'item.support materials consumption' | trans() }}" value="" name="item[supportMaterialsConsumption]" required="required">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ "item.placement" | trans() }}</label>
+        <div class="col-sm-4">
+            <input type="text" pattern="\d+(\.\d{0,10})?" class="form-control toolWorkLog-placement" placeholder="{{ 'item.placement' | trans() }}" value="" name="item[placement]" required="required">
+        </div>
+        <label class="col-sm-2 control-label">{{ "item.printing time" | trans() }}</label>
+        <div class="col-sm-4">
+            <input type="text" pattern="\d+(\.\d{0,10})?" class="form-control toolWorkLog-printing-time" placeholder="{{ 'item.printing time' | trans() }}" value="" name="item[printingTime]" required="required">
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function(){
+
+            $('.editToolWorkLog').bind('click', function(){
+                var editToolWorkLogForm = $('#editToolWorkLogForm');
+                editToolWorkLogForm.attr('action', $(this).data('href'));
+                editToolWorkLogForm.find('.toolWorkLog-id').val($(this).data('id'));
+                editToolWorkLogForm.find('.toolWorkLog-designation').val($(this).data('designation'));
+                editToolWorkLogForm.find('.toolWorkLog-title').val($(this).data('title'));
+                editToolWorkLogForm.find('.toolWorkLog-project').val($(this).data('project'));
+                editToolWorkLogForm.find('.toolWorkLog-tool').val($(this).data('tool'));
+                editToolWorkLogForm.find('.toolWorkLog-quantity').val($(this).data('quantity'));
+                editToolWorkLogForm.find('.toolWorkLog-consumption-of-basic-materials').val($(this).data('consumptionOfBasicMaterials'));
+                editToolWorkLogForm.find('.toolWorkLog-support-materials-consumption').val($(this).data('supportMaterialsConsumption'));
+                editToolWorkLogForm.find('.toolWorkLog-placement').val($(this).data('placement'));
+                editToolWorkLogForm.find('.toolWorkLog-printing-time').val($(this).data('printingTime'));
+
+                $('.select2-modal').select2({ width: '100%' })
+            });
+        });
+    </script>
+{% endmacro %}

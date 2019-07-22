@@ -1,0 +1,164 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'Applicant' | trans() }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ breadcrumb( 'Applicant' | trans(), path('applicant_list') ) }}
+{% endblock %}
+
+{% block body %}
+    <div class="panel panel-default no-bg  b-gray-dark">
+        <div class="panel-body">
+            <form class="form-inline filter-form" method="get" action="">
+                <div class="form-group filter">
+                    <select class="form-control" name="filters[employeeRole]">
+                        <option value="">{{ 'Select role' | trans() }}</option>
+                        {% for employeeRole in employeeRoles %}
+                            <option {% if filters.employeeRole is defined and filters.employeeRole == employeeRole.id %}selected{% endif %} value="{{ employeeRole.id }}">
+                                {{ employeeRole.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <select class="form-control" name="filters[applicant]">
+                        <option value="">{{ 'Select applicant' | trans() }}</option>
+                        {% for applicant in applicants %}
+                            <option {% if filters.applicant is defined and filters.applicant == applicant.id %}selected{% endif %} value="{{ applicant.id }}">
+                                {{ applicant.firstname ~ " " ~ applicant.lastname ~ " " ~ applicant.middlename }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <select class="form-control" name="filters[status]">
+                        <option value="">{{ 'Select status' | trans() }}</option>
+                        {% for status in statusList %}
+                            <option {% if filters.status is defined and filters.status == status.id %}selected{% endif %} value="{{ status.id }}">
+                                {{ status.status }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <input class="form-control" name="filters[mail]" placeholder="{{ 'Search by email' | trans() }}"
+                           value="{% if filters.mail is defined %}{{ filters.mail }}{% endif %}" />
+                    <input class="form-control" name="filters[phone]" placeholder="{{ 'Search by phone' | trans() }}"
+                           value="{% if filters.phone is defined %}{{ filters.phone }}{% endif %}" />
+                </div>
+                {% if app.user.canEditApplicant() %}
+                    <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target=".addApplicantModal"><i class="fa fa-plus"></i> {{ 'Add applicant' | trans() }}</button>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th class="small text-muted text-uppercase"><strong>{{ "full name" | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ "Employee Role" | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ "Status" | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ "Notice" | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ "Mail" | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ "Phone" | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ "Files" | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ "Changed at" | trans() }}</strong></th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for applicant in applicants %}
+            <tr>
+                <td class="v-a-m">
+                    <a href="{{ path('applicant_details', {'applicantId': applicant.id}) }}">
+                        {{ applicant.lastName ~ " " ~ applicant.firstName ~ " " ~ applicant.middleName }}
+                    </a>
+                </td>
+                <td class="v-a-m">
+                    {{ applicant.employeeRole.name }}
+                </td>
+                <td class="v-a-m">
+                    {% if applicant.status is not null%}
+                        {{ applicant.status.status }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+                <td class="v-a-m">
+                    {{ applicant.notice }}
+                </td>
+                <td class="v-a-m">
+                    {% if applicant.email is not null%}
+                        <a href="mailto:{{ applicant.email }}">{{ applicant.email }}</a>
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+                <td class="v-a-m">
+                    {{ applicant.phone ? applicant.phone : '-' }}
+                </td>
+                <td class="v-a-m">
+                    {% if applicant.attachments | length %}
+                        <a class="text-inverse" href="{{ path('applicant_details', {'applicantId': applicant.id}) }}#attachmentstab">
+                            <i class="fa fa-fw fa-paperclip"></i></a>
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+                <td class="v-a-m">
+                    {{ applicant.updatedAt | date('d.m.Y') }}
+                </td>
+                {% if app.user.canEditApplicant() %}
+                    <td class="text-right v-a-m">
+                        <div class="dropdown">
+                            <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                <i class="fa fa-fw fa-gear"></i> <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-right">
+                                {% include 'applicant/partial/applicant_actions.html.twig' %}
+                            </ul>
+                        </div>
+                    </td>
+                {% endif %}
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% set vars = {
+        'route': 'applicant_list',
+        'currentPage': currentPage,
+        'perPage': perPage,
+        'maxPages': maxPages,
+        'filters': filters,
+    } %}
+
+    {% include 'partial/paginator.html.twig' with vars %}
+
+    {% import 'applicant/partial/form.html.twig' as form %}
+    {% import 'applicant/partial/upload_files_form.html.twig' as uploadApplicantFileForm %}
+
+    {% set addApplicantFormVars = {
+        'class': 'addApplicantModal',
+        'formId': 'addApplicantForm',
+        'title': 'Add applicant',
+        'size': 'large',
+        'content': form.inputs(employeeRoles, statusList),
+        'formAction': path('applicant_add'),
+        'submitTitle': 'Add'
+    } %}
+
+    {% set editApplicantFormVars = {
+        'class': 'editApplicantModal',
+        'formId': 'editApplicantForm',
+        'title': 'Edit applicant',
+        'size': 'large',
+        'content': form.inputs(employeeRoles, statusList),
+        'submitTitle': 'Edit'
+    } %}
+
+    {% set uploadApplicantFileVars = {
+        'class': 'uploadApplicantFileModal',
+        'formId': 'uploadApplicantFileForm',
+        'title': 'Upload File',
+        'content': uploadApplicantFileForm.inputs(),
+        'submitTitle': 'Upload File'
+    } %}
+
+    {% include 'partial/modal.html.twig' with addApplicantFormVars %}
+    {% include 'partial/modal.html.twig' with editApplicantFormVars %}
+    {% include 'partial/modal.html.twig' with uploadApplicantFileVars %}
+
+{% endblock %}

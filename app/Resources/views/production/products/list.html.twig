@@ -1,0 +1,73 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ "products_list" | trans() }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ breadcrumb( 'products_list' | trans(), path('products_list') ) }}
+{% endblock %}
+
+
+{% block body %}
+
+    <div class="panel panel-default no-bg  b-gray-dark">
+        <div class="panel-body">
+            <form class="form-inline filter-form" method="get" action="{{ path('products_list') }}">
+                <div class="form-group filter">
+                    <input class="form-control" name="filters[name]" placeholder="{{ 'Search by title' | trans() }}"
+                           value="{% if filters.name is defined %}{{ filters.name }}{% endif %}">
+                </div>
+                <div class="form-group filter">
+                    <select class="form-control" name="filters[project]">
+                        <option value="">{{ 'Select project' | trans() }}</option>
+                        {% for project in projects %}
+                            <option {% if filters.project is defined and filters.project == project.id %}selected{% endif %} value="{{ project.id }}">
+                                {{ project.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th class="small text-muted text-uppercase">#</th>
+            <th class="small text-muted text-uppercase"><strong>{{ "Name" | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ "Project" | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ "Quantity" | trans() }}</strong></th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for product in products %}
+            <tr>
+                <td class="v-a-m">
+                    <span>{{ product.id }}</span>
+                </td>
+                <td class="v-a-m">
+                    {{ product.name }}
+                </td>
+                <td class="v-a-m">
+                    <span><a href="{{ path('project_details', {'id': product.project.id}) }}" >{{ product.project }}</a></span>
+                </td>
+                <td class="v-a-m">
+                    <h5 class="m-t-0 m-b-0 f-w-300">
+                        <span>{{ product.amount ~ ' шт' }}</span>
+                    </h5>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    {% set vars = {
+        'route': 'products_list',
+        'currentPage': currentPage,
+        'maxPages': maxPages,
+        'filters': filters
+    }
+    %}
+    {% include 'partial/paginator.html.twig' with vars %}
+
+{% endblock %}

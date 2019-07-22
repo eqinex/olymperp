@@ -1,0 +1,10 @@
+job1:
+  stage: build
+  tags: [doxygen-olymp]
+  script: 
+  - echo Success > /tmp/gitlab.txt
+  - doxygen ./Doxyfile
+  - cp -r ./doxygen/html /var/www/html/olymp
+  only:
+  - develop
+  - merge_requests

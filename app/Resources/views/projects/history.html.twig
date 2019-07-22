@@ -1,0 +1,75 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ project.name }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ breadcrumb( 'Projects' | trans(), path('projects_list') ) }}
+    {{ breadcrumb( project.name, path('project_details', {'id': project.id}) ) }}
+    {{ breadcrumb( 'History' | trans(), path('project_history', {'id': project.id}) ) }}
+{% endblock %}
+
+{% block body %}
+
+    {% set vars = {'project': project} %}
+    {% include 'projects/partial/info_sidebar.html.twig' with vars %}
+
+    <div class="col-lg-9">
+        <!-- START Header with Option -->
+        <div class="row m-b-2">
+
+            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                <!-- START Header -->
+                <h3 class="f-w-300 m-t-1">{{ project.name }}</h3>
+            </div>
+            <div class="col-lg-6 col-md-6 col-xs-12">
+                <div class="btn-toolbar pull-right">
+                    <div class="btn-group" role="group" aria-label="...">
+                        {% set vars = {'active_page': 'project_history'} %}
+                        {% include 'projects/partial/nav.html.twig' with vars %}
+                    </div>
+                </div>
+                <!-- END Toolbar -->
+            </div>
+        </div>
+        <div class="panel-body">
+            {% if projectChanges | length %}
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th class="small text-muted text-uppercase" style="width: 160px;">{{ 'Field' | trans() }}</th>
+                        <th class="small text-muted text-uppercase">{{ 'Old value' | trans() }}</th>
+                        <th class="small text-muted text-uppercase">{{ 'New value' | trans() }}</th>
+                        <th class="small text-muted text-uppercase">{{ 'Changed by' | trans() }}</th>
+                        <th class="small text-muted text-uppercase">{{ 'Changed at' | trans() }}</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% set changeTime = null %}
+                    {% set styleGrey = 'background-color: #e7e7e7;' %}
+                    {% set style = '' %}
+
+                    {% for changes in projectChanges %}
+                        {% if changeTime != changes.updatedAt | date('d.m.y H:i') %}
+                            {% if style == styleGrey %}
+                                {% set style = '' %}
+                            {% else %}
+                                {% set style = styleGrey %}
+                            {% endif %}
+                            {% set changeTime = changes.updatedAt | date('d.m.y H:i') %}
+                        {% endif %}
+                        <tr style="{{ style }}">
+                            <td>{{ (changes.field | capitalize) | trans() }}</td>
+                            <td><strike>{{ changes.oldValue | trans() }}</strike></td>
+                            <td class="text-inverse">{{ changes.newValue | trans() }}</td>
+                            <td>{{ changes.changedBy.fullName }}</td>
+                            <td>{{ changes.updatedAt | date('d.m.y H:i') }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <span class="v-a-m b-t-0 text-muted">{{ "There's no changes yet" | trans() }}</span>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

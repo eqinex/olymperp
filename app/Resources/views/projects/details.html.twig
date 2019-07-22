@@ -1,0 +1,114 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ project.name }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ breadcrumb( 'Projects' | trans(), path('projects_list') ) }}
+    {{ breadcrumb( project.name, path('project_details', {'id': project.id}) ) }}
+{% endblock %}
+
+{% block body %}
+
+        {% set vars = {'project': project} %}
+        {% include 'projects/partial/info_sidebar.html.twig' with vars %}
+
+        <div class="col-lg-9">
+
+            <!-- START Header with Option -->
+            <div class="row m-b-2">
+
+                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                    <!-- START Header -->
+                    <h3 class="f-w-300 m-t-1">{{ project.name }}</h3>
+                    <!-- END Header -->
+                </div>
+                <div class="col-lg-6 col-md-6 col-xs-12">
+                    <div class="btn-toolbar pull-right">
+                        <div class="btn-group" role="group" aria-label="...">
+                            {% set vars = {'active_page': 'project_details'} %}
+                            {% include 'projects/partial/nav.html.twig' with vars %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- END Header with Option -->
+
+            <!-- START Panel Sessions -->
+            <div class="panel panel-default no-bg b-gray-dark">
+
+                <div class="panel-body">
+                    <div class="hr-text hr-text-left">
+                        <h6 class="text-inverse"><strong class="m-r-1">{{ 'Products' | trans() }} </strong></h6>
+                    </div>
+                    {% for ware in wares %}
+                    <ul>
+                        <li>
+                            <a href="{{ path('project_requests_list', {'id': project.id, 'filters': {'ware': ware.id }}) }}">{{ ware.name }}
+                                <span>{{  '- ' ~ ware.amount ~ ' шт' }}</span>
+                            </a>
+                        </li>
+                    </ul>
+                    {% endfor %}
+                    <div class="hr-text hr-text-left">
+                        <h6 class="text-inverse"><strong class="m-r-1">{{ 'Description' | trans() }} </strong></h6>
+                    </div>
+                    <div>
+                        {{ project.description | raw }}
+                    </div>
+
+                    <!-- START Attachments Section -->
+                    <div class="hr-text hr-text-left m-t-3">
+                        <h6 class="text-inverse"><strong class="m-r-1">{{ 'attachments' | trans() }} </strong> <span class="badge">{{ projectFiles | length }}</span></h6>
+                    </div>
+
+                    <div class="panel-body">
+                        {% if projectFiles | length %}
+                            <table class="table table-hover m-b-0">
+                                <tbody>
+                                {% for file in projectFiles %}
+                                    {% set vars = {
+                                        'downloadFilePath': path ('project_download_file', {'id': project.id, 'fileId': file.id }),
+                                        'deleteFilePath' : path('project_remove_file', {'id': project.id, 'fileId': file.id })
+                                    } %}
+                                    {% if file.format == 'jpg' or file.format == 'jpeg' or file.format == 'png' %}
+                                        {% set vars = vars | merge({ 'previewImage': path('project_download_file', {'id': project.id, 'fileId': file.id, 'preview': true }) }) %}
+                                    {% endif %}
+                                    {% include 'partial/upload_files_list.html.twig' with vars %}
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        {% else %}
+                            <span class="v-a-m b-t-0 text-muted">{{ "There's no files yet" | trans() }}</span>
+                        {% endif %}
+                    </div>
+                    {% set vars = {'uploadFilePath' : path('project_upload_file', {'id': project.id})} %}
+                    {% include 'partial/upload_files_form.html.twig' with vars %}
+                </div>
+            </div>
+        </div>
+
+    {% import 'partial/preview_form.html.twig' as previewForm %}
+    {% import 'projects/partial/delete_file_form.html.twig' as deleteFileForm %}
+
+    {% set previewFormVars = {
+            'class': 'previewModal',
+            'formId': 'previewForm',
+            'size': 'large',
+            'title': 'Image preview',
+            'content': previewForm.inputs(),
+        }
+    %}
+
+    {% set deleteFileFormVars = {
+            'class': 'deleteFileModal',
+            'formId': 'deleteFileForm',
+            'title': 'Delete file',
+            'content': deleteFileForm.inputs(),
+            'submitTitle': 'Delete'
+        }
+    %}
+
+    {% include 'partial/modal.html.twig' with previewFormVars %}
+    {% include 'partial/modal.html.twig' with deleteFileFormVars %}
+
+{% endblock %}

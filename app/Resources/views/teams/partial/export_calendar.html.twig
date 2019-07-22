@@ -1,0 +1,26 @@
+{% macro inputs(endYear) %}
+    <div class="form-group">
+        <input type="hidden" class="form-control team-id" value="" name="id">
+        <label class="col-sm-4 control-label">{{ "Select year" | trans() }}</label>
+        <div class="col-sm-6">
+            <select class="form-control select2-modal" name="calendar[year]">
+                <option value="">{{ 'Select year' | trans() }}</option>
+                {% for year in "now" | date('Y')..endYear | date('Y') %}
+                    <option {% if calendar.year is defined and calendar.year == year %}selected{% endif %} value="{{ year }}">{{ year }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            moment.locale('ru');
+
+            $('.export-calendar').bind('click', function () {
+                var exportCalendarForm = $('#exportCalendarForm');
+                exportCalendarForm.attr('action', $(this).data('href'));
+                exportCalendarForm.find('.team-id').val($(this).data('id'));
+            });
+        });
+    </script>
+{% endmacro %}

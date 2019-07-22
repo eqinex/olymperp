@@ -1,0 +1,191 @@
+{% macro inputs() %}
+    <div id="items-form" class="p-t-2">
+        <input type="hidden" class="code" name="engineering_document[code]">
+        <input type="hidden" class="classifier-code" name="engineering_document[classifierCode]">
+        <input type="hidden" class="index-number" name="engineering_document[indexNumber]">
+        <input type="hidden" class="type-of-document" name="engineering_document[typeOfDocument]">
+        <input type="hidden" class="decryption-code" name="engineering_document[decryptionCode]">
+        <input type="hidden" class="project" name="engineering_document[project]">
+    </div>
+
+    <div class="new-item-template" style="display: none;">
+        <div class="item">
+            <div class="form-group">
+                <div class="col-sm-2 p-l-2">
+                    <input type="text" class="execution form-control" value="" title="{{ 'Document execution' | trans() }}"/>
+                </div>
+                <div class="col-sm-4 p-l-0">
+                    <input type="text" class="inventory-number form-control" placeholder="{{ 'Inventory number' | trans() }}" value=""/>
+                </div>
+                <div class="col-sm-3 p-l-0">
+                    <input type="text" class="created-at daterange-single-date-picker form-control" value=""/>
+                </div>
+                <div class="col-sm-1 p-l-0">
+                    <a class="btn btn-gray-light btn-md add-additional-btn" data-item-id="">
+                        <i class="fa fa-book"></i>
+                    </a>
+                    <a class="btn btn-gray-light btn-md not-additional-btn" data-item-id="">
+                        <i class="fa fa-arrow-up"></i>
+                    </a>
+                </div>
+                <div class="col-sm-2 p-l-0">
+                    <a class="btn btn-success add-item"><i class="fa fa-plus"></i></a>
+                    <a class="btn btn-danger remove-item" data-item-id=""><i class="fa fa-minus"></i></a>
+                </div>
+            </div>
+            <div class="additional">
+                <div class="form-group">
+                    <label class="col-sm-2 control-label" title="{{ 'The number of pages in the document' | trans() }}">{{ 'Number of pages' | trans() }}</label>
+                    <div class="col-sm-4">
+                        <input type="number" class="number-of-pages form-control" placeholder="{{ 'Number of pages' | trans() }}" value=""/>
+                    </div>
+                    <label class="col-sm-2 control-label" title="{{ 'Document format' | trans() }}">{{ 'Format' | trans() }}</label>
+                    <div class="col-sm-4">
+                        <input type="text" class="format form-control" placeholder="{{ 'Format' | trans() }}" value=""/>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label" title="{{ 'Product title' | trans() }}">{{ 'item.title' | trans() | capitalize }}</label>
+                    <div class="col-sm-4">
+                        <input type="text" class="title form-control" placeholder="{{ 'item.title' | trans() | capitalize }}" value=""/>
+                    </div>
+                    <label class="col-sm-2 control-label"  title="{{ 'Owner' | trans() }}">{{ 'Owner' | trans() }}</label>
+                    <div class="col-sm-4">
+                        <select class="owner form-control">
+                            {% for team, members in employee_service.getUsersGroupedByTeams() %}
+                                <optgroup label="{{ team | trans() }}">
+                                    {% for member in members %}
+                                        <option value="{{ member.id }}"
+                                                {% if app.user.id == member.id %}
+                                                    {{ "selected" }}
+                                                {% endif %}
+                                        >{{ member.fullName }} ({{ member.employeeRole }})</option>
+                                    {% endfor %}
+                                </optgroup>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label"  title="{{ 'Notice' | trans() }}">{{ "Notice" | trans() }}</label>
+                    <div class="col-lg-10">
+                        <textarea class="notice form-control" style="height: 100px;" placeholder="{{ "Notice" | trans() }}"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function(){
+            $('.not-additional-btn').hide();
+            $('.additional').hide();
+
+            $('.add-executions').bind('click', function () {
+                $('#addEngineeringDocumentExecutionsForm').attr('action', $(this).data('href'));
+
+                $('.code').val($(this).data('code'));
+                $('.classifier-code').val($(this).data('classifierCode'));
+                $('.index-number').val($(this).data('indexNumber'));
+                $('.type-of-document').val($(this).data('typeOfDocument'));
+                $('.decryption-code').val($(this).data('decryptionCode'));
+                $('.project').val($(this).data('project'));
+            });
+
+            addNewItem();
+            $(document).on('click', '.add-item', function() {
+                addNewItem();
+            });
+            $(document).on('click', '.remove-item', function() {
+                removeItem($(this).data('item-id'));
+            });
+        });
+
+        function addNewItem() {
+            var itemsForm = $('#items-form');
+            var items = itemsForm.find('.execution').length;
+            var id = items + 1;
+
+            var newTemplate = $('.new-item-template');
+            newTemplate.find('.item').attr('id', 'item-' + id);
+
+            itemsForm.append(newTemplate.html());
+            var newItem = $('#items-form #item-' + id);
+
+            newItem.find('.execution')
+                .val(id < 10 ? '0' + id : id)
+                .attr('name', 'engineering_document[items]['+ items +'][documentExecution]')
+                .attr('required', true);
+            newItem.find('.inventory-number')
+                .attr('name', 'engineering_document[items]['+ items +'][inventoryNumber]')
+                .attr('required', true);
+            newItem.find('.created-at')
+                .attr('name', 'engineering_document[items]['+ items +'][createdAt]')
+                .attr('required', true);
+            newItem.find('.number-of-pages')
+                .attr('name', 'engineering_document[items]['+ items +'][numberOfPages]');
+            newItem.find('.format')
+                .attr('name', 'engineering_document[items]['+ items +'][format]');
+            newItem.find('.title')
+                .attr('name', 'engineering_document[items]['+ items +'][title]');
+            newItem.find('.owner')
+                .addClass('select2-modal')
+                .attr('name', 'engineering_document[items]['+ items +'][owner]')
+                .attr('required', true);
+            newItem.find('.notice')
+                .attr('name', 'engineering_document[items][' + items +'][notice]');
+            newItem.find('.remove-item').attr('data-item-id', '#item-' + id);
+            newItem.find('.not-additional-btn').attr('data-item-id', '#item-' + id);
+            newItem.find('.add-additional-btn').attr('data-item-id', '#item-' + id);
+
+            $('.select2-modal').select2({width: '100%'});
+            
+            $('.daterange-single-date-picker').daterangepicker({
+                singleDatePicker: true,
+                showDropdowns: true,
+                timePicker24Hour: true,
+                timePickerIncrement: 30,
+                opens: "left",
+                drops: "down",
+                locale: {
+                    format: 'DD.MM.YYYY', applyLabel: "Выбрать", cancelLabel: "Отменить"
+                }
+            });
+
+            $('.add-additional-btn').bind('click', function() {
+                let itemId = $(this).data('item-id');
+                $(itemId).find('.additional').show();
+                $(itemId).find('.add-additional-btn').hide();
+                $(itemId).find('.not-additional-btn').show();
+            });
+
+            $('.not-additional-btn').bind('click', function() {
+                let itemId = $(this).data('item-id');
+                $(itemId).find('.additional').hide();
+                $(itemId).find('.add-additional-btn').show();
+                $(itemId).find('.not-additional-btn').hide();
+            });
+
+            updateButtons();
+        }
+
+        function removeItem(itemId) {
+            $(itemId).remove();
+            updateButtons();
+        }
+
+        function updateButtons() {
+            var itemsForm = $('#items-form');
+            var items = itemsForm.find('.item');
+
+            if (items.length > 1) {
+                $('.add-item').hide();
+                $('.remove-item').hide();
+                $('.item:last-child .add-item').show();
+                $('.item:last-child .remove-item').show();
+            } else {
+                $('#item-1').find('.remove-item').hide();
+                $('#item-1').find('.add-item').show();
+            }
+        }
+    </script>
+{% endmacro %}

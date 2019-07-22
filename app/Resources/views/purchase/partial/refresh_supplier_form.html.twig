@@ -1,0 +1,34 @@
+{% macro inputs(suppliers) %}
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ 'Supplier' | trans() }}</label>
+        <div class="col-lg-4">
+            <select class="form-control select2-modal item-supplier" name="itemDetails[supplier]" required>
+                <option value="">{{ 'Select contract supplier' | trans() }}</option>
+                {% for supplier in suppliers %}
+                    <option value="{{ supplier.id }}"
+                            {% if item.invoice.supplier.id is defined and item.invoice.supplier.id == supplier.id %}
+                                {{ "selected" }}
+                            {% endif %}>{{ supplier.title }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <label class="col-sm-2 control-label">{{ 'Invoice' | trans() }}</label>
+        <div class="col-sm-3">
+            <input type="text" class="form-control item-invoice"  placeholder="{{ 'Invoice' | trans() }}" value="" name="itemDetails[invoiceNumber]" required>
+        </div>
+    </div>
+
+    <script>
+        $('.supplier-refresh').bind('click', function () {
+            var refreshSupplierForm = $('#refreshSupplierForm');
+            refreshSupplierForm.attr('action', $(this).data('action'));
+            refreshSupplierForm.find('.item-id').val($(this).data('id'));
+            refreshSupplierForm.find('.item-supplier').val($(this).data('supplier'));
+            refreshSupplierForm.find('.item-invoice').val($(this).data('invoice'));
+
+            $('.select2-modal').select2({ width: '100%' });
+        });
+    </script>
+
+{% endmacro %}

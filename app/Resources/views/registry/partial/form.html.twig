@@ -1,0 +1,9 @@
+{% macro inputs() %}
+    
+    <div class="form-group">
+        <label class="col-sm-3 control-label">{{ 'Money Limit' | trans() }}</label>
+        <div class="col-lg-8">
+            <input type="text" class="money-limit form-control  validate-supplier-name" name="registry[moneyLimit]" placeholder="{{ 'Money Limit' | trans() }}" value="" required>
+        </div>
+    </div>
+{% endmacro %}

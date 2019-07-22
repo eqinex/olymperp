@@ -1,0 +1,5 @@
+*{{ task.controllingUser.lastNameWithInitials }}* поставил(а) вам задачу: [{{ task.title | striptags }}]({{ path('project_edit_task', {'id': task.project.id, 'taskId': task.id}) }})
+*Проект*: {{ task.project.name }}
+*Приоритет*: {{ task.getPriorityList()[task.priority] }}
+*Начало*: {{ task.startAt | date('d.m.Y H:i') }}
+*Завершение*: {{ task.endAt() | date('d.m.Y H:i') }}

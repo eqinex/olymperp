@@ -1,0 +1,98 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ "Toolbox" | trans() }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ breadcrumb( 'Toolbox' | trans(), path('production_tools_list') ) }}
+{% endblock %}
+
+{% block body %}
+    {#<div class="panel panel-default no-bg  b-gray-dark">#}
+        {#<div class="panel-body">#}
+
+            {#<form class="form-inline filter-form" method="get" action="{{ path('production_tools_list') }}">#}
+                {#<div class="form-group filter">#}
+                    {#<select class="form-control" name="filters[user]" required>#}
+                        {#<option value="">{{ 'Search by name' | trans() }}</option>#}
+                        {#{% for team, members in employeeTeams %}#}
+                            {#<optgroup label="{{ team | trans() }}">#}
+                                {#{% for member in members %}#}
+                                    {#<option value="{{ member.id }}"#}
+                                            {#{% if filters.user is defined and filters.user == member.id %}#}
+                                                {#{{ "selected" }}#}
+                                            {#{% endif %}#}
+                                    {#>{{ member.fullName }} ({{ member.employeeRole }})</option>#}
+                                {#{% endfor %}#}
+                            {#</optgroup>#}
+                        {#{% endfor %}#}
+                    {#</select>#}
+                {#</div>#}
+                {#<div class="form-group filter">#}
+                    {#<select class="form-control" name="filters[team]">#}
+                        {#<option value="">{{ 'Select team' | trans() }}</option>#}
+                        {#{% for team in teams %}#}
+                            {#<option {% if filters.team is defined and filters.team == team.id %}selected{% endif %} value="{{ team.id }}">#}
+                                {#{{ team.title }}#}
+                            {#</option>#}
+                        {#{% endfor %}#}
+                    {#</select>#}
+                {#</div>#}
+                {#<div class="form-group filter">#}
+                    {#<select class="form-control" name="filters[employeeStatus]">#}
+                        {#<option value="">{{ 'Select status' | trans() }}</option>#}
+                        {#{% for key, status in employeeStatuses %}#}
+                            {#<option {% if filters.employeeStatus is defined and filters.employeeStatus == key %}selected{% endif %} value="{{ key }}">#}
+                                {#{{ status | trans() }}#}
+                            {#</option>#}
+                        {#{% endfor %}#}
+                    {#</select>#}
+                {#</div>#}
+            {#</form>#}
+        {#</div>#}
+    {#</div>#}
+
+    <table class="table table-hover">
+        <thead>
+
+        <tr>
+            <th class="small text-muted text-uppercase">#</th>
+            <th class="small text-muted text-uppercase"><strong>{{ "Name" | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ "Code" | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ "Type" | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ "Description" | trans() }}</strong></th>
+        </tr>
+        </thead>
+        <tbody>
+        {% if app.user.isProductionLeader or app.user.canViewToolWorkLog %}
+            {% for tool in tools %}
+                <!-- START ROW Task -->
+                <tr>
+                    <td class="v-a-m" style="width: 35px;">
+                        <div class="avatar avatar-image avatar-sm">
+                            {{ tool.id }}
+                        </div>
+                    </td>
+                    <td class="v-a-m">
+                        <a href="{{ path('production_tools_details', {'id': tool.id}) }}">{{ tool.name }}</a>
+                    </td>
+                    <td class="v-a-m">
+                        {{ tool.code }}
+                    </td>
+                    <td class="v-a-m">
+                        {{ tool.type }}
+                    </td>
+                    <td class="v-a-m">
+                        {{ tool.description }}
+                    </td>
+
+                </tr>
+            {% endfor %}
+        {% endif %}
+        <!-- END ROW Task -->
+        </tbody>
+    </table>
+
+    {% set vars = {'route': 'production_tools_list', 'currentPage': currentPage, 'maxPages': maxPages, 'filters': filters} %}
+    {% include 'partial/paginator.html.twig' with vars %}
+
+{% endblock %}

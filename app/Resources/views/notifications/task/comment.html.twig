@@ -1,0 +1,20 @@
+{% extends 'notifications/base_notification_template.html.twig' %}
+
+{% block template_title %}
+    <tr>
+        <td>
+            <a href="{{ path('project_task_details', {'id': task.project.id, 'taskId': task.id}) ~ '#commentstab' }}"> {{ '#' ~ task.id }}: {{ task.title }}</a>
+        </td>
+    </tr>
+{% endblock %}
+{% block template_description %}
+    <tr class="hide slide-row">
+        <td>
+            <p>
+                {{ taskComment.commentText | raw }}
+            </p>
+        </td>
+    </tr>
+{% endblock %}
+{% block template_table %}
+{% endblock %}

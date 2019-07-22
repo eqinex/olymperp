@@ -1,0 +1,82 @@
+{% macro inputs(purchaseRequest, purchasingTeam, approvingLeaders, financialTeam, productionSpecialists) %}
+    {% if purchaseRequest.canRequestApprove(app.user) %}
+    <div class="form-group">
+        <label class="col-sm-5 control-label">{{ "Technical leader" | trans() }}</label>
+        <div class="col-sm-6">
+            <select class="form-control" name="request[leader]">
+                {% for leader in approvingLeaders %}
+                    <option value="{{ leader.id }}">
+                        {{ leader.fullname }} ({{ leader.employeeRole ? leader.employeeRole.name }})
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    {% elseif purchaseRequest.canLeaderApprove(app.user) and purchaseRequest.status != 'needs_production_leader_approval' %}
+        <div class="form-group">
+            <label class="col-sm-5 control-label">{{ "Technical leader" | trans() }}</label>
+            <div class="col-sm-6">
+                <select class="form-control" name="request[leader]">
+                    {% for leader in approvingLeaders %}
+                        <option value="{{ leader.id }}">
+                            {{ leader.fullname }} ({{ leader.employeeRole ? leader.employeeRole.name }})
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+    {% elseif purchaseRequest.canProductionLeaderApprove(app.user) %}
+        <div class="form-group">
+            <label class="col-sm-5 control-label">{{ "Production specialist" | trans() }}</label>
+            <div class="col-sm-6">
+                <select class="form-control" name="request[productionSpecialist]">
+                    {% for specialist in productionSpecialists %}
+                        <option value="{{ specialist.id }}">
+                            {{ specialist.fullname }} ({{ specialist.employeeRole ? specialist.employeeRole.name }})
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+    {% elseif purchaseRequest.status == 'needs_purchasing_manager' or purchaseRequest.status == 'manager_assigned' %}
+        <div class="form-group">
+            <label class="col-sm-4 control-label">{{ "Select manager" | trans() }}</label>
+            <div class="col-sm-7">
+                <select class="form-control" name="request[manager]">
+                    {% for member in purchasingTeam.allTeamMembers %}
+                    <option value="{{ member.id }}">
+                        {{ member.fullname }} ({{ member.employeeRole ? member.employeeRole.name }})
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+    {% elseif purchaseRequest.canMoveToPayment(app.user) or purchaseRequest.paymentStatus == 'needs_payment' %}
+        <div class="form-group">
+            <label class="col-sm-4 control-label">{{ "Select user" | trans() }}</label>
+            <div class="col-sm-7">
+                <select class="form-control" name="request[financialManager]">
+                    {% for member in financialTeam.allTeamMembers %}
+                    <option value="{{ member.id }}">
+                        {{ member.fullname }} ({{ member.employeeRole ? member.employeeRole.name }})
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+    {% endif %}
+
+    <script>
+        $(document).ready(function(){
+            $('.require-modal-action').click(function(){
+                var actionForm = $('.actionFormModal');
+
+                var title = $(this).data('modal-title');
+                var formAction = $(this).data('form-action');
+
+                actionForm.find('.modal-title').text(title);
+                actionForm.find('#actionForm').attr('action', formAction);
+            });
+        });
+    </script>
+{% endmacro %}

@@ -1,0 +1,471 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ "Dashboard" | trans() }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ breadcrumb( 'Dashboard' | trans(), path('homepage') ) }}
+{% endblock %}
+
+{% block body %}
+    <div class="row p-l-2 p-r-2">
+        <div class="col-lg-2 col-md-6 col-sm-6">
+            <div class="hr-text hr-text-left m-t-0 m-b-0">
+                <h6 class="text-white"><strong>{{ 'My tasks' | trans() }}</strong></h6>
+            </div>
+            <table class="table table-condensed table-hover">
+                <tbody>
+                <tr>
+                    <td class="b-a-0">
+                        <a class="text-primary m-r-1" href="{{ path('user_created_tasks', {'filters': {'type': 'in', 'status': 0}}) }}">
+                            {{ stateNames[myTasks[0].status] | trans() }}
+                        </a>
+                    </td>
+                    <td class="text-right b-a-0">
+                        <span class="label label-primary label-outline">{{ myTasks[0].cnt }}</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="b-a-0"><a class="text-warning m-r-1" href="{{ path('user_created_tasks', {'filters': {'type': 'in', 'status': 4}}) }}">
+                        {{ stateNames[myTasks[4].status] | trans() }}</a></td>
+                    <td class="text-right b-a-0"><span class="label label-warning label-outline">{{ myTasks[4].cnt }}</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <a class="text-info m-r-1" href="{{ path('user_created_tasks', {'filters': {'type': 'in', 'status': 5}}) }}">
+                            {{ stateNames[myTasks[5].status] | trans() }}</a>
+                    </td>
+                    <td class="text-right">
+                        <span class="label label-info label-outline">{{ myTasks[5].cnt }}</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="b-a-0"><a class="text-warning m-r-1" href="{{ path('user_created_tasks', {'filters': {'type': 'in', 'status': 6}}) }}">
+                            {{ stateNames[myTasks[6].status] | trans() }}</a></td>
+                    <td class="text-right b-a-0"><span class="label label-warning label-outline">{{ myTasks[6].cnt }}</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <a class="text-primary m-r-1" href="{{ path('user_created_tasks', {'filters': {'type': 'in', 'status': 1}}) }}">
+                            {{ stateNames[myTasks[1].status] | trans() }}</a>
+                    </td>
+                    <td class="text-right">
+                        <span class="label label-primary label-outline">{{ myTasks[1].cnt }}</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <a class="text-warning m-r-1" href="{{ path('user_created_tasks', {'filters': {'type': 'in', 'status': 7}}) }}">
+                            {{ stateNames[myTasks[7].status] | trans() }}</a>
+                    </td>
+                    <td class="text-right">
+                        <span class="label label-warning label-outline">{{ myTasks[7].cnt }}</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="text-white"><a class="text-success m-r-1" href="{{ path('user_created_tasks', {'filters': {'type': 'in', 'status': 2}}) }}">
+                            {{ stateNames[myTasks[2].status] | trans() }}</a></td>
+                    <td class="text-right"><span class="label label-gray-lighter label-outline">{{ myTasks[2].cnt }}</span>
+                    </td>
+                </tr>
+
+                </tbody>
+            </table>
+        </div>
+
+        <div class="col-lg-2 col-md-6 col-sm-6">
+            <div class="hr-text hr-text-left m-t-0 m-b-0">
+                <h6 class="text-white"><strong>{{ team.title }}</strong></h6>
+            </div>
+            <table class="table table-condensed table-hover">
+                <tbody>
+                <tr>
+                    <td class="b-a-0"><a class="text-primary m-r-1" href="{{ path('user_created_tasks', {'filters': {'type': 'out', 'status': 0, 'show-team-tasks': 1, 'team': team.id}}) }}">
+                            {{ stateNames[assignedTasks[0].status] | trans() }}</a></td>
+                    <td class="text-right b-a-0"><span class="label label-primary label-outline">{{ assignedTasks[0].cnt }}</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="b-a-0"><a class="text-warning m-r-1" href="{{ path('user_created_tasks', {'filters': {'type': 'out', 'status': 4, 'show-team-tasks': 1, 'team': team.id}}) }}">
+                            {{ stateNames[assignedTasks[4].status] | trans() }}</a></td>
+                    <td class="text-right b-a-0"><span class="label label-warning label-outline">{{ assignedTasks[4].cnt }}</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <a class="text-info m-r-1" href="{{ path('user_created_tasks', {'filters': {'type': 'out', 'status': 5, 'show-team-tasks': 1, 'team': team.id}}) }}">
+                            {{ stateNames[assignedTasks[5].status] | trans() }}</a>
+                    </td>
+                    <td class="text-right">
+                        <span class="label label-info label-outline">{{ assignedTasks[5].cnt }}</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <a class="text-warning m-r-1" href="{{ path('user_created_tasks', {'filters': {'type': 'out', 'status': 6, 'show-team-tasks': 1, 'team': team.id}}) }}">
+                            {{ stateNames[assignedTasks[6].status] | trans() }}</a>
+                    </td>
+                    <td class="text-right">
+                        <span class="label label-warning label-outline">{{ assignedTasks[6].cnt }}</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <a class="text-primary m-r-1" href="{{ path('user_created_tasks', {'filters': {'type': 'out', 'status': 1, 'show-team-tasks': 1, 'team': team.id}}) }}">
+                            {{ stateNames[assignedTasks[1].status] | trans() }}</a>
+                    </td>
+                    <td class="text-right">
+                        <span class="label label-primary label-outline">{{ assignedTasks[1].cnt }}</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="b-a-0"><a class="text-warning m-r-1" href="{{ path('user_created_tasks', {'filters': {'type': 'out', 'status': 7, 'show-team-tasks': 1, 'team': team.id}}) }}">
+                            {{ stateNames[assignedTasks[7].status] | trans() }}</a></td>
+                    <td class="text-right b-a-0"><span class="label label-warning label-outline">{{ assignedTasks[7].cnt }}</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="text-white"><a class="text-success m-r-1" href="{{ path('user_created_tasks', {'filters': {'type': 'out', 'status': 2, 'show-team-tasks': 1, 'team': team.id}}) }}">
+                            {{ stateNames[assignedTasks[2].status] | trans() }}</a></td>
+                    <td class="text-right"><span class="label label-gray-lighter label-outline">{{ assignedTasks[2].cnt }}</span>
+                    </td>
+                </tr>
+
+                </tbody>
+            </table>
+        </div>
+
+        <div class="col-lg-3 col-md-6 col-sm-6 m-b-1" style="display: none;">
+            <div class="hr-text hr-text-left">
+                <h6 class="text-inverse"><strong class="m-r-1">{{ "24h activity" | trans() }} </strong></h6>
+            </div>
+
+            <div class="scroll-200">
+
+                <ul class="list-group">
+                    {% for task in latestTasks %}
+                        <li class="no-bg p-b-1">
+                            {% if task.status == 2 %}
+                                <a class="text-bold" href="{{ path('project_tasks', {'id': task.project.id}) }}">
+                                    [{{ task.project.name }}]
+                                </a> -
+                                <del>
+                                    <a class="text-muted" href="{{ path('project_task_details', {'id': task.project.id, 'taskId': task.id}) }}">
+                                        <span>{{ task.title }}</span>
+                                    </a>
+                                </del>
+                            {% else %}
+                                <a class="text-bold" href="{{ path('project_tasks', {'id': task.project.id }) }}">
+                                    [{{ task.project.name }}]
+                                </a> -
+                                <a class="text-muted" href="{{ path('project_task_details', {'id': task.project.id, 'taskId': task.id}) }}">
+                                    <span>{{ task.title }}</span>
+                                </a>
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        <div class="col-lg-2 col-md-6 col-sm-6">
+            <div class="hr-text hr-text-left m-t-0 m-b-0">
+                <h6 class="text-white"><strong>{{ "OnControlling" | trans }}</strong></h6>
+            </div>
+            <table class="table table-condensed table-hover">
+                <tbody>
+                <tr>
+                    <td class="b-a-0">
+                        <a class="text-primary m-r-1" href="{{ path('user_created_tasks', {'filters': {'type': 'control', 'status': 0}}) }}">
+                            {{ stateNames[controlTasks[0].status] | trans() }}
+                        </a>
+                    </td>
+                    <td class="text-right b-a-0">
+                        <span class="label label-primary label-outline">{{ controlTasks[0].cnt }}</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="b-a-0"><a class="text-warning m-r-1" href="{{ path('user_created_tasks', {'filters': {'type': 'control', 'status': 4}}) }}">
+                            {{ stateNames[controlTasks[4].status] | trans() }}</a></td>
+                    <td class="text-right b-a-0"><span class="label label-warning label-outline">{{ controlTasks[4].cnt }}</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <a class="text-info m-r-1" href="{{ path('user_created_tasks', {'filters': {'type': 'control', 'status': 5}}) }}">
+                            {{ stateNames[controlTasks[5].status] | trans() }}</a>
+                    </td>
+                    <td class="text-right">
+                        <span class="label label-info label-outline">{{ controlTasks[5].cnt }}</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="b-a-0"><a class="text-warning m-r-1" href="{{ path('user_created_tasks', {'filters': {'type': 'control', 'status': 6}}) }}">
+                            {{ stateNames[controlTasks[6].status] | trans() }}</a></td>
+                    <td class="text-right b-a-0"><span class="label label-warning label-outline">{{ controlTasks[6].cnt }}</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <a class="text-primary m-r-1" href="{{ path('user_created_tasks', {'filters': {'type': 'control', 'status': 1}}) }}">
+                            {{ stateNames[controlTasks[1].status] | trans() }}</a>
+                    </td>
+                    <td class="text-right">
+                        <span class="label label-primary label-outline">{{ controlTasks[1].cnt }}</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="b-a-0"><a class="text-warning m-r-1" href="{{ path('user_created_tasks', {'filters': {'type': 'control', 'status': 7}}) }}">
+                            {{ stateNames[controlTasks[7].status] | trans() }}</a></td>
+                    <td class="text-right b-a-0"><span class="label label-warning label-outline">{{ controlTasks[7].cnt }}</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="text-white"><a class="text-success m-r-1" href="{{ path('user_created_tasks', {'filters': {'type': 'control', 'status': 2}}) }}">
+                            {{ stateNames[controlTasks[2].status] | trans() }}</a></td>
+                    <td class="text-right"><span class="label label-gray-lighter label-outline">{{ controlTasks[2].cnt }}</span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="col-lg-6 col-md-6 col-sm-6">
+            <div class="panel panel-default no-bg b-a-2 b-gray-dark scroll-200" style="min-height: 260px;">
+                <div class="panel-heading">{{ "Latest task comments" | trans() }}</div>
+                <ul class="list-group custom-scrollbar ps-container ps-theme-default">
+                    {% for comment in latestComments %}
+                    <li class="list-group-item no-bg b-t-0">
+                        <div class="media media-auto">
+                            <div class="media-left">
+                                <div class="avatar">
+                                    <div class="avatar-circle">
+                                        <img class="media-object img-circle" src="{{ comment.owner.imageUrl ? : '/images/noavatar.png' }}" alt="Avatar">
+                                    </div>
+                                    <i class="avatar-status avatar-status-bottom bg-{{ employee_service.getOnlineStatus(comment.owner).colorBadge }} b-brand-gray-darker"></i>
+                                </div>
+                            </div>
+                            <div class="media-body">
+                                <a class="link-comment" href="{{ path('employee_details', {'userName': comment.owner.username}) }}">
+                                    <span class="media-heading text-inverse">{{ comment.owner.fullname }}</span>
+                                </a>
+                                <br>
+                                <span class="media-heading small">
+                                    <span>
+                                        {% if comment.createdAt | date('d') == ('now' | date('d')) %}
+                                            {{ 'today at' | trans() }}
+                                        {% elseif (comment.createdAt | date('d') == ('d - 1 days' | date('d'))) %}
+                                            {{ 'yesterday at' | trans() }}
+                                        {% else %}
+                                            {{ comment.createdAt | date('d/m/y') | trans() ~ ' ' ~ 'at' | trans() }}
+                                        {% endif %}
+                                        {{ comment.createdAt | date('H:i') }}
+                                    </span>
+                                    {{ 'commented a' | trans() }}
+                                    <a href="{{ path('project_task_details', {'id': comment.task.project.id, 'taskId': comment.task.id}) }}#commentstab">
+                                        <span>{{ comment.task.title }}</span>
+                                    </a>
+                                </span>
+
+                                <p class="m-t-1 m-b-0">
+                                    <span id="comments">{{ comment.commentText | raw }}</span>
+                                </p>
+                            </div>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+    </div>
+    {% if team is not null %}
+        <div class="row p-l-2 p-r-2 m-t-1">
+            <div class="col-lg-6 col-md-12 col-sm-12 m-b-2">
+                <div class="hr-text hr-text-left">
+                    {% if teamProject is not null %}
+                        <h6 class="text-inverse">
+                            <strong class="m-r-1">
+                                <a href="{{ path('project_tasks', {'id': teamProject.id}) }}">{{ team.title }}</a>
+                            </strong>
+                        </h6>
+                    {% else %}
+                        <h6 class="text-inverse"><strong class="m-r-1">{{ team.title }} </strong></h6>
+                    {% endif %}
+                </div>
+                <!-- START Panel Sessions -->
+                <div class="panel panel-default b-gray-dark no-bg">
+                    <table class="table employee-tasks-table">
+                        <tbody>
+                            {% set rowDark = 'table-row-dark' %}
+                            {% set rowLight = 'table-row-light' %}
+                            {% set rowDarkRed = 'table-row-darkred' %}
+                            {% set color = rowLight %}
+                            {% set todayOff = ('now' | date('w')) %}
+
+                            {% for employeeInfo in teamInfo %}
+                                {% set color = color == rowLight ? rowDark : rowLight %}
+                                {% if not employeeInfo.tasks | length %}
+                                    {% set type = dayOffs[todayOff][employeeInfo.user.id] is defined and dayOffs[todayOff][employeeInfo.user.id] | length > 0 ? dayOffs[todayOff][employeeInfo.user.id].type : '-' %}
+                                    <tr class="{{ dayOffs[todayOff][employeeInfo.user.id].type is not defined ? rowDarkRed : color}}">
+                                        <td style="width: 115px;" rowspan="{{ (employeeInfo.tasks | length) + 1}}">
+                                            <a class="link-white" href="{{ path('user_created_tasks', {'filters': {'type': 'in', 'responsible': employeeInfo.user.id }}) }}">
+                                                {{ employeeInfo.user.lastNameWithInitials }}
+                                            </a>
+                                        </td>
+                                        <td class="text-white">{{ type | trans() }}</td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>
+                                {% endif %}
+
+                                {% set firstTask = 1 %}
+                                {% for task in employeeInfo.tasks %}
+                                    <tr class="{{ color }}" style="border-top: none;">
+                                        {% if firstTask %}
+                                            <td style="width: 115px;">
+                                                <a class="link-comment" href="{{ path('user_created_tasks', {'filters': {'type': 'in', 'responsible': employeeInfo.user.id }}) }}">
+                                                    {{ employeeInfo.user.lastNameWithInitials }}
+                                                </a>
+                                            </td>
+
+                                            {% set firstTask = 0 %}
+                                        {% else %}
+                                            <td style="width: 115px;"></td>
+                                        {% endif %}
+                                        <td><a class="text-inverse" href="{{ path('project_task_details', {'id': task.project.id, 'taskId': task.id}) }}"><span>{{ task.title }}</span></a></td>
+                                        <td>
+                                            <span {% if task.Active and task.expired %}style="color:orangered;"{% endif %}>{{ task.endAt | date('d.m.y') }}</span>
+                                        </td>
+                                        <td style="width: 150px;">
+                                            <a  href="{{ path('project_tasks', {'id': task.project.id}) }}">{{ task.project.name }}</a>
+                                        </td>
+                                        <td>
+                                            <span {% if task.timeSpent > task.originalEstimate %}class="text-warning"{% endif %}>
+                                                {{ workLog.getFormattedTime(task.timeSpent) ~ '/' ~ workLog.getFormattedTime(task.originalEstimate) }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-lg-6 col-md-12 col-sm-12 m-b-2">
+                <div class="hr-text hr-text-left">
+                    <h6 class="text-inverse"><strong class="m-r-1">{{ "Team work logs" | trans() }} </strong></h6>
+                </div>
+                <!-- START Panel Sessions -->
+                <div class="panel panel-default  b-gray-dark no-bg">
+                    <table class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th style="width: 115px;"><a href="?week={{ selectedWeek - 1 }}&team={{ team.code }}"><i class="fa fa-angle-double-left"></i> {{ 'prev. week' |trans() }}</a></th>
+                            <th>{{ 'mon' | trans() }}, <span class="text-muted">{{ weekDays[0] }}</span></th>
+                            <th>{{ 'tue' | trans() }}, <span class="text-muted">{{ weekDays[1] }}</span></th>
+                            <th>{{ 'wed' | trans() }}, <span class="text-muted">{{ weekDays[2] }}</span></th>
+                            <th>{{ 'thu' | trans() }}, <span class="text-muted">{{ weekDays[3] }}</span></th>
+                            <th>{{ 'fri' | trans() }}, <span class="text-muted">{{ weekDays[4] }}</span></th>
+                            <th>{{ 'sat' | trans() }}, <span class="text-muted">{{ weekDays[5] }}</span></th>
+                            <th>{{ 'sun' | trans() }}, <span class="text-muted">{{ weekDays[6] }}</span></th>
+                            <th style="width: 115px;"><a href="?week={{ selectedWeek + 1 }}&team={{ team.code }}">{{ 'next. week' |trans() }} <i class="fa fa-angle-double-right"></i></a></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% set today = ('now' | date('w')) ?: 7 %}
+                        {% set today = today > 5 ? 5 : today %}
+                        {% set currentWeek = ('now' | date('W')) %}
+
+                        {% for employeeInfo in teamInfo %}
+                            {% set total = 0 %}
+                            <tr>
+                                {% set daysThisWeek = [] %}
+
+                                {% for weekDay, employeeLog in employeeInfo.workLog %}
+                                    {% set daysThisWeek = daysThisWeek|merge([weekDay]) %}
+                                {% endfor %}
+                                <td>
+                                    <a class="link-comment" href="{{ path('worklog_list', { 'filters': {'loggedDay': daysThisWeek|first | date ('d.m.Y')~' - '~daysThisWeek|last | date ('d.m.Y'), 'owner': employeeInfo.user.id }} )}}">
+                                        {{ employeeInfo.user.lastNameWithInitials }}
+                                    </a>
+                                </td>
+                                {% for weekDay, employeeLog in employeeInfo.workLog %}
+                                    {% set total = total + employeeLog %}
+                                    {% set weekDayNr = (weekDay | date('w')) ?: 7 %}
+                                    {% set color = 'success' %}
+                                    {% set holiday = '' %}
+
+                                    {% if employeeInfo.user.halfTime %}
+                                        {% set minDayHours = 3.99 %}
+                                    {% else %}
+                                        {% set minDayHours = 5.99 %}
+                                    {% endif %}
+
+                                    {% for productionCalendarDay in productionCalendarDays if not holiday %}
+                                        {% if ((productionCalendarDay.dateStart | date('U') <= weekDay | date('U')) and (productionCalendarDay.dateEnd | date('U') >= weekDay | date('U'))) and productionCalendarDay.type == 'holiday' %}
+                                            {% set holiday = 'bg-gray-light' %}
+                                        {% else %}
+                                            {% set holiday = '' %}
+                                        {% endif %}
+                                    {% endfor %}
+
+                                    {% if ((weekDayNr < today or selectedWeek < currentWeek) and (employeeLog < minDayHours)) %}
+                                            {% set color = 'danger' %}
+                                    {% elseif ((weekDayNr == today and selectedWeek == currentWeek ) and (employeeLog <= minDayHours)) %}
+                                            {% set color = 'warning' %}
+                                    {% endif %}
+
+                                    {% set colorOff = 'success' %}
+                                    {% set type = '-' %}
+
+                                    {% if dayOffs[weekDayNr][employeeInfo.user.id] is defined and dayOffs[weekDayNr][employeeInfo.user.id] | length > 0 and weekDayNr != 6 and weekDayNr != 7 %}
+                                       {% set type = dayOffs[weekDayNr][employeeInfo.user.id].type %}
+                                    {% endif %}
+
+                                    {% if employeeLog %}
+                                         <td class="text-{{ color }} {{ holiday }}">
+                                        <a class="text-{{ color }}" href="{{ path('worklog_list', { 'filters': {'loggedDay': weekDay | date ('d.m.Y')~' - '~weekDay | date ('d.m.Y'), 'owner': employeeInfo.user.id }} )}}"> {{ workLog.getFormattedTime(employeeLog|round(2)) }}</a>
+                                    {% else %}
+                                        {% if type != '-' %}
+                                            {% if type == 'miss' %}
+                                                {% set colorOff = 'danger' %}
+                                            {% elseif type == 'business_trip' or type == 'overtime' %}
+                                                {% set colorOff = 'primary' %}
+                                            {% elseif type == 'illness' %}
+                                                {% set colorOff = 'warning' %}
+                                            {% endif %}
+                                            <td class="table-row-{{ colorOff }}">
+                                            {% if weekDayNr != 1 and weekDayNr != 7 and employeeInfo.workLog[weekDay | date_modify("-1 day") | date ('Y-m-d')] != 0 %}
+                                                <small class="text-white">{{ type | trans() }}</small>
+                                            {% elseif dayOffs[weekDayNr][employeeInfo.user.id].type is defined and weekDayNr == 1 or (dayOffs[weekDayNr][employeeInfo.user.id].dayOffStart | date('d-m-y') == weekDay | date('d-m-y')) %}
+                                                <small class="text-white">{{ type | trans() }}</small>
+                                            {% endif %}
+                                        {% else %}
+                                            <td class="text-{{ color }} {{ holiday }}">
+                                                {{ type }}
+                                        {% endif %}
+                                        </td>
+                                    {% endif %}
+                                {% endfor %}
+
+                                {% set totalColor = 'success' %}
+
+                                {% if employeeInfo.user.halfTime %}
+                                    {% set minHours = currentWeek == selectedWeek ? today * 3.999 : 19.999 %}
+                                {% else %}
+                                    {% set minHours = currentWeek == selectedWeek ? today * 5.999 : 29.999 %}
+                                {% endif %}
+                                {% if minHours > total %}
+                                    {% set totalColor = 'warning' %}
+                                {% endif %}
+                                <td class="text-{{ totalColor }}">{{ workLog.getFormattedTime(total|round(2)) }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}

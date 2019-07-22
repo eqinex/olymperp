@@ -1,0 +1,18 @@
+{% macro inputs() %}
+    <div class="form-group">
+        <label class="col-lg-7 control-label" style="margin-top:-8px;">{{ "Debtreceivable" | trans() }}</label>
+        <div class="col-sm-4">
+            <input type="text" class="form-control document-debt-receivable daterange-single-date-picker"
+                   name="document[debtReceivable]">
+        </div>
+    </div>
+    <script>
+        $(document).ready(function(){
+            $('.document-add-debtreceivaible').click(function(){
+                var addDebtreceivaibleForm = $('#addDebtreceivaibleForm');
+                addDebtreceivaibleForm.attr('action', $(this).data('href'));
+                addDebtreceivaibleForm.find('.document-debt-receivable').val($(this).data('debtReceivable'));
+            });
+        });
+    </script>
+{% endmacro %}

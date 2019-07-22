@@ -1,0 +1,219 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ project.name }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ breadcrumb( 'Projects' | trans(), path('projects_list') ) }}
+    {{ breadcrumb( project.name, path('project_details', {'id': project.id}) ) }}
+    {{ breadcrumb( 'Requests' | trans(), path('project_requests_list', {'id': project.id}) ) }}
+{% endblock %}
+
+
+{% block body %}
+
+    {% set vars = {'project': project} %}
+    {% include 'projects/partial/info_sidebar.html.twig' with vars %}
+
+    <div class="col-lg-9">
+
+        <!-- START Header with Option -->
+        <div class="row m-b-2">
+
+            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                <!-- START Header -->
+                <h3 class="f-w-300 m-t-1">{{ project.name }}</h3>
+            </div>
+            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                <div class="btn-toolbar pull-right">
+                    <div class="btn-group" role="group" aria-label="...">
+                        {% set vars = {'active_page': 'project_purchases'} %}
+                        {% include 'projects/partial/nav.html.twig' with vars %}
+                    </div>
+                </div>
+                <!-- END Toolbar -->
+            </div>
+        </div>
+        <div class="panel panel-default no-bg  b-gray-dark">
+            <div class="panel-body">
+
+                <form class="form-inline filter-form" method="get" action="{{ path('project_requests_list', {'id': project.id}) }}">
+                    <div class="form-group filter">
+                        <input class="form-control" name="filters[code]" placeholder="{{ 'Search by code' | trans() }}"
+                               value="{% if filters.code is defined %}{{ filters.code }}{% endif %}" />
+                    </div>
+                    <div class="form-group filter">
+                        <select class="form-control" name="filters[status]">
+                            <option value="">{{ 'Select status' | trans() }}</option>
+                            {% for state in states %}
+                                <option {% if filters.status is defined and filters.status == state %}selected{% endif %} value="{{ state }}">
+                                    {{ state | trans() }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group filter">
+                        <select class="form-control" name="filters[owner]">
+                            <option value="">{{ 'Select owner' | trans() }}</option>
+                            {% for member in project.projectMembers %}
+                                <option {% if filters.owner is defined and filters.owner == member.member.id %}selected{% endif %} value="{{ member.member.id }}">
+                                    {{ member.member.fullname }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group filter">
+                        <select class="form-control" name="filters[ware]">
+                            <option value="">{{ 'Select product' | trans() }}</option>
+                            {% for ware in wares %}
+                                <option {% if filters.ware is defined and filters.ware == ware.id %}selected{% endif %} value="{{ ware.id }}">
+                                    {{ ware.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group btn-toolbar pull-right">
+                        {% if app.user.canViewFinancialInfo() %}
+                            <div class="dropdown pull-left">
+                                <button class="btn btn-success dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <i class="fa fa-fw fa-file-excel-o"></i> {{ "Export" | trans() }} <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-right">
+                                    <li>
+                                        <a target="_blank" href="{{ path('export_request_list', {id: project.id, 'filters': filters}) }}"><i class="fa fa-fw fa-download text-inverse"></i> {{ 'Export requests' | trans() }}</a>
+                                    </li>
+                                    <li>
+                                        <a target="_blank" href="{{ path('export_gantt_chart_request_list', {id:project.id}) }}"><i class="fa fa-fw fa-download text-inverse"></i> {{ 'Export Gantt chart' | trans() }}</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        {% endif %}
+                        <a class="btn btn-primary" data-toggle="modal" data-target=".addRequestModal"><i class="fa fa-plus"></i> {{ "New purchase request" | trans() }}</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!-- END Header with Option -->
+
+        <!-- START Panel Sessions -->
+        <div>
+            <div class="scrollable">
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th class="small text-muted text-uppercase"><strong>{{ "Code" | trans() }}</strong></th>
+                    <th class="small text-muted text-uppercase"><strong>{{ "Status" | trans() }}</strong></th>
+                    <th class="small text-muted text-uppercase"><strong>{{ "Payment status" | trans() }}</strong></th>
+                    <th class="small text-muted text-uppercase"><strong>{{ "Owner" | trans() }}</strong></th>
+                    <th class="small text-muted text-uppercase"><strong>{{ "Description" | trans() }}</strong></th>
+                    <th class="small text-muted text-uppercase"><strong>{{ "Items" | trans() }}</strong></th>
+                    <th class="small text-muted text-uppercase"><strong>{{ "Product" | trans() }}</strong></th>
+                    <th class="small text-muted text-uppercase"><strong>{{ "Created At" | trans() }}</strong></th>
+                    {% if app.user.canViewFinancialInfo %}
+                        <th class="small text-muted text-uppercase"><strong>{{ "Total cost" | trans() }}</strong></th>
+                    {% endif %}
+                </tr>
+                </thead>
+                <tbody>
+                {% set grandTotal = 0 %}
+
+                {% for request in purchaseRequests %}
+                    {% set color = request.priorityLabels[request.priority] %}
+                    {% if request.type == 'production' %}
+                        {% set icon = 'cubes' %}
+                    {% elseif request.type == 'purchase' %}
+                        {% set icon = 'shopping-cart' %}
+                    {% elseif request.type == 'movement' %}
+                        {% set icon = 'truck' %}
+                    {% endif %}
+                    <!-- START ROW Task -->
+                    <tr>
+                        <td class="v-a-m" style="min-width:125px;">
+                            <i class="fa fa-fw fa-{{ icon }} text-{{ color }}"></i>
+                            <a class="text-{{ color }}" href="{{ path('request_details', {
+                                'id': request.project.id,
+                                'requestId': request.id})
+                            }}">{{ request.code ? request.code : '#' ~ request.id }}</a>
+                        </td>
+                        <td class="v-a-m" style="width:150px;">{{ request.status | trans() }}</td>
+                        <td class="v-a-m">{{ (request.paymentStatus ?: '') | trans() }}</td>
+                        <td class="v-a-m" style="width:150px;">
+                            <a class="link-comment" href="{{ path('employee_details', {'userName': request.owner.username}) }}">{{ request.owner.lastNameWithInitials }}</a>
+                        </td>
+                        <td class="v-a-m">
+                            {% set totalPrice = 0 %}
+                            {% if request.type == 'movement' %}
+                            <ul class="m-b-0">
+                                <li>{{ request.movements.first ? request.movements.first.source : '-' }}</li>
+                                <li>{{ request.movements.first ? request.movements.first.destination : '-' }}</li>
+                            </ul>
+                            {% else %}
+                                {{ request.description }}
+                            {% endif %}
+
+                            {% set totalPrice = 0 %}
+                            {% for invoice, supplier in request.getInvoicesList() %}
+                                {% set totalPrice = totalPrice + supplier['cost'] %}
+                            {% endfor %}
+
+                            {% set grandTotal = grandTotal + totalPrice %}
+                        </td>
+                        <td class="v-a-m">{{ request.items | length }}</td>
+                        <td class="v-a-m">{{ request.ware ? request.ware.name : '-' }}</td>
+                        <td class="v-a-m">{{ request.createdAt | date('d.m.Y H:i') }}</td>
+                        {% if app.user.canViewFinancialInfo %}
+                            <td class="v-a-m">
+                                <h5 class="m-t-0 m-b-0 f-w-300" style="white-space: nowrap;">
+                                    <span>{{ totalPrice | number_format(2, '.', ',') }} <i class="fa fa-fw fa-rouble"></i> </span>
+                                </h5>
+                            </td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+                <!-- END ROW Task -->
+                </tbody>
+                {% if app.user.canViewFinancialInfo %}
+                <tfoot>
+                    <tr>
+                        <th colspan="6"></th>
+                        <th><strong>{{ "Total" | trans() }}</strong></th>
+                        <th>
+                            <h4 class="m-t-0 m-b-0 f-w-300" style="white-space: nowrap;">
+                                <span>{{ grandTotal | number_format(2, '.', ',')}} <i class="fa fa-fw fa-rouble"></i> </span>
+                            </h4>
+                        </th>
+                    </tr>
+                </tfoot>
+                {% endif %}
+            </table>
+            </div>
+        </div>
+
+        {% set vars = {
+                'route': 'project_requests_list',
+                'currentPage': currentPage,
+                'maxPages': maxPages,
+                'filters': filters,
+                'routeParams': {
+                    'id': project.id
+                }
+            }
+        %}
+
+        {% include 'partial/paginator.html.twig' with vars %}
+
+        {% import 'purchase/partial/form.html.twig' as form %}
+        {% set addRequestVars = {
+                'class': 'addRequestModal',
+                'formId': 'addRequestForm',
+                'title': 'New purchase request',
+                'content': form.inputs(purchaseRequest, wares, warehouses, suppliesCategoriesGrouped),
+                'size': 'large',
+                'formAction': path('request_add', {'id': project.id}),
+                'submitTitle': 'Create'
+            }
+        %}
+
+        {% include 'partial/modal.html.twig' with addRequestVars %}
+        <!-- END EDIT CONTENT -->
+    </div>
+{% endblock %}

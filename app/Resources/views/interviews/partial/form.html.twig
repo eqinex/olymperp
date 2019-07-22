@@ -1,0 +1,49 @@
+{% macro inputs(applicants, vacancies) %}
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ 'Applicant' | trans() }}</label>
+        <div class="col-lg-3">
+            <select class="interview-applicant form-control select2-modal" name="interview[applicant]" required>
+                <option value="">{{ 'Select applicant' | trans() }}</option>
+                {% for applicant in applicants %}
+                    <option value="{{ applicant.id }}">
+                        {{ applicant.lastName ~ " " ~ applicant.firstName ~ " " ~ applicant.middleName }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <label class="col-sm-2 control-label">{{ 'Vacancy' | trans() }}</label>
+        <div class="col-lg-3">
+            <select class="interview-vacancy form-control select2-modal" name="interview[vacancy]" required>
+                <option value="">{{ 'Select vacancy' | trans() }}</option>
+                {% for vacancy in vacancies %}
+                    <option value="{{ vacancy.id }}">
+                        {{ vacancy.description }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ 'Notice' | trans() }}</label>
+        <div class="col-lg-6">
+            <textarea class="interview-notice form-control" name="interview[notice]" placeholder="{{ 'Notice' | trans() }}" required></textarea>
+        </div>
+    </div>
+
+<script>
+    $(document).ready(function (){
+        $('.editInterview').bind('click', function () {
+            var editInterviewForm = $('#editInterviewForm');
+            editInterviewForm.attr('action', $(this).data('href'));
+            editInterviewForm.find('.interview-applicant').val($(this).data('applicant'));
+            editInterviewForm.find('.interview-vacancy').val($(this).data('vacancy'));
+            editInterviewForm.find('.interview-notice').val($(this).data('notice'));
+
+            $('.select2-modal').select2({width: '100%'});
+        });
+    })
+</script>
+
+{% endmacro %}

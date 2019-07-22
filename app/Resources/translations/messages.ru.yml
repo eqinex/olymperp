@@ -1,0 +1,1522 @@
+Project: Проект
+Projects: Проекты
+in project: в проекте
+Project Categories: Категории проектов
+Project Roles: Проектные роли
+Project Members: Проектная команда
+Project Status: Проектный статус
+Project Details: Детали проекта
+Project ID: ID Проекта
+Project List: Список проектов
+Project Stages: Стадии проектов
+Project stages: Этапы проектов
+Project stage: Этап проекта
+Select stage: Выберите этап
+IT Requests: IT заявки
+Dashboard: Обзор
+Project priority: Приоритет проекта
+Request priority: Приоритет заявки
+Project structure: Структура проекта
+Edit project: Редактировать проект
+Goal project: Цель проекта
+
+Password: Пароль
+User name: Имя пользователя
+
+Tasks: Задачи
+Details: Детали
+Number: Номер
+Secretary: Секретарь
+
+Project Role: Роль в проекте
+Leader: Руководитель
+Category: Категория
+Member: Участник
+
+status.new: новая
+status.pm_approve: На утверждении руководителя
+status.purchasing_leader_approve: На утверждении руководителя отдела закупок
+
+action.show: просмотр
+action.edit: редактировать
+action.back.to.list: назад к списку
+action.delete: удалить
+action.need_approve: на утверждение
+action.leader_approve: утверждено
+Action.save: сохранить
+Download file: Загрузить файл
+
+Protocol tasks: Задачи протокола
+Protocol: Протокол
+
+title: Наименование
+Name: Название
+
+Start At: Дата начала
+Startat: Дата начала
+End At: Дата завершения
+Endat: Дата завершения
+Action: Действие
+Priority: Приоритет
+Progress: Прогресс
+New task: Новая задача
+Title: Заголовок
+Description: Описание
+Search by description: Поиск по описанию
+Extended search: Расширенный поиск
+Create task: Создать задачу
+Title and Description: Заголовок и описание
+Responsible: Ответственный
+Responsibleuser: Ответственный
+Deadline: Завершение
+Actions: Действия
+Time: Время
+Status: Статус
+View: Просмотр
+Save: Сохранить
+
+Stages: Стадии
+Calendar: Календарь
+
+settings: Настройки
+
+name: Название
+status: Статус
+leader: Руководитель
+category: Категория
+team: Команда
+time spent: Времени потрачено
+
+Applicant: Соискатели
+Add applicant: Добавить соискателя
+Select applicant: Выберите соискателя
+Add vacancy: Добавить вакансию
+Edit vacancy: Редактировать вакансию
+Vacancies: Вакансии
+Vacancy: Вакансия
+Select vacancy: Выберите вакансию
+Interviews: Собеседования
+Interview: Собеседование
+Add interview: Назначить собеседование
+Edit interview: Редактировать собеседование
+Salary: Оклад
+user.profile: Профиль
+work_not_started: Работа не начата
+work_started: Работа начата
+work_stopped: Работа приостановлена
+work_done: Работа выполнена
+Search by email: Поиск по email
+Search by phone: Поиск по номеру телефона
+Select applicant: Выбирите соискателя
+
+priority_low: Низкий
+low: Низкий
+priority_normal: Обычный
+normal: Обычный
+priority_high: Высокий
+high: Высокий
+priority_big: Наивысший
+priority_highest: Наивысший
+highest: Наивысший
+big: Наивысший
+
+status_new: Новая
+new: Новая
+status_in_progress: В процессе
+in_progress: В процессе
+status_done: Завершена
+done: Завершена
+status_cancelled: Отменена
+cancelled: Отменена
+status_on_hold: Приостановлена
+on_hold: Приостановлена
+status_all_statuses: Все статусы
+select_all: Выбрать всё
+Select checkselect-invoice: Выберите счёт
+Select checkselect-expenses: Выберите вид расхода
+Select checkselect-status: Выберите статус
+Selected checkselect-invoice: Выбрано счетов
+Selected checkselect-expenses: Выбрано видов расходов
+Selected checkselect-status: Выбрано статусов
+
+Employees: Сотрудники
+Staff: Кадры
+Fullname: Имя
+
+Reporter: Владелец задачи
+Employee Role: Должность
+
+attachments: приложения
+attachment: приложение
+download: скачать
+Download: Скачать
+Upload File: Прикрепить файл
+
+Task owner: Владелец задачи
+Assignee: Ответственный
+Created At: Дата создания
+Createdat: Дата создания
+Updated At: Обновлено
+Closed At: Дата завершения
+Logged Day: День списания
+
+Edit: Редактировать
+Done: Завершить
+Cancel: Отменить
+Close: Закрыть
+Send: Отправить
+Create: Создать
+Save: Сохранить
+Start progress: Взять в работу
+Return to work: Вернуть в работу
+Request result approve: На проверку результата
+Reopen: Переоткрыть
+Field: Поле
+Old value: Старое значение
+New value: Новое значение
+Changed by: Автор изменения
+Changed at: Дата изменения
+
+New IT Request: Новая заявка
+Edit IT Request: Редактирование заявки
+
+Edit task: Редактирование задачи
+Comments: Комментарии
+Enter your message: Ваш комментарий
+
+created a new task: создал(а) новую задачу
+updated a task: обновил(а) задачу
+added a comment to a task: добавил(а) комментарий к задаче
+added a file to a task: прикрепил(а) файл к задаче
+added a comment to a purchase request: добавил(а) комментарий к заявке
+
+new_task: Новая задача
+task_update: Задача обновлена
+new_comment: Новый комментарий к задаче
+new_attachment: Новый прикрепленный файл
+
+Team: Отдел
+Teams: Отделы
+
+My tasks: Мои задачи
+Assigned by me tasks: Назначенные мной задачи
+Description is not filled yet: Описание не заполнено
+
+Original estimate: Оценка времени
+Originalestimate: Оценка времени
+Remaining estimate: Оставшееся время
+Remainingestimate: Оставшееся время
+Remaining estimate time: Оставшееся
+Original estimate time: Запланированное
+Time spent: Времени затрачено
+Time log: Списание времени
+Timespent: Времени затрачено
+TSpent: Затраченное
+
+Work Logs: Трудозатраты
+Team work logs: Трудозатраты отдела
+Add work log: Списать время
+Write off: Списать
+
+Date: Дата
+There's no comments yet: Комментариев нет
+There's no versions yet: Версий нет
+
+Select category: Выберите категорию
+Select priority: Выберите приоритет
+Select leader: Выберите руководителя
+Select responsible: Выберите ответственного
+Select status: Выберите статус
+Display archive: Отображать архив
+Download report: Скачать отчет
+Select role: Выберите должность
+
+mon: пн
+tue: вт
+wed: ср
+thu: чт
+fri: пт
+sat: сб
+sun: вс
+
+1m/1м - 1 minute, 1h/1ч - 1 hour, 1d/1д - 1 day: 1m/1м - 1 минута, 1h/1ч - 1 час, 1d/1д - 1 день
+Example "1h 10m": Пример "1ч 10м"
+Start: Приступить
+Comment: Комментарий
+24h activity: Активность за день
+
+Purchases: Закупки
+New purchase request: Новая заявка
+Purchase request: Заявка
+
+Favorite: Избранные
+
+Item: Позиция
+Items: Позиции
+From: От
+item.status: Cтатус
+item.quantity: кол-во
+item.title: наименование
+item.sku: артикул
+item.unit: ед. изм.
+item.category: категория
+item.notice: примечание
+item.preferred_shipment_date: желаемая дата получения
+item.invoice_nr: счета
+item.actual_quantity: факт. кол-во
+item.productionStatus: Статус производства
+item.designation: Обозначение
+item.consumption of basic materials: Расход основных материалов
+item.support materials consumption: Расход поддержки
+item.placement: Занимаемая площадь
+item.printing time: Время печати
+item.total consumption of basic materials: Общий расход основных материалов
+item.total support materials consumption: Общий расход поддержки
+item.total time: Общее время
+item.total: Всего
+Search by designation: Поиск по обозначению
+Search by title: Поиск по названию
+Search by author: Поиск по автору
+Search by genre: Поиск по жанру
+Search by number: Поиск по номеру
+Search by document code: Поиск по н. договора
+Search by sku: Поиск по артикулу
+
+Add tool work log: Добавить учет работ
+Edit tool work log: Редактировать учета работ
+
+Search by name: Поиск по имени
+Select team: Выберите отдел
+Select project: Выберите проект
+
+Add employee: Добавить сотрудника
+Edit employee: Редактировать сотрудника
+Search by employee: Поиск по сотруднику
+Employee: Сотрудник
+Biography is not filled yet: Биография не заполнена
+Profile: Профиль
+Social: Социальные сети
+
+Code: Код
+Preferred shipment date: Желаемая дата поставки
+
+Request leader approve: Запрос подтверждения заявки
+Purchasing manager assign: Назначение менеджера снабжения
+Request: Запросить
+Request approve: На подтверждение
+sent an interview for request approve: отправил собеседование на подтвержение
+
+needs_leader_approval: На утверждении технического руководителя
+needs_production_leader_approval: На утверждении руководителя производства
+needs_purchasing_manager: Ожидает назначения менеджера закупок
+needs_fixing: Нужно исправление
+manager_assigned: Менеджер назначен
+manager_started_work: Обрабатывается менеджером
+manager_finished_work: Обработка завершена
+on_preliminary_estimate: На предварительной оценке
+On preliminary estimate: На предварительную оценку
+returned request on preliminary estimate: вернул(а) заявку на предварительную оценку
+Preliminary price: Предв. цена
+needs_preliminary_estimate_approve: На утверждении предварительной оценки
+On processing: На обработку
+In processing: В обработке
+
+Approving leader: Подтверждающий руководитель
+Project leader: Руководитель проекта
+Projectleader: Руководитель проекта
+
+Projectleaderapproved: Утверждено руководителем проекта
+
+Awaiting approve: На утверждение
+Approve request: Одобрить
+Return to fixing: На исправление
+
+Purchasing leader: Руководитель отдела закупок
+Purchases list: Закупки
+
+My requests: Мои заявки
+Assign manager: Назначить менеджера
+Change manager: Заменить менеджера
+Change technical leader: Заменить технического руководителя
+Purchasing manager: Менеджер снабжения
+Need manager: Без менеджера
+Add notice: Добавить примечание
+
+Purchasingleader: Руководитель отдела закупок
+Purchasingleaderapproved: Утверждено руководителем отдела закупок
+Leaderapproved: Утверждено руководителем
+Purchasingmanager: Менеджер снабжения
+Purchasing Manager: Менеджер снабжения
+
+yes: да
+no: нет
+Yes: Да
+No: Нет
+
+updated purchase request: обновил(а) заявку
+Changes: Изменения
+Сhanges review: Просмотр изменений
+Reject: Отклонить
+rejected: Отклонена
+
+Avatar: Фотография
+First name: Имя
+Middle name: Отчество
+Last name: Фамилия
+full name: ФИО
+
+Contacts: Контакты
+Phone: Телефон
+Date of birth: Дата рождения
+Birthdays in the next two weeks: Дни рождения в ближайшие две недели
+Employment date: Дата приема на работу
+History: История
+Employee status: Статус сотрудника
+Notifications: Уведомления
+
+Are you sure you want to delete item?: Вы уверены, что хотите удалить позицию из заявки?
+Remove item: Удалить позицию
+Remove: Удалить
+Removed: Удалено
+
+Edit item: Редактировать позицию
+
+Export: Экспорт
+Import: Импорт
+Manager assigned: В обработке
+All requests: Все заявки
+
+Search by code: Поиск по номеру заявки
+Select owner: Выберите владельца
+Change owner: Изменить владельца
+Download photo: Загрузите фотографию
+Telegram Username: Имя пользователя Telegram
+Olymp theme: Тема Олимпа
+Dark: Темная
+Light: Светлая
+Hide menu: Скрыть меню
+
+Add team members: Добавить участников
+Select users: Выберите пользователей
+User: Пользователь
+Add: Добавить
+
+Attach invoice: Прикрепить счет
+Attach invoice to registry: Прикрепить счёт к реестру
+Attach: Прикрепить
+Fix invoice/prices: Исправить счет/цены
+Fixing prices items: На исправление цен позиций
+Attach_invoice: Прикрепить счет
+
+Request type: Тип заявки
+Purchase: Закупки
+Production: Производство
+Type of production: Тип производства
+Movement: Транспортировка
+
+Responsible users: Ответственные
+Owner: Владелец
+Return fixing: Вернуть на исправление
+Are you sure you want to return request to fixing?: Вы уверены, что хотите вернуть заявку на исправление?
+
+Import/Export: Импорт/Экспорт
+Export items: Экспорт позиций
+Import items: Импорт позиций
+
+Select manager: Выберите менеджера
+
+requests approval: отправил(а) на проверку заявку
+approved purchase request: одобрил(а) заявку
+assigned manager: назначил(а) менеджера
+started work on request: взял(а) заявку в обработку
+handed work on request: передал(а) заявку в обработку
+returned request to fixing: вернул(а) заявку на исправление
+rejected request: отклонил(а) заявку
+
+There's no items yet: Список позиций пуст
+There's no files yet: Список файлов пуст
+There's no changes yet: Изменений нет
+
+Add items: Добавить позиции
+
+Active Employee: Cотрудник
+Inactive Employee: Бывший сотрудник
+Outsource Employee: На аутсорсе
+Hidden Employee: Скрытый
+
+Requests: Заявки
+Requests list: Список заявок
+Select type: Выберите тип
+Search by model: Поиск по модели
+Edit request: Редактировать заявку
+Request code: Код заявки
+payment: оплата
+
+Full Title: Полное название
+Fulltitle: Полное название
+Supplier full name: Полное наименование предприятия
+Supplier short name: Сокращенное наименование предприятия
+Full name: Полное наименование
+Short name: Краткое наименование
+Supplier card: Карточка контрагента
+Details supplier: Детали контрагента
+Created by: Создал контрагента
+Supplier: Контрагент
+Responsible persons: Ответственные
+Responsible person: Ответственный
+Add supplier: Добавить контрагента
+Without supplier: Без поставщика
+Legal form: Юридическая форма
+Select legal form: Выберите юридическую форму
+Legal Address: Юридический адрес
+Legaladdress: Юридический адрес
+Actual Address: Фактический адрес
+Actualaddress: Фактический адрес
+Postal Address: Почтовый адрес
+Postaladdress: Почтовый адрес
+Mailing Address: Электронный адрес
+Mailingaddress: Электронный адрес
+Site: Сайт
+Fax: Факс
+Ogrn: ОГРН
+Okpo: ОКПО
+ITN: ИНН
+Itn: ИНН
+Kpp: КПП
+Okved: ОКВЭД
+Okfs: ОКФС
+Okopf: ОКОПФ
+Okato: ОКАТО
+Registered At: Дата регистрации
+Registeredat: Дата регистрации
+Supplier registered at: Дата регистрации предприятия
+Checking Account: Расчетный счет
+Checkingaccount: Расчетный счет
+Bank Full Name: Полное наименование банка
+Bankfullname: Полное наименование банка
+Bank Short Name: Краткое наименование банка
+Bankshortname: Краткое наименование банка
+Correspondent Account: Корреспондентский счет
+Correspondentaccount: Корреспондентский счет
+Bic: БИК
+Bank details: Банковские реквизиты
+Bank Mailing Address: Почтовый адрес банка
+Bankmailingaddress: Почтовый адрес банка
+Bank Legal Address: Юридический адрес банка
+Banklegaladdress: Юридический адрес банка
+Bank Actual Address:  Фактический адрес банка
+Bankactualaddress:  Фактический адрес банка
+Bank Itn: ИНН банка
+Bankitn: ИНН банка
+Bank Kpp: КПП банка
+Bankkpp: КПП банка
+Creator: Создатель
+Director: Директор
+Director based: Директор действует на основании
+Accountant: Бухгалтер
+Chief Accountant: Гл. бухгалтер
+Edit supplier: Редактирование контрагента
+item.supplier: поставщик
+item.price: стоимость
+item.prepaymentAmount: предоплата
+item.estimatedShipmentTime: Доставка, дн
+Technical leader: Технический руководитель
+Production leader: Руководитель производства
+Production specialist: Специалист производства
+Productionleader: Руководитель производства
+Replace production specialist: Заменить специалиста производства
+Financial leader: Руководитель финансового отдела
+Financialleader: Руководитель финансового отдела
+financial_team: Финансовый отдел
+Delivery status: Статус доставки
+Deliverystatus: Статус доставки
+Move to production leader approve: Передать руководителю производства
+Request technical leader approve: Отправить на подтверждение техническому руководителю
+Move to payment: На оплату
+Payment status: Статус оплаты
+Paymentstatus: Статус оплаты
+Select payment status: Выберите статус оплаты
+Select delivery status: Выберите статус доставки
+Payment date: Дата оплаты
+
+payment_processing: В оплате
+paid: Оплачено
+unpaid: Не оплачено
+
+needs_payment: Не в оплате
+awaiting_delivery: Не доставляется
+In delivery: В доставке
+in_delivery: В доставке
+Delivered: Доставлено
+delivered: Доставлено
+delivered request: Заявка доставлена
+delivered a: доставлена
+request marked as delivered: отметил(а) заявку доставленной
+
+prev. week: пред. неделя
+next. week: след. неделя
+commented a: написал(а) в
+today at: сегодня в
+yesterday at: вчера в
+at: в
+
+Latest task comments: Комментарии к задачам
+Products: Изделия
+Product: Изделие
+Involved users: Участники
+team.undefined: Отдел не указан
+Team undefined: Отдел не указан
+not_defined: Не определено
+
+Remove team member: Удалить участника из команды
+Export requests: Выгрузка заявок
+
+Are you sure you want to delete file?: Вы уверены, что хотите удалить файл?
+Delete: Удалить
+Delete file: Удалить файл
+Company: Организация
+Company code: Шифр организации
+Filename: Название файла
+Select file type: Выберите тип файла
+
+team_spaces_list: Список отделов
+products_list: Список изделий
+projects_list: Список проектов
+Select product: Выберите изделие
+
+Image preview: Просмотр изображений
+Image: Изображение
+
+Cargo details: Информация о грузе
+weight, dimensions, package: вес, габариты, упаковка
+movement.source: Пункт отправки
+movement.startDate: Дата отправки
+movement.destination: Пункт доставки
+movement.endDate: Дата доставки
+movement.send.responsible: Отв. за отправку
+movement.receive.responsible: Отв. за приемку
+movement.needPrr: Необходимость ПРР
+movement.needCargoDescription: Предоставление описи груза
+movement.needCargoInsurance: Необходимость страхования груза
+movement.needAdditionalCargo: Возможность догруза транспортного средства
+Approve: Одобрить
+status_need_approve: Ожидает подтверждения
+need_approve: Ожидает подтверждения
+status_need_approve_result: На утверждении результата
+need_approve_result: На утверждении результата
+result_approved: Результат одобрен
+status_result_approved: Результат одобрен
+status_ready_to_work: Одобрена руководителем
+ready_to_work: Одобрена руководителем
+Ready to work: Передать в работу
+Controlling user: Контроль
+Controllinguser: Контроль
+OnControlling: На контроле
+Files: Файлы
+Size: Размер
+There are no marked items!: Отсутствуют отмеченные позиции!
+
+task: Задача
+epic: Эпик
+Epic: Эпик
+meeting: Встреча
+
+Type: Тип
+
+Select epic: Без эпика
+Epic tasks: Задачи эпика
+Task members: Участники
+
+Needs payment: К оплате
+
+Gender: Пол
+Select gender: Выбирите пол
+gender_male: Мужской
+gender_female: Женский
+gender_unknown: Не выбран
+
+Select user: Выберите пользователя
+Financial manager: Финансовый менеджер
+Paid: Оплачено
+Done: Выполнено
+
+Attach payment documents: Прикрепить платежное поручение
+Reply: Ответить
+Stop progress: Приостановить
+
+Bulk action: Групповая обработка
+Select bulk action: Выберите действие для групповой обработки
+Bulk action: Групповая обработка
+Apply: Применить
+Confirm: Подтвердить
+Accept: Принять
+
+Are you sure want to delete these items?: Вы уверены, что хотите удалить эти позиции?
+Are you sure want to take these items to production?: Вы уверены, что хотите отправить эти позиции в производство?
+Are you sure want to move these items to purchasing?: Вы уверены, что хотите отправить эти позиции в отдел снабжения?
+Are you sure want to mark these items as produced?: Вы уверены, что хотите пометить эти позиции как выполненные?
+Take to production: В производство
+
+Own production: Собственное производство
+in_production: В производстве
+produced: Произведено
+Produced: Произведено
+Production status: Статус производства
+Mark as produced: Произведено
+
+Move to purchasing: В снабжение
+purchasing_team: Отдел снабжения
+Costs: Затраты
+
+project_costs_list: Затраты проекта
+Payment Type: Тип оплаты
+Amount: Сумма
+Add new cost: Указать затраты
+Select payment type: Выберите тип оплаты
+Select category type: Выберите категорию
+
+Cash: Наличный расчет
+cash: Наличный расчет
+Card: Безналичный расчет
+card: Безналичный расчет
+
+service: услуги
+material: тмц
+consumables: расходники
+other: прочие
+
+Clients: Клиенты
+Client: Клиент
+Select client: Выберите клиента
+Add client: Добавить клиента
+Edit client: Редактировать клиента
+Legal name: Юридическое имя
+
+Sales: Продажи
+
+project.client: Заказчик
+Delete cost: Удалить затраты
+
+Are you sure you want to delete cost?: Вы уверены, что хотите удалить затраты?
+
+Productionstatus: Статус производства
+Productionleaderapproved: Одобрено руководителем производства
+Moved to production: Передано в производство
+
+Invoice: Счет
+Invoices: Счета
+Time against deadline: Прошло времени относительно даты завершения
+Total cost: Сумма
+Total: Итого
+
+Select purchasing manager: Менеджер снабжения
+Created at: Дата создания
+
+Room: Кабинет
+Purchasing, Movement, Production: Закупки, Транспортировка, Производство
+HR Costs: Трудозатраты
+
+Toolbox: Оборудование
+Relevance date: Дата актуализации
+Relevancedate: Дата актуализации
+Details toolbox: Детали оборудования
+
+Documents: Документооборот
+New Document: Новый документ
+document.owner: Инициатор
+document.owner.department: Подразделение инициатора
+document.leader.department: Подразделение руководителя
+document.curator.department: Подразделение куратора
+
+Contract: Договор
+document: документ
+document.code: Номер договора
+document.version: Версия документа
+Document: Документ
+Contracts: Договоры
+Contract card: Карточка
+added a comment to a document: добавил(а) комментарий к документу
+added a changes to a document: добавил(а) изменения к документу
+sent you a contract for approval: отправил(а) вам договор на согласование
+sent you a contract for signature: отправил(а) вам договор на подпись
+did not approve the document: не согласовал(а) документ
+approved the document: согласовал(а) документ
+cancelled the document: отклонил(а) документ
+registered the document: зарегистрировал документ
+Download registry documents: Выгрузка реестра договоров
+
+Display approved documents: Отображать согласованные
+
+Subscribers: Подписчики
+Unsubscribe: Отписаться
+Subscribe: Подписаться
+
+Item name: Название позиции
+Item number: Артикул позиции
+Search by invoice: Поиск по счету
+Select supplier: Поиск по поставщику
+Search by itn: Поиск по ИНН
+Delete supplier person: Удалить ответственного
+Are you sure you want to delete supplier person?: Вы уверены, что хотите удалить ответственного?
+Suppliers: Контрагенты
+deleted: Удален
+Supplierperson: Ответственный
+
+Warehouse: Склад
+Select warehouse: Выберите склад
+Mark on stock: Прибыло на склад
+Mark not on stock: Не прибыло на склад
+on_stock: На складе
+On stock: На складе
+Not on stock: Нет на складе
+item.stockStatus: На складе
+
+Are you sure want to mark these items on stock?: Вы уверены, что хотите отметить товары прибывшими на склад?
+Are you sure want to mark these items not on stock?: Вы уверены, что хотите отметить товары не прибывшими на склад?
+
+Timings: Тайминги
+Moved to technical leader approval at: Передано на согласование тех. руководителю
+Technical leader approved at: Согласовано тех. руководителем
+Purchasing leader approved at: Согласовано руководителем ОС
+Manager started work at: Принято в работу менеджером ОС
+Manager finished work at: Менеджер ОС передал счета в ФЭО
+Financial leader approved at: Согласовано руководителем ФЭО
+Financial manager marked as paid at: Оплачено менеджером ФЭО
+Manager marked as delivered at: Доставлено
+Request marked as done at: Заявка закрыта
+Return to fixing at: Отправлено на исправление
+
+Structure: Структура
+Achievements: Достижения
+Achievement: Достижение
+Add achievements user: Добавить достижение пользователю
+
+Document contents: Содержимое документа
+
+Starts with АТ.: Начните с АТ.
+Revisions: Версии
+Revision: Версия
+Version: Версия
+Updated at: Обновлено
+
+Blank: Бланк
+document.template: Вид договора
+Documenttemplate: Вид договора
+Document type: Вид документа
+analog: Письменный
+digital: Электронный
+document.period: Срок исполнения в мес.
+Period: Срок исполнения
+document.vat: НДС, руб.
+Vat: НДС
+document.amount: Сумма по договору, руб.
+document.startAt: Договор с
+Startat: Договор с
+document.endAt: Договор по
+Endat: Договор по
+document.unlimited: Бессрочный
+Unlimited: Бессрочный
+document.extension: Продление договора
+Contractextension: Продление договора
+Envisaged: Предусмотрено
+Unenvisaged: Не предусмотрено
+Curator: Куратор
+document.subject: Предмет договора
+Subject: Предмет
+Measure of responsibility: Мера ответственности
+Measureofresponsibility: Мера ответственности
+document.security: Обеспечение
+Security: Обеспечение
+Without VAT: Без НДС
+Select type of contract: Выберите вид договора
+Select contract category: Выберите категорию договора
+Select contract supplier: Выберите контрагента
+Number supplier: Номер договора контрагента
+Edit document: Редактировать документ
+Suppliercontractcode: Номер договора контрагента
+Add supplementary agreement : Добавить доп. соглашение
+Basic agreement: Основное соглашение
+Date basic agreement: Дата основного соглашения
+Supplementary agreement: Дополнительное соглашение
+Date supplementary agreement: Дата доп. соглашения
+Debtreceivable: Дата признания дебиторской задолженности сомнительной/безнадежной
+Add debtreceivable: Добавить дату признания дебиторской задолженности
+Act: Акты сверки
+Template supplementary agreement: Вид доп. соглашения
+Select template supplementary agreement: Выберите вид дополнительного соглашения
+
+document.new: Новый
+document.on_hold: Приостановлен
+document.needs_fixing: На исправлении
+document.needs_approve: На согласовании
+document.approved: Согласован
+document.registered: Зарегистрирован
+document.cancelled: Отменен
+document.need_approve: На согласование
+
+Document approve: Отправить на согласование
+For signature: На подпись
+To register: Зарегистрировать
+Signatories: Подписанты
+Signatory: Подписант
+Approved: Согласовано
+To view the document, click on: Для просмотра документа перейдите по
+the link: ссылке
+Not approved: Не согласовано
+To sign: Подписать
+Add signatories: Добавить подписантов
+Add remarks: Добавить замечания
+Remarks: Замечания
+Enter your remarks: Ваши замечания
+Remarks for document: Замечания к документу
+Enter your reason for disapproval: Ваша причина несогласования
+Reason for disapproval: Причина несогласования
+
+needs_project_leader_approve: На утверждении руководителя проекта
+
+Total for the period: Всего за период
+Total in accounts: Всего по счетам
+Total for payment: Счетов на оплату
+Completed: Завершено
+Performed: Выполняется
+Completed on time: Выполнено в срок
+completed tasks: выполненных задач
+Overdue percentage: Процент просроченных
+Overdue: Просрочено
+Show overdue: Показать просроченные
+Executed works %: % выполненных работ в срок
+Total overdue now: Всего просрочено сейчас
+Aggregate period: Период
+Aggregated Report: Агрегированный отчет по исполнительской дисциплине
+Export aggegate report: Выгрузка отчета
+Export card: Выгрузка карточки
+Export document: Выгрузка документа
+Remove signatory: Убрать подписанта
+
+Type of absence: Тип отсутствия
+Add a date of absence: Добавить дату отсутствия
+business_trip: Командировка
+illness: Больничный
+miss: Пропуск
+vacations: Отпуск
+overtime: Отгул
+
+Export protocol: Выгрузка протокола
+Protocols: Протоколы
+protocol: Протокол
+New protocol: Новый протокол
+Edit protocol: Редактирование протокола
+
+Materials: Материалы
+Material: Материал
+Add material: Добавить материал
+Edit material: Редактирование материала
+pcs: шт
+Quantity: Количество
+
+Plastic: Пластик
+Metal: Металлоизделия
+
+Year: Год
+Month: Месяц
+January: Январь
+February: Февраль
+March: Март
+April: Апрель
+May: Май
+June: Июнь
+July: Июль
+August: Август
+September: Сентябрь
+October: Октябрь
+November: Ноябрь
+December: Декабрь
+
+Protocol Date: Дата протокола
+Members: Участники
+
+Invoice payment: Условия оплаты
+Invoicepayment: Условия оплаты
+account_ufk: Счет УФК
+account_at: Средства АТ
+account_special: Спец. счет
+Payment information: Информация об оплате
+acceptance_without: Без приемки
+acceptance_otk: ОТК
+acceptance_5vp: 5 -ВП
+Type acceptance: Вид приемки
+Acceptancetype: Вид приемки
+Expenses type: Статья затрат
+Expensestype: Статья затрат
+expenses.not_categorized: Не указано
+expenses.additional: Накладные
+board.additional_needs_payment: Накладные
+expenses.materials: Материалы
+expenses.other_direct: Прочие прямые
+Number of products: Кол-во изделий
+Numberofproducts: Кол-во изделий
+This purchase contains position on %s products: Данная заявка включает позиции на %s изделий
+
+Select secretary: Выберите секретаря
+Select controlling user: Выберите контроллирующего
+
+Tenant: Арендатор
+Tenants: Арендаторы
+Add tenant: Добавить арендатора
+Select tenant: Выберите арендатора
+Rent: Арендная плата
+Add rent: Добавить арендную плату
+Tenement: Арендуемое помещение
+Add tenement: Добавить помещение
+Heating: Отопление
+Communal payments: Коммунальные платежи
+Square: Площадь
+Payment method: Способ оплаты
+Select payment method: Выберите способ оплаты
+Total income: Общая сумма поступлений
+Tenant title: Наименование арендатора
+Import tenants: Импорт арендаторов
+
+If you do not fill in this field, it will be filled automatically: Если вы не заполните это поле оно заполнится автоматически
+If you click on this button, the Code field is automatically filled in: Если вы нажмете на эту кнопку, поле "Код" заполняется автоматически
+Developer: Разработчик
+Subassembly: Подсборка
+Execution: Исполнение
+Executor: Исполнитель
+Development: Разработка
+Project code: Шифр проекта
+Are you sure you want to delete project registry?: Вы уверены что хотите удалить проект?
+Project registry: Реестр проектов
+Add project registry: Зарегистрировать проект
+Edit project registry: Редактировать поект
+Delete project registry: Удалить проект
+Created year project code: Год создания шифра
+Save edit registry: Сохранить изменения проекта
+Project number: Номер проекта
+Engineering Document Catalog: Учет КД
+Add Engineering Document: Добавить учет КД
+Edit Engineering Document: Редактирование учета КД
+Import Engineering Document: Импорт учета КД
+Registering a copy of the Engineering Document: Регистрация копии учета КД
+Register a copy: Зарегистрировать копию
+Make changes: Внести изменения
+Alteration Engineering Document: Изменение учета КД
+Set Engineering Document: Комплект КД
+Inventory number: Инвентарный номер
+Designation: Обозначение
+Format: Формат
+Class: Класс
+Engineering code: Шифр
+Subgroup: Подгруппа
+Index number: Порядковый номер
+Document execution: Исполнение документа
+Decryption code: Расшифровка кода классификатора ЕСКД
+Engineering document code: Код классификатора ЕСКД
+Number of pages: Количество страниц
+Search by inventory number: Поиск по инв. номеру
+Registration Date: Дата регистрации
+Search by engineering.title: Поиск по наименованию
+Search by notice: Поиск по примечанию
+Error adding entry! Entry %s already exists!: Ошибка добавления записи! Запись %s уже существует!
+
+Inventory number indicates the order of assignment of the document: Инвентарный номер указывается попорядку присвоения документа (123456 -  12-шифр подразделения (для КБ - 20), 3456 - сквозной порядковый номер)
+The number of pages in the document: Количество листов в документе
+The date of registration of the code: Дата регистрации шифра
+Document format: Формат документа
+Product title: Наименование изделия
+OKPO code assigned to the organization (by default - BHAP): Шифр ОКПО присвоенный организации (по умолчанию - БПАГ)
+Сlass according to the classifier ESKD: Класс согласно классификатору ЕСКД
+Subclass / group / subgroup / species according to the classifier ESKD: Подкласс/группа/подгруппа/вид согласно классификатору ЕСКД
+The name of the code of the project adopted in the organization: Наименование шифра проекта принятого в организации
+
+Inventory: ТМЦ
+Inventory items: Товарно-материальные ценности
+
+Theme: Тема
+Task Result: Результат задачи
+Select task result: Выберите результат задачи
+
+ITT: ВТЗ
+Unit: Единица измерения
+Value TT: Значение ТЗ
+Value ITT: Значение ВТЗ
+The difference between a TT and a ITT: Отличие ТЗ от ВТЗ
+Notice: Примечание
+technical_characteristic: Техническая характеристика
+functional_characteristic: Функциональная характеристика
+New ITT: Новое ВТЗ
+Edit ITT: Редактировать ВТЗ
+Are you sure you want to delete ITT?: Вы уверены, что хотите удалить ВТЗ?
+Remove ITT: Удалить ВТЗ
+Technical director: Технический директор
+General Manager: Генеральный Директор
+
+Add responsible person: Добавить ответственное лицо
+Edit responsible person: Редактировать ответственное лицо
+
+Approval sheet: Лист согласования
+Export approval sheet: Выгрузка листа согласования
+
+New activity: Новая активность
+Edit activity: Редактировать активность
+Activity map: Карта активностей
+Activity: Активность
+Availability TEO, profitability: Наличие ТЭО, рентабельность
+Profitability: Наличие ТЭО, рентабельность
+Plan: План
+Fact: Факт
+Received: Получено
+High risk: Высоко-рисковая
+Display only high-risk: Отобразить только высоко-рисковые
+Remaining amount: Остаток суммы к оплате
+Success events: Мероприятия успешности
+success: Мероприятия успешности
+Result: Результат
+Additional events: Дополнительные мероприятия
+additional: Дополнительные мероприятия
+Activity events: Мероприятия активности
+New activity event: Новое мероприятие активности
+Edit activity event: Редактировать мероприятие активности
+Download activity: Выгрузка карты активности
+
+Catalogs: Справочники
+
+File %s upload error! Maximum file size 100 MB: Ошибка загрузки файла %s! Максимальный размер файла 100MB
+File %s upload error! Only %s files can upload: Ошибка загрузки файла %s! Загружать можно только файлы в формате %s.
+Supplier %s is not found: Поставщик %s не найден
+Supplier with %s ITN already exists!: Поставщик с %s ИНН уже существует!
+Supplier with name %s already exists!: Поставщик с названием "%s" уже существует!
+
+Vacation calendar: Календарь отпусков
+Select year: Выберите год
+Select: Выбрать
+
+Employees %s do not have vacation for %s year!: У сотрудников отдела "%s" отпуска за %s год, не найдены!
+
+activity.result_not_performed: Не выполнено
+activity.result_done: Выполнено
+
+Infrastructure: Инфраструктура
+Computers: Компьютеры
+Servers: Сервера
+PC name: Имя ПК
+Accessories: Комплектующие
+Computer parts: Компьютерные комплектующие
+Serial number: Серийный номер
+monitor: Монитор
+keyboard: Клавиатура
+mouse: Мышь
+processor: Процессор
+ram: ОЗУ
+motherboard: Материнская плата
+video_card: Видеокарта
+hdd: Жесткий диск
+operation_system: Операционная система
+Add computer part: Добавить компьютерное комплектующее
+Edit computer part: Редактировать компьютерное комплектующее
+Add computer: Добавить компьютер
+Edit computer: Редактировать компьютер
+IP Address: IP Адрес
+MAC Address: MAC Адрес
+Search by IP Address: Поиск по IP адресу
+Search by MAC Address: Поиск по MAC адресу
+Domain: Домен
+Server type: Тип сервера
+Select server type: Выберите тип сервера
+Installed service: Установленный сервис
+Add server: Добавить сервер
+Edit server: Редактировать сервер
+Select host: Выберите хост
+host: Хост
+Host: Хост
+guest: Гостевая
+dedicated_server: Выделенный сервер
+Guest servers: Гостевые сервера
+Model: Модель
+Printers: Принтеры
+Add printer: Добавить принтер
+Edit printer: Редактировать принтер
+Commutators: Коммутаторы
+Add commutator: Добавить коммутатор
+Edit commutator: Редактировать коммутатор
+Mouse: Мышь
+Monitor: Монитор
+Ipaddress: IP адрес
+Keyboard: Клавиатура
+Videocard: Видеокарта
+Inventorynumber: Инвентарный номер
+Keyonsticker: Ключ на наклейке
+Operationsystem: Операционная система
+Keyinsystem: Ключ в системе
+Macaddress: MAC Адрес
+Iptype: Способ получения ip-адреса
+Hddfirst: Первый жесткий диск
+Hddsecond: Второй жесткий диск
+Ram: Оперативная память
+Serialnumber: Серийный номер
+Installedservice: Установленный сервис
+Type cartridge: Тип картриджа
+
+Unable to delete! %s (%s) is tied to %s!: Удаление невозможно! %s (%s) привязан(а) к %s!
+Are you sure you want to delete computer?: Вы уверены, что хотите удалить компьютер?
+Are you sure you want to delete printer?: Вы уверены, что хотите удалить принтер?
+Are you sure you want to delete server?: Вы уверены, что хотите удалить сервер?
+Unable to delete! Server %s is tied by %s: Невозможно удалить! Сервер %s связан c %s
+Are you sure you want to delete commutator?: Вы уверены, что хотите удалить коммутатор?
+Are you sure you want to delete computer part?: Вы уверены, что хотите удалить компьютерное комплектующее?
+Delete computer: Удалить компьютер
+Delete computer part: Удалить компьютерное комплектующее
+Delete server: Удалить сервер
+Delete printer: Удалить принтер
+Delete commutator: Удалить коммутатор
+laptop: Ноутбук
+desktop_computer: Стационарный
+monoblock: Моноблок
+printer: Принтер
+server: Сервер
+commutator: Коммутатор
+
+Way to get the ip-address: Способ получения ip-адреса
+Select employee: Выберите сотрудника
+Key OS in system: Ключ ОС в системе
+Key OS on sticker: Ключ ОС на наклейке
+Search by key OS: Поиск по ключу ОС
+Operation system: Операционная система
+Select OS: Выберите ОС
+Search by OS: Поиск по ОС
+Legal: Легальность
+Processor: Процессор
+Search by processor: Поиск по процессору
+Select processor: Выберите процессор
+Video card: Видеокарта
+Search by video card: Поиск по видеокарте
+Select video card: Выберите видеокарту
+RAM: ОЗУ
+Search by RAM: Поиск по ОЗУ
+Select RAM: Выберите ОЗУ
+Motherboard: Материнская плата
+Search by motherboard: Поиск по мат. плате
+Select motherboard: Выберите мат. плату
+First HDD: Первый жесткий диск
+Second HDD: Второй жесткий диск
+Search by HDD: Поиск по жесткому диску
+Search by monitor: Поиск по монитору
+Search by keyboard: Поиск по клавиатуре
+Search by mouse: Поиск по мыши
+Select HDD: Выберите жесткий диск
+Select monitor: Выберите монитор
+Select keyboard: Выберите клавиатуру
+Select mouse: Выберите мышь
+
+Add OS: Добавить ОС
+Add videocard: Добавить видеокарту
+Add processor: Добавить процессор
+Add RAM: Добавить ОЗУ
+Add motherboard: Добавить мат. плату
+Add HDD: Добавить жесткий диск
+Add monitor: Добавить монитор
+Add keyboard: Добавить клавиатуру
+Add mouse: Добавить мышь
+
+Computer сard: Карточка компьютера
+current_projects: Текущие проекты
+pre_contractual_projects: Преддоговорные проекты
+other_activities: Прочие активности
+deferred_projects: Отложенные проекты
+Export projects requests: Скачать заявки проектов
+
+Current projects (under the concluded contracts): Текущие проекты (по заключенным договорам)
+Precontractual projects: Преддоговорные проекты
+Other Activities: Прочие активности
+Deferred projects (weekly changes): Отложенные проекты (изменения за неделю)
+
+
+Matching OS keys: Совпадение ключей ОС
+Matches: Совпадает
+Does not match: Не совпадает
+
+Sorting: Сортировка
+Search sort: Выберите сортировку
+Search by room: Поиск по кабинету
+By the number of overdue tasks: По количеству просроченных задач
+By percentage of overdue tasks: По проценту просроченных задач
+Works completed on time: Выполненых работ в срок
+
+Programming Document Catalog: Учет ПД
+Add Programming Document: Добавить учет ПД
+Edit Programming Document: Редактировать учет ПД
+Department: Служба
+general_team: Служба генерального директора
+Select organization code: Выберите код организации
+vmi: ВМИ
+bpag: БПАГ
+Edition number: Номер редакции
+Register number: Регистрационный номер
+Document number: Номер документа
+
+Technical solution maps: Карта выбора технического решения
+TSM: КВУР/КВТР
+Goal: Цель
+Task: Задача
+Alternative solution: Альтернативные решения
+Criteria and decision making solutions: Критерии и ограничения принятия решений
+Criteria: Критерий
+Points: Баллы
+Points score: Бальная оценка
+New map: Новая карта
+New technical solution maps: Новая карта выбора технического решения
+Edit technical solution maps: Редактировать карту выбора технического решения
+Alterernative solutions: Альтернативные решения
+New solution: Новое решение
+Criterion: Критерий
+Edit alternative solution: Редактировать альтернативное решение
+Are you sure you want to delete solution?: Вы уверены, что хотите удалить решение?
+Delete solution: Удалить решение
+Justification choice: Обоснование выбора
+
+technical_map.not_approved: Не согласовано
+technical_map.needs_approve: На согласовании
+technical_map.approved: Согласовано
+technical_map.needs_fixing: На исправлении
+
+Send for approval: Отправить на согласование
+Max points: Макс. баллов
+Solution name: Наименование решения
+Option: Вариант
+
+Download TSM: Выгрузка КВУР/КВТР
+Add solution: Добавить решение
+
+Criteriontitle1: Первый критерий
+Criteriontitle2: Второй критерий
+Criteriontitle3: Третий критерий
+Criteriontitle4: Четвертый критерий
+Maxpoints1: Баллы к первому критерию
+Maxpoints2: Баллы ко второму критерию
+Maxpoints3: Быллы к третьему критерию
+Maxpoints4: Баллы к четвертому критерию
+
+updated a TSM: обновил(а) КВТР
+added a comment to a TSM: добавил(а) комментарий к КВТР
+added a file to a TSM: прикрепил(а) файл к КВТР
+added a new solution a TSM: добавил(а) новое решение к КВТР
+To view the TSM, click on: Для просмотра КВТР перейдите по
+
+Title / Description: Заголовок / Описание
+Sender: Отправитель
+Date of change: Дата изменения
+Serial: Серийное
+Add serial production: Добавить серийное производство
+Edit serial production: Редактировать серийное производство
+
+Recipe: Рецепт
+New recipe: Новый рецепт
+Select a product: Выберите изделие
+Date and time of change: Дата и время изменения
+
+Scheduled tasks: Запланированные задачи
+Scheduler tasks: Планировщик задач
+Schedule a task: Запланировать задачу
+Edit scheduled task: Редактировать запланированную задачу
+status_scheduled: Запланирована
+Scheduled period: Периодичность
+singly: Однократно
+daily: Ежедневно
+weekly: Еженедельно
+monthly: Ежемесячно
+yearly: Ежегодно
+Select scheduled period: Выберите периодичность
+Select days of the week: Выберите дни недели
+Days of the week: Дни недели
+monday: Понедельник
+tuesday: Вторник
+wednesday: Среда
+thursday: Четверг
+friday: Пятница
+saturday: Суббота
+sunday: Воскресенье
+
+Job report: Отчет о работе
+Select period of execution: Выберите срок выполнения
+
+Administrator: Администратор
+Request was automatic return "need fixing", because there were no updates for a month.: Заявка автоматически возвращена на исправление, т.к. в течение месяца не было обновлений.
+
+Select all: Отметить все
+Mark read: Пометить прочитанным
+
+Nomenclature: Номенклатура
+Import nomenclature: Импорт номенклатуры
+Vendor code: Артикул
+Barcode: Штрих-код
+Group: Группа
+Select group: Выберите группу
+Search by code product: Поиск по коду товара
+Search by barcode: Поиск по штрих-коду
+Search by vendor code: Поиск по артикулу
+
+Monitoring: Мониторинг
+Busy: Занято
+Free: Свободно
+Load CPU: Загрузка CPU
+Memavail: Свободное ОЗУ
+Membusy: Загрузка ОЗУ
+Total disk space: Общий объем диска
+Disk: Диск
+Memtotal: Объем ОЗУ
+Server: Сервер
+
+Missing contracts: Отсутствующие договора
+
+Export Gantt chart: Выгрузка диаграммы Гантта
+
+Select technical solution: Выберите техническое решение
+
+Engineering document classifier: Классификатор ЕСКД
+All russian classifier of products and design documents: Общероссийский классификатор изделий и конструкторских документов
+Import engineering document classifier:  Импорт классификатора ЕСКД
+
+Supplies Categories: Кат. поставок
+Select supplier category: Выберите категорию поставок
+Select supplies category: Выберите категорию поставки
+
+Recommended suppliers list for category "%s": Список рекомендуемых поставщиков в категории "%s"
+Access rights: Права доступа
+Limited access: Ограниченный доступ
+Unlimited access: Открытый доступ для всех
+
+board.preparing_requests: Подготовка
+board.queued: В очереди
+board.checking_prices: Оценка
+board.signing_contract: Подпись договора
+board.in_delivery: В доставке
+board.awaiting_payment: Ожидает оплаты
+board.finished: Завершено
+
+Select document template: Выберите вид договора
+Missing: Отсутствующие
+Registry: Реестр
+
+Select class: Выберите класс
+Select subclass: Выберите подкласс
+Select subgroup: Выберите подгруппу
+Select species: Выберите вид
+Subclass: Подкласс
+Species according to the classifier ESKD: Вид согласно классификатору ЕСКД
+
+File was downloaded %s times: Файл был скачан %s раз
+Download history: История скачиваний
+Download date: Дата скачивания
+
+Refresh supplier: Обновить контрагента
+
+Invoice Number: Номер Счета
+Select Invoice: Выберите номер счета
+
+ready_to_pay: Готов к оплате
+Left to pay:  Остаток
+Registry List: Реестры счетов
+
+Add registry: Новый реестр
+Money Limit: Лимит суммы
+Registry Number: Номер Реестра
+
+registry.invoice.cnt: № п/п
+
+Attach Invoice: Добавить счет
+Specify the amount of payment: Указать сумму оплаты
+
+Delivery: Доставка
+Deliveries: Доставки
+Add delivery: Добавить доставку
+From where: Откуда
+Where: Куда
+Price: Цена
+Select country: Выберите страну
+Title item: Наименование позиции
+No delivery: Доставок нет
+
+Import suppliers: Импорт контрагентов
+Export suppliers: Экспорт контрагентов
+
+Was online: Был в сети
+She was online: Была в сети
+online: В сети
+offline: Не в сети
+not_here: Нет на месте
+
+Send to supply area: Отправить на площадку контрагентов
+Send a request to the supply area?: Отправить заявку на площадку контрагентов?
+
+Are you sure you want to delete invoice?: Вы уверены, что хотите удалить счёт?
+
+Add to blacklist: Добавить в чёрный список
+Criticality: Уровень критичности
+Select criticality: Выберите ур. критичности
+Incident: Инцидент
+Incidents: Инциденты
+Date of incident: Дата инцидента
+Add incidents: Добавить инциденты
+Edit incident: Редактировать инцидент
+Delete incident: Удалить инцидент
+Export incidents: Экспорт инцидентов
+Remove from the blacklist: Убрать из чёрного списка
+Are you sure you want to remove supplier from the blacklist: Вы уверены, что хотите убрать контрагента из чёрного списка?
+Are you sure you want to delete incident from the list: Вы уверены, что хотите удалить инцидент из списка?
+
+Editing: Редактирование
+Absence calendar: Календарь отсутствий
+Production calendar: Производственный календарь
+
+working_day: Рабочий день
+holiday: Выходной
+shortened_day: Сокр. день
+
+An account has been created for you in the Olymp system: Для вас была создана учетная запись в системе Олимп
+Remove invoice: Удалить счёт
+
+Books: Книги
+Add book: Добавить книгу
+Edit book: Редактировать книгу
+Delete book: Удалить книгу
+Library: Библиотека
+Author: Автор
+Editor: Редактор
+Year of issue: Год выпуска
+Publishing house: Издательство
+Genre: Жанр
+Take a book: Взять книгу
+Return a book: Вернуть книгу
+Paper version: Бумажная версия
+Issue book: Выдать книгу
+Select genre: Выберите жанр
+Add description: Добавить описание
+
+Passport: Паспорт
+
+In item %s you must fill in "%s": В позиции %s необходимо заполнить "%s"
+
+Medical institutions: Медицинские учреждения
+Region: Регион
+City: Город
+Index: Индекс
+District: Район
+Address: Адрес
+Import medicial institutions: Импорт медицинских учреждений
+Search by region: Поиск по региону
+Search by city: Поиск по городу
+Search by index: Поиск по индексу
+
+Price management: Управление стоимостью
+RCM: РКМ
+Variant: Вариант
+Add variant: Добавить вариант
+Delete variant: Удалить вариант
+Add category: Добавить категорию
+Select categories: Выберите категории
+Delete category: Удалить категорию
+
+Project location: Расположение проекта
+Inside code: Внутренний шифр
+Ubassembly: Подсборка
+Import project code: Импорт реестра проектов

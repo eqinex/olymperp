@@ -1,0 +1,19 @@
+{% macro inputs(users) %}
+    <div class="form-group">
+        <label class="col-sm-3 control-label">{{ "User" | trans() }}</label>
+        <div class="col-sm-8">
+            <select class="form-control select2-modal" name="achievementUser[user]" required>
+                <option value="">{{ 'Select user' | trans() }}</option>
+                {% for team, members in users %}
+                    <optgroup label="{{ team | trans() }}">
+                        {% for member in members %}
+                            <option value="{{ member.id }}">
+                                {{ member.fullName }}
+                            </option>
+                        {% endfor %}
+                    </optgroup>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+{% endmacro %}

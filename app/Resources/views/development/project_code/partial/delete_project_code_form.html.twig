@@ -1,0 +1,12 @@
+{% macro inputs() %}
+    <div class="text-center">{{ "Are you sure you want to delete project registry?" | trans() }}</div>
+
+    <script>
+        $(document).ready(function(){
+            $('.deleted-project-code').bind('click', function() {
+                var deleteProjectCodeForm = $('#deleteProjectCodeForm');
+                deleteProjectCodeForm.attr('action', $(this).data('form-action'));
+            });
+        });
+    </script>
+{% endmacro %}

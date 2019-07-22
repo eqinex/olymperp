@@ -1,0 +1,51 @@
+<li>
+    <a href=""
+       data-href="{{ path('computers_edit', {'id': computer.id}) }}"
+       class="edit-computer"
+       data-type="{{ computer.type }}"
+       data-model="{{ computer.model }}"
+       data-name="{{ computer.name }}"
+       data-ip-address="{{ computer.ipAddressComputer | json_encode }}"
+       data-ip-type="{{ computer.ipType }}"
+       data-mac-address="{{ computer.macAddressComputer | json_encode}}"
+       data-domain="{{ computer.domain }}"
+       data-employee="{{ computer.employee ? computer.employee.id }}"
+       data-inventory="{{ computer.inventoryNumber }}"
+       data-key-in-system="{{ computer.keyInSystem }}"
+       data-key-on-sticker="{{ computer.keyOnSticker }}"
+            {% if computer.operationSystem %}
+                data-operation-system="{{ computer.operationSystem.id }}"
+            {% endif %}
+       data-legal="{{ computer.legal ? '1' : '0' }}"
+            {% if computer.processor %}
+                data-processor="{{ computer.processor.id }}"
+            {% endif %}
+            {% if computer.ram %}
+                data-ram="{{ computer.ram.id }}"
+            {% endif %}
+            {% if computer.motherboard %}
+                data-motherboard="{{ computer.motherboard.id }}"
+            {% endif %}
+            {% if computer.videoCard %}
+                data-video-card="{{ computer.videoCard.id }}"
+            {% endif %}
+            {% if computer.tiedComputerParts() is defined %}
+                data-monitor="{{ computer.tiedComputerParts() | json_encode }}"
+            {% endif %}
+            {% if computer.hddFirst %}
+                data-first-hdd="{{ computer.hddFirst.id }}"
+            {% endif %}
+            {% if computer.hddSecond %}
+                data-second-hdd="{{ computer.hddSecond.id }}"
+            {% endif %}
+            {% if computer.keyboard %}
+                data-keyboard="{{ computer.keyboard.id }}"
+            {% endif %}
+            {% if computer.mouse %}
+                data-mouse="{{ computer.mouse.id }}"
+            {% endif %}
+       data-toggle="modal"
+       data-target=".editComputerModal">
+        <i class="fa fa-fw fa-pencil"></i> {{ 'Edit' | trans() }}
+    </a>
+</li>

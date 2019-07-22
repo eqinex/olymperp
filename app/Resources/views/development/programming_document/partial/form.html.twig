@@ -1,0 +1,133 @@
+{% macro inputs(types, codes) %}
+    <div class="form-group">
+        <label class="col-sm-2 control-label" title="{{ 'Type' | trans() }}">{{ 'Type' | trans() }}</label>
+        <div class="col-sm-3">
+            <select class="form-control programming-document-type select2-modal" name="programming_document[type]" required>
+                <option value="">{{ 'Select type' | trans() }}</option>
+                {% for type in types %}
+                    <option value="{{ type.id }}"
+                            {% if programming.type.id is defined %}
+                                {{ "selected" }}
+                            {% endif %}>{{ type.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <label class="col-sm-3 control-label" title="{{ 'Code' | trans() }}">{{ 'Code' | trans() }}</label>
+        <div class="col-sm-3">
+            <select class="form-control programming-document-code select2-modal" name="programming_document[code]" required>
+                <option value="">{{ 'Select organization code' | trans() }}</option>
+                {% for code in codes %}
+                    <option value="{{ code }}"
+                            {% if programming.code is defined %}
+                                {{ "selected" }}
+                            {% endif %}>{{ code | trans() }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label"  title="{{ 'Owner' | trans() }}">{{ 'Owner' | trans() }}</label>
+        <div class="col-sm-3">
+            <select class="form-control programming-document-owner select2-modal" name="programming_document[owner]" required>
+                {% for team, members in employee_service.getUsersGroupedByTeams() %}
+                    <optgroup label="{{ team | trans() }}">{{ programmingDocument.owner.id is defined ? programmingDocument.owner.id }}
+                        {% for member in members %}
+                            <option value="{{ member.id }}"
+                                    {% if programmingDocument.owner.id is defined and programmingDocument.owner.id == member.id %}
+                                        {{ "selected" }}
+                                    {% elseif programmingDocument.owner.id is not defined and app.user.id == member.id %}
+                                        {{ "selected" }}
+                                    {% endif %}
+                            >{{ member.fullName }} ({{ member.employeeRole }})</option>
+                        {% endfor %}
+                    </optgroup>
+                {% endfor %}
+            </select>
+        </div>
+        <label class="col-sm-3 control-label" title="{{ 'Project' | trans() }}">{{ 'Project' | trans() }}</label>
+        <div class="col-sm-3">
+            <select class="form-control programming-document-project select2-modal" name="programming_document[project]" required>
+                <option value="">{{ 'Select project' | trans() }}</option>
+                {% for project in project_service.getAvailableProjects(app.user) %}
+                    <option value="{{ project.id }}"
+                            {% if programmingDocument.project.id is defined %}
+                                {{ "selected" }}
+                            {% endif %}>{{ project.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label" title="{{ 'Edition number' | trans() }}">{{ 'Edition number' | trans() }}</label>
+        <div class="col-sm-3">
+            <input type="text" pattern="^[0-9]+$" class="programming-document-edition-number form-control" name="programming_document[editionNumber]" placeholder="{{ 'Edition number' | trans() }}" value="" required>
+        </div>
+        <label class="col-sm-3 control-label" title="{{ 'The date of registration of the code' | trans() }}">{{ 'Registration Date' | trans() }}</label>
+        <div class="col-sm-3">
+            <input type="text" required class="form-control programming-document-created-at daterange-single-date-picker"
+                   name="programming_document[createdAt]" value="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label" style="margin-top: -10px;" title="{{ 'Register number' | trans() }}">{{ 'Register number' | trans() }}</label>
+        <div class="col-sm-3">
+            <input type="text" required pattern="^[0-9]+$" class="programming-document-register-number form-control" name="programming_document[registerNumber]" placeholder="{{ "Register number" | trans() }}" value="">
+        </div>
+        <label class="col-sm-3 control-label" title="{{ 'Document number' | trans() }}">{{ 'Document number' | trans() }}</label>
+        <div class="col-sm-3">
+            <input type="text" pattern="^[0-9]+$" class="programming-document-document-number form-control" name="programming_document[documentNumber]" placeholder="{{ "Document number" | trans() }}" value="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label" style="margin-top: -10px;" title="{{ 'Inventory number' | trans() }}">{{ 'Inventory number' | trans() }}</label>
+        <div class="col-sm-3">
+            <input type="text" pattern="^[0-9]+$" class="programming-document-inventory-number form-control" name="programming_document[inventoryNumber]" placeholder="{{ "Inventory number" | trans() }}" value="">
+        </div>
+        <label class="col-sm-3 control-label" title="{{ 'The number of pages in the document' | trans() }}">{{ 'Number of pages' | trans() }}</label>
+        <div class="col-sm-3">
+            <input type="number" class="programming-document-number-of-pages form-control" name="programming_document[numberOfPages]" placeholder="{{ "Number of pages" | trans() }}" value="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label"  title="{{ 'Notice' | trans() }}">{{ "Notice" | trans() }}</label>
+        <div class="col-lg-9">
+            <textarea class="form-control programming-document-notice" style="height: 80px;" placeholder="{{ "Notice" | trans() }}" name="programming_document[notice]"></textarea>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            moment.locale('ru');
+
+            $('.edit-programming-document').bind('click', function () {
+                var editProgrammingDocumentForm = $('#editProgrammingDocumentForm');
+                editProgrammingDocumentForm.attr('action', $(this).data('href'));
+                editProgrammingDocumentForm.find('.programming-document-type').val($(this).data('type'));
+                editProgrammingDocumentForm.find('.programming-document-created-at').val($(this).data('createdAt'));
+                editProgrammingDocumentForm.find('.programming-document-number-of-pages').val($(this).data('numberOfPages'));
+                editProgrammingDocumentForm.find('.programming-document-code').val($(this).data('code'));
+                editProgrammingDocumentForm.find('.programming-document-edition-number').val($(this).data('editionNumber'));
+                editProgrammingDocumentForm.find('.programming-document-register-number').val($(this).data('registerNumber'));
+                editProgrammingDocumentForm.find('.programming-document-document-number').val($(this).data('documentNumber'));
+                editProgrammingDocumentForm.find('.programming-document-inventory-number').val($(this).data('inventoryNumber'));
+                editProgrammingDocumentForm.find('.programming-document-owner').val($(this).data('owner'));
+                editProgrammingDocumentForm.find('.programming-document-project').val($(this).data('project'));
+                editProgrammingDocumentForm.find('.programming-document-notice').val($(this).data('notice'));
+
+                $('.select2-modal').select2({ width: '100%' });
+            });
+
+            $('.daterange-single-date-picker').daterangepicker({
+                singleDatePicker: true,
+                showDropdowns: true,
+                timePicker24Hour: true,
+                timePickerIncrement: 30,
+                opens: "left",
+                drops: "down",
+                locale: {
+                    format: 'DD.MM.YYYY', applyLabel: "Выбрать", cancelLabel: "Отменить"
+                }
+            });
+        });
+    </script>
+{% endmacro %}

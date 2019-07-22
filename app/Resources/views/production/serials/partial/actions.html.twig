@@ -1,0 +1,12 @@
+<ul class="dropdown-menu dropdown-menu-right">
+    <li>
+        <a href=""
+           class="edit-serial"
+           data-href="{{ path('serial_edit', {'id': serial.id}) }}"
+           data-category="{{ serial.category.id }}"
+           data-ware="{{ serial.ware.id }}"
+           data-toggle="modal"
+           data-target=".editSerialModal"
+        ><i class="fa fa-fw fa-pencil text-gray-lighter m-r-1"></i> {{ 'Edit' | trans() }}</a>
+    </li>
+</ul>

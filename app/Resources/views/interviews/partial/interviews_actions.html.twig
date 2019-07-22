@@ -1,0 +1,34 @@
+{% if interview.status == 0 %}
+<li>
+    <a href=""
+       data-href="{{ path('interview_edit', {'id': interview.id}) }}"
+       class="editInterview"
+       data-applicant="{{ interview.applicant.id }}"
+       data-vacancy="{{ interview.vacancy.id }}"
+       data-notice="{{ interview.notice }}"
+       data-toggle="modal"
+       data-target=".editInterviewModal">
+        <i class="fa fa-fw fa-pencil"></i> {{ 'Edit' | trans() }}</a>
+</li>
+<li>
+    <a href=""
+       class="request-approve-interview"
+       data-toggle="modal"
+       data-href="{{ path('interview_change_state', {'interviewId': interview.id, 'state': 1}) }}"
+       data-target=".requestApproveInterviewModal">
+        <i class="fa fa-fw fa-thumbs-o-up text-primary"></i> {{ 'Request approve' | trans() }}
+    </a>
+</li>
+{% endif %}
+{% if interview.status == 1 and app.user == interview.vacancy.owner %}
+    <li>
+        <a href="{{ path('interview_change_state', {'interviewId': interview.id, 'state': 2}) }}">
+            <i class="fa fa-fw fa-thumbs-up text-success"></i> {{ 'Accept' | trans() }}
+        </a>
+    </li>
+    <li>
+        <a href="{{ path('interview_change_state', {'interviewId': interview.id, 'state': 3}) }}">
+            <i class="fa fa-fw fa-thumbs-down text-danger"></i> {{ 'Reject' | trans() }}
+        </a>
+    </li>
+{% endif %}

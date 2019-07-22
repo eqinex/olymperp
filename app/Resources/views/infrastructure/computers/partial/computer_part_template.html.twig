@@ -1,0 +1,42 @@
+{% if computerPart %}
+    <tr>
+        <td class="v-a-m">
+            {{ computerPart.type | trans() }}
+        </td>
+        <td class="v-a-m">
+            {{ computerPart.name }}
+        </td>
+        <td class="v-a-m">
+            {{ computerPart.inventoryNumber ? computerPart.inventoryNumber : '-' }}
+        </td>
+        <td class="v-a-m">
+            {{ computerPart.serialNumber ? computerPart.serialNumber : '-' }}
+        </td>
+        <td class="v-a-m">
+            {{ computerPart.description ? computerPart.description : '-' }}
+        </td>
+        <td class="text-right v-a-m">
+            <div class="dropdown">
+                <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                    <i class="fa fa-fw fa-gear"></i> <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-right">
+                    <li>
+                        <a href=""
+                           data-href="{{ path('computer_parts_edit', {'id': computerPart.id}) }}"
+                           class="edit-computer-part"
+                           data-type="{{ computerPart.type }}"
+                           data-name="{{ computerPart.name }}"
+                           data-description="{{ computerPart.description }}"
+                           data-inventory="{{ computerPart.inventoryNumber }}"
+                           data-serial="{{ computerPart.serialNumber }}"
+                           data-toggle="modal"
+                           data-target=".editComputerPartModal">
+                            <i class="fa fa-fw fa-pencil"></i> {{ 'Edit' | trans() }}
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </td>
+    </tr>
+{% endif %}

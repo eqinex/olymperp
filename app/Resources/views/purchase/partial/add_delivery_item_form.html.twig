@@ -1,0 +1,57 @@
+{% macro inputs(suppliers, countries) %}
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ 'From where' | trans() }}</label>
+        <div class="col-sm-4">
+            <select class="form-control select2-modal delivery-city-from" name="delivery[cityFrom]" required>
+                <option value="">{{ 'Select country' | trans() }}</option>
+                {% for country in countries %}
+                    <optgroup label="{{ country.name }} ">
+                        {% for city in country.cities %}
+                            <option value="{{ city.id }}">{{ city.name }}</option>
+                        {% endfor %}
+                    </optgroup>
+                {% endfor %}
+            </select>
+        </div>
+        <label class="col-sm-1 control-label">{{ 'Where' | trans() }}</label>
+        <div class="col-sm-4">
+            <select class="form-control select2-modal delivery-city-where" name="delivery[cityWhere]" required>
+                <option value="">{{ 'Select country' | trans() }}</option>
+                {% for country in countries %}
+                    <optgroup label="{{ country.name }} ">
+                        {% for city in country.cities %}
+                            <option value="{{ city.id }}">{{ city.name }}</option>
+                        {% endfor %}
+                    </optgroup>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ 'Supplier' | trans() }}</label>
+        <div class="col-sm-4">
+            <select class="form-control select2-modal delivery-supplier" name="delivery[supplier]" required>
+                <option value="">{{ 'Select supplier' | trans() }}</option>
+                {% for supplier in suppliers %}
+                    <option value="{{ supplier.id }}">{{ supplier.title }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <label class="col-sm-1 control-label">{{ 'Price' | trans() }}</label>
+        <div class="col-sm-4">
+            <input name="delivery[price]" type="text" class="delivery-price form-control" placeholder="" value="" required>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function(){
+            $('.add-delivery-item').bind('click', function () {
+                let addDeliveryItemForm = $('#addDeliveryItemForm');
+                addDeliveryItemForm.attr('action', $(this).data('action'));
+
+                $('.select2-modal').select2({width: '100%'});
+            });
+        });
+    </script>
+
+{% endmacro %}

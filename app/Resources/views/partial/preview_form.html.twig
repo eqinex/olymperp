@@ -1,0 +1,67 @@
+{% macro inputs() %}
+    <div class="image-preview-placeholder">
+
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            $('.preview-image').on('click', function () {
+                let colArray = [];
+                let colUrl = [];
+                let row, g;
+                colArray = $(' td:nth-child(1)').map(function () {
+                    if($(this).find('img').attr('src')) {
+                        return $('.media ' + $(this).find('a').data('original-attachment-class'));
+                    }
+                });
+                colUrl = $(' td:nth-child(1)').map(function () {
+                    return $(this).find('img').attr('src');
+                });
+
+                let originalImage = $('.media ' + $(this).data('original-attachment-class'));
+
+                if (!originalImage.attr('src')) {
+                    originalImage.attr('src', $(this).data('original-image'));
+                }
+
+                $('.image-preview-placeholder').html(originalImage.parent().html());
+
+                for (i = 0; i < colArray.length; i++) {
+                    g = colUrl[i];
+                    g = g.substr(0, g.length - 2);
+
+                    if (g == originalImage.attr('src')) {
+                        row = i;
+                        break;
+                    }
+                }
+                $(document).on('keydown', function (e) {
+                    if (e.which == 39) {
+                        if (row < colArray.length - 1) {
+                            row++;
+                        } else {
+                            row = 0;
+                        }
+                    } else if (e.which == 37) {
+                        if (row > 0) {
+                            row--;
+                        } else {
+                            row = colArray.length - 1;
+                        }
+                    }
+                    
+                    let originalImage = colArray[row];
+
+                    g = colUrl[row];
+                    g = g.substr(0, g.length - 2);
+
+                    if (!originalImage.attr('src')) {
+                        originalImage.attr('src', g);
+                    }
+
+                    $('.image-preview-placeholder').html(originalImage.parent().html());
+                })
+            })
+        });
+    </script>
+{% endmacro %}

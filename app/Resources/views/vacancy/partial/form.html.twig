@@ -1,0 +1,49 @@
+{% macro inputs(employeeRoles, teams) %}
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ 'Employee Role' | trans() }}</label>
+        <div class="col-lg-3">
+            <select class="vacancy-employee-role form-control select2-modal" name="vacancy[employeeRole]" required>
+                <option value="">{{ 'Select role' | trans() }}</option>
+                {% for employeeRole in employeeRoles %}
+                    <option value="{{ employeeRole.id }}">
+                        {{ employeeRole.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <label class="col-sm-2 control-label">{{ 'Team' | trans() }}</label>
+        <div class="col-lg-3">
+            <select class="vacancy-team form-control select2-modal" name="vacancy[team]" required>
+                <option value="">{{ 'Select team' | trans() }}</option>
+                {% for team in teams %}
+                    <option value="{{ team.id }}">
+                        {{ team.title }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ 'Description' | trans() }}</label>
+        <div class="col-lg-6">
+            <textarea class="vacancy-description form-control" name="vacancy[description]" placeholder="{{ 'Description' | trans() }}" required></textarea>
+        </div>
+    </div>
+
+<script>
+    $(document).ready(function (){
+        $('.editVacancy').bind('click', function () {
+            var editVacancyForm = $('#editVacancyForm');
+            editVacancyForm.attr('action', $(this).data('href'));
+            editVacancyForm.find('.vacancy-employee-role').val($(this).data('employeeRole'));
+            editVacancyForm.find('.vacancy-team').val($(this).data('team'));
+            editVacancyForm.find('.vacancy-description').val($(this).data('description'));
+
+            $('.select2-modal').select2({width: '100%'});
+        });
+    })
+</script>
+
+{% endmacro %}

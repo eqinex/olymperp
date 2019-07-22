@@ -1,0 +1,9 @@
+{% extends 'emails/base_email_template.html.twig' %}
+
+{% block template_title %}
+    {{ app.user.fullName }} <strong>{{ 'sent an interview for request approve' | trans() }}</strong> <a href="{{ base_url ~ path('interviews_list') }}" style="color:#3b73af;text-decoration:none;" target="_blank" rel="noopener noreferrer"><img height="16" width="16" border="0" align="absmiddle" alt="Task" src="../message_part/?_uid=1130000023966733&amp;hid=1.4&amp;ids=162974011515471407&amp;name=&amp;yandex_class=yandex_inline_content_320.mail:1130000023966733.E370834:26556666355730289872878139301_1.4_162974011515471407"> {{ '#' ~ interview.id }}: {{ interview.vacancy.employeeRole }}</a>
+{% endblock %}
+{% block template_description %}
+{% endblock %}
+{% block template_table %}
+{% endblock %}

@@ -1,0 +1,223 @@
+{% macro inputs(purchaseRequest, wares, warehouses, suppliesCategoriesGrouped) %}
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ 'Request type' | trans() }}</label>
+        <div class="col-sm-4">
+            <select class="form-control request-type" name="request[type]">
+                <option value="purchase" {{ purchaseRequest.type == 'purchase' ? 'selected' }}>{{ 'Purchase' | trans() }}</option>
+                <option value="production" {{ purchaseRequest.type == 'production' ? 'selected' }}>{{ 'Production' | trans() }}</option>
+                <option value="movement" {{ purchaseRequest.type == 'movement' ? 'selected' }}>{{ 'Movement' | trans() }}</option>
+            </select>
+        </div>
+        <label class="col-sm-1 control-label">{{ 'Product' | trans() }}</label>
+        <div class="col-sm-4">
+            <select class="form-control request-ware" name="request[ware]">
+                <option value="">{{ 'Select product' | trans() }}</option>
+                {% for w in wares %}
+                    <option value="{{ w.id }}"
+                            {% if purchaseRequest.ware.id is defined and purchaseRequest.ware.id == w.id %}
+                                {{ "selected" }}
+                            {% endif %}>{{ w.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <label class="col-sm-2 control-label hidden">{{ 'Code' | trans() }}</label>
+        <div class="col-sm-2 hidden">
+            <input name="request[code]" readonly type="hidden" {{ purchaseRequest.id ? 'readonly' : 'required' }}  class="request-code form-control" placeholder="" value="{{ purchaseRequest.code }}">
+        </div>
+    </div>
+
+    <div class="categories-form">
+        <div class="form-group">
+            <label class="col-sm-2 control-label">{{ 'Supplies Categories' | trans() }}</label>
+            <div class="col-sm-9">
+                <select class="form-control select2-modal supplies-categories" name="request[supplies-category]" required>
+                    <option value="">{{ 'Select supplies category' | trans() }}</option>
+                    {% for parent, suppliesCategories in suppliesCategoriesGrouped %}
+                        <optgroup label="{{ parent | trans()  }} ">
+                            {% for suppliesCategory in suppliesCategories %}
+                                <option value="{{ suppliesCategory.id }}"
+                                    {% if purchaseRequest.suppliesCategory.id is defined and purchaseRequest.suppliesCategory.id == suppliesCategory.id %}
+                                        {{ "selected" }}
+                                    {% endif %}>{{ suppliesCategory.title }}</option>
+                            {% endfor %}
+                        </optgroup>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="purchase-form">
+        <div class="form-group">
+            <label class="col-sm-2 control-label">{{ 'Description' | trans() }}</label>
+            <div class="col-sm-9">
+                <textarea required class="form-control request-description" rows="4" placeholder="{{ "Description" | trans() }}" name="request[description]"
+                >{{ purchaseRequest.description | raw }}</textarea>
+            </div>
+        </div>
+    </div>
+
+    <div class="purchase-and-production-form">
+        <div class="form-group">
+            <label class="col-sm-2 control-label">{{ 'Warehouse' | trans() }}</label>
+            <div class="col-sm-3">
+                <select class="form-control production-type" name="warehouse">
+                    <option value="">{{ 'Select warehouse' | trans() }}</option>
+                    {% for warehouse in warehouses %}
+                        <option value="{{ warehouse.id }}">{{ warehouse.shortTitle }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="production-form col-sm-6">
+                <div class="form-group">
+                    <label class="col-sm-5 control-label">{{ 'Type of production' | trans() }}</label>
+                    <div class="col-sm-7">
+                        <select class="form-control production-type" name="productionType">
+                            <option value="metal">{{ 'Metal' | trans() }}</option>
+                            <option value="plastic">{{ 'Plastic' | trans() }}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% set movement = purchaseRequest.movements[0] is defined ? purchaseRequest.movements[0] %}
+    <div class="movement-form">
+        <div class="form-group">
+            <label class="col-sm-2 control-label">{{ 'Cargo details' | trans() }}</label>
+            <div class="col-sm-9">
+                <textarea required class="form-control movement-description" rows="3" name="movement[details]">{{
+                    movement ? movement.description : ("weight, dimensions, package" | trans()) | raw }}</textarea>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">{{ 'movement.source' | trans() }}</label>
+            <div class="col-sm-4">
+                <input name="movement[source]" type="text" required  class="movement-from form-control" placeholder="" value="{{ movement ? movement.source }}">
+            </div>
+            <label class="col-sm-2 control-label">{{ 'movement.startDate' | trans() }}</label>
+            <div class="col-sm-3">
+                <input name="movement[startDate]" type="text" class="movement-start-date form-control daterange-single-date-picker"
+                       placeholder="" value="{{ movement ? movement.startDate | date('d.m.Y') : 'now' | date('d.m.Y') }}">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">{{ 'movement.destination' | trans() }}</label>
+            <div class="col-sm-4">
+                <input name="movement[destination]" type="text" required  class="movement-to form-control" placeholder="" value="{{ movement ? movement.destination }}">
+            </div>
+            <label class="col-sm-2 control-label">{{ 'movement.endDate' | trans() }}</label>
+            <div class="col-sm-3">
+                <input name="movement[endDate]" type="text" class="movement-end-date form-control daterange-single-date-picker"
+                       placeholder="" value="{{ movement ? movement.endDate | date('d.m.Y') : 'now' | date('d.m.Y') }}">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">{{ 'movement.send.responsible' | trans() }}</label>
+            <div class="col-sm-4">
+                <input name="movement[sendResponsible]" type="text" class="movement-send-responsible form-control" placeholder="" value="{{ movement ? movement.sendResponsible }}">
+            </div>
+            <label class="col-sm-2 control-label">{{ 'movement.receive.responsible' | trans() }}</label>
+            <div class="col-sm-3">
+                <input name="movement[receiveResponsible]" type="text" class="movement-receive-responsible form-control"
+                       placeholder=""  value="{{ movement ? movement.receiveResponsible }}">
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="checkbox col-sm-4">
+                <label>
+                    <input type="checkbox" name="movement[needPrr]" {{ movement and movement.needPrr ? 'checked' }}> {{ 'movement.needPrr' | trans() }}
+                </label>
+            </div>
+            <div class="checkbox col-sm-4">
+                <label>
+                    <input type="checkbox" name="movement[needCargoDescription]" {{ movement and movement.needCargoDescription ? 'checked' }}> {{ 'movement.needCargoDescription' | trans() }}
+                </label>
+            </div>
+            <div class="checkbox col-sm-4">
+                <label>
+                    <input type="checkbox" name="movement[needCargoInsurance]" {{ movement and movement.needCargoInsurance ? 'checked' }}> {{ 'movement.needCargoInsurance' | trans() }}
+                </label>
+            </div>
+            <div class="checkbox col-sm-4">
+                <label>
+                    <input type="checkbox" name="movement[needAdditionalCargo]" {{ movement and movement.needAdditionalCargo ? 'checked' }}> {{ 'movement.needAdditionalCargo' | trans() }}
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function(){
+
+            {{ purchaseRequest.type == 'movement' ? 'showMovement();' : purchaseRequest.type == 'production' ? 'showProduction();' : 'showPurchase();'}}
+
+            $('.request-type').on('change', function() {
+
+                let tempType = $(this).val();
+                $('#addRequestForm')[0].reset();
+                $(this).val(tempType);
+
+                if ($(this).val() == 'movement') {
+                    showMovement();
+                } else if ($(this).val() == 'purchase') {
+                    showPurchase();
+                } else {
+                    showProduction();
+                }
+
+                $('.select2-modal').select2({ width: '100%' });
+            });
+
+            moment.locale('ru');
+            var dateRangePicker = $('.daterange-single-date-picker');
+            dateRangePicker.daterangepicker({
+                singleDatePicker: true,
+                showDropdowns: true,
+                opens: "left",
+                drops: "down",
+                locale: {
+                    format: 'DD.MM.YYYY'
+                }
+            });
+        });
+
+        function showMovement() {
+            $('.movement-form').show();
+            $('.production-form').hide();
+            $('.purchase-form').hide();
+            $('.purchase-and-production-form').hide();
+            $('.categories-form').hide();
+            $('.categories-form select').attr('disabled', true);
+            $('.production-form select').attr('disabled', true);
+            $('.movement-form textarea, .movement-form input').attr('disabled', false);
+            $('.purchase-form textarea, .purchase-form input').attr('disabled', true);
+        }
+
+        function showPurchase() {
+            $('.movement-form').hide();
+            $('.production-form').hide();
+            $('.purchase-and-production-form').show();
+            $('.purchase-form').show();
+            $('.categories-form').show();
+            $('.categories-form select').attr('disabled', false);
+            $('.production-form select').attr('disabled', true);
+            $('.movement-form textarea, .movement-form input').attr('disabled', true);
+            $('.purchase-form textarea, .purchase-form input').attr('disabled', false);
+        }
+
+        function showProduction() {
+            $('.movement-form').hide();
+            $('.production-form').show();
+            $('.purchase-and-production-form').show();
+            $('.purchase-form').show();
+            $('.categories-form').show();
+            $('.categories-form select').attr('disabled', false);
+            $('.production-form select').attr('disabled', false);
+            $('.movement-form textarea, .movement-form input').attr('disabled', true);
+            $('.purchase-form textarea, .purchase-form input').attr('disabled', false);
+        }
+    </script>
+{% endmacro %}

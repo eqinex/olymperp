@@ -1,0 +1,123 @@
+{% macro inputs(users, categories) %}
+    <input type="hidden" class="form-control activity-id" value="" name="id">
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ "Project" | trans() }}</label>
+        <div class="col-sm-3">
+            <select class="form-control select2-modal activity-project" name="activity[project]" required>
+                <option value="">{{ 'Select project' | trans() }}</option>
+                {% for project in project_service.getAvailableProjects(app.user) %}
+                    <option value="{{ project.id }}"
+                            {% if activity.project.id is defined and activity.project.id == project.id %}
+                                {{ "selected" }}
+                            {% endif %}>{{ project.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <label class="col-sm-3 control-label">{{ "Responsible" | trans() }}</label>
+        <div class="col-sm-3">
+            <select class="form-control select2-modal activity-responsible-user" name="activity[responsibleUser]" required>
+                <option value="">{{ 'Select responsible' | trans() }}</option>
+                {% for team, members in users %}
+                    <optgroup label="{{ team | trans() }}">
+                        {% for member in members %}
+                            <option value="{{ member.id }}"
+                                    {% if activity.responsibleUser is defined and activity.responsibleUser.id is defined and activity.responsibleUser.id == member.id %}
+                                        {{ "selected" }}
+                                    {% endif %}>{{ member.fullName }}</option>
+                        {% endfor %}
+                    </optgroup>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ 'Activity' | trans() }}</label>
+        <div class="col-sm-9">
+            <input type="text" class="form-control activity-activity" value="" name="activity[activity]" placeholder="{{ 'Activity' | trans() }}" required>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ "Category" | trans() }}</label>
+        <div class="col-sm-3">
+            <select class="form-control select2-modal activity-category" required name="activity[category]">
+                <option value="">{{ 'Select category' | trans() }}</option>
+                {% for category in categories %}
+                    <option value="{{ category }}"
+                        {% if activity.category is defined and activity.category == category %}
+                            {{ "selected" }}
+                        {% endif %}
+                    >{{ category | trans() }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <label class="col-sm-3 control-label">{{ "End At" | trans() }}</label>
+        <div class="col-sm-3">
+            <input type="text" class="form-control daterange-single-date-picker activity-end-at" required
+                   name="activity[endAt]" value="{{ activity.endAt is defined ? activity.endAt | date('d.m.Y H:i') }}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ 'Plan' | trans() }}</label>
+        <div class="col-sm-3">
+            <input type="text" pattern="\d+(\.\d{2})?" class="form-control activity-plan" value="" name="activity[plan]" placeholder="{{ 'Plan' | trans() }}" required>
+        </div>
+        <label class="col-sm-3 control-label">{{ 'Fact' | trans() }}</label>
+        <div class="col-sm-3">
+            <input type="text" pattern="\d+(\.\d{2})?" class="form-control activity-fact" value="" name="activity[fact]" placeholder="{{ 'Fact' | trans() }}" required>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ 'Received' | trans() }}</label>
+        <div class="col-sm-3">
+            <input type="text" pattern="\d+(\.\d{2})?" class="form-control activity-received" value="" name="activity[received]" placeholder="{{ 'Received' | trans() }}" required>
+        </div>
+        <label class="col-sm-3 control-label" style="margin-top: -16px;">{{ 'Availability TEO, profitability' | trans() ~ ' %' }}</label>
+        <div class="col-sm-3">
+            <input type="text" pattern="\d+(\.\d{2})?" class="form-control activity-profitability" value="" name="activity[profitability]" placeholder="{{ 'Availability TEO, profitability' | trans() ~ ' %' }}" required>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ 'High risk' | trans() }}</label>
+        <div class="col-sm-1">
+            <input type="checkbox" class="form-control activity-risk" name="activity[highRisk]">
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            moment.locale('ru');
+
+            $('.daterange-single-date-picker').daterangepicker({
+                singleDatePicker: true,
+                showDropdowns: true,
+                timePicker: true,
+                timePicker24Hour: true,
+                timePickerIncrement: 30,
+                opens: "left",
+                drops: "down",
+                locale: {
+                    format: 'DD.MM.YYYY HH:mm', applyLabel: "Выбрать", cancelLabel: "Отменить"
+                }
+            });
+
+            $('.edit-activity').bind('click', function () {
+                var editActivityForm = $('#editActivityForm');
+                editActivityForm.attr('action', $(this).data('href'));
+                editActivityForm.find('.activity-id').val($(this).data('id'));
+                editActivityForm.find('.activity-project').val($(this).data('project'));
+                editActivityForm.find('.activity-responsible-user').val($(this).data('responsibleUser'));
+                editActivityForm.find('.activity-activity').val($(this).data('activity'));
+                editActivityForm.find('.activity-category').val($(this).data('category'));
+                editActivityForm.find('.activity-profitability').val($(this).data('profitability'));
+                editActivityForm.find('.activity-plan').val($(this).data('plan'));
+                editActivityForm.find('.activity-fact').val($(this).data('fact'));
+                editActivityForm.find('.activity-received').val($(this).data('received'));
+                editActivityForm.find('.activity-end-at').val($(this).data('end-at'));
+                editActivityForm.find('.activity-risk').prop();
+
+                $('.select2-modal').select2({width: '100%'});
+            });
+        });
+    </script>
+
+{% endmacro %}

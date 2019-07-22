@@ -1,0 +1,148 @@
+<div class="dropdown {{ class }}">
+    <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+        <i class="fa fa-fw fa-gear"></i> <span class="caret"></span>
+    </button>
+    <ul class="dropdown-menu dropdown-menu-right">
+        <li>
+            <a href=""
+               class="edit-request"
+               data-href="{{ path('project_edit_task', {'id': task.project.id, 'taskId': task.id}) }}"
+               data-title="{{ task.title }}"
+               data-protocol="{{ task.protocol ? task.protocol.id : '' }}"
+               data-project="{{ task.project.id }}"
+               data-description="{{ task.description }}"
+               data-subject="{{ task.subject }}"
+               data-responsible="{{ task.responsibleUser.id }}"
+               data-controller="{{ task.controllingUser.id }}"
+               data-priority="{{ task.priority }}"
+               data-start-at="{{ task.startAt | date('d.m.Y H:i') }}"
+               data-end-at="{{ task.endAt | date('d.m.Y H:i') }}"
+               data-original-estimate="{{ task.originalEstimate }}"
+               data-type="{{ task.type }}"
+               data-epic="{{ task.epic.id is defined ? task.epic.id }}"
+               {% if task.result %}
+                   data-result="{{ task.result.id }}"
+               {% endif %}
+               {% if form is defined %}
+                   data-epics-select='{{ form.epicsSelect(task.project) }}'
+               {% endif %}
+               data-toggle="modal"
+               {% if protocolForm is defined or task.type == 'protocol' %}
+                   data-target=".editProtocolModal"
+               {% elseif schedulerTaskForm is defined or task.isScheduler() %}
+                   data-scheduled-period="{{ task.scheduledPeriod }}"
+                   data-days-week="{{ task.daysWeek | json_encode }}"
+                   data-target=".editScheduledTaskModal"
+               {% else %}
+                   data-target=".editTaskModal"
+               {% endif %}
+            ><i class="fa fa-fw fa-pencil text-gray-lighter m-r-1"></i> {{ 'Edit' | trans() }}</a>
+        </li>
+        {% if task.responsibleUser.team and task.responsibleUser.team.needsTaskApprove %}
+            {% if task.status == 0 %}
+                {% if task.responsibleUser.id == app.user.id %}
+                    <li>
+                        <a href=""
+                           class="request-approve-task"
+                           data-toggle="modal"
+                           data-href="{{ path('project_task_change_state', {'id': task.project.id, 'taskId': task.id, 'state': 4}) }}"
+                           data-target=".requestApproveTaskModal"
+                           data-original-estimate="{{ task.originalEstimate ? task.originalEstimate ~ 'h' : '' }}">
+                            <i class="fa fa-fw fa-thumbs-o-up text-primary m-r-1"></i> {{ 'Request approve' | trans() }}
+                        </a>
+                    </li>
+                {% endif %}
+                {% if task.responsibleUser.team.leader.id == app.user.id or task.responsibleUser.team.deputyLeader.id is defined and task.responsibleUser.team.deputyLeader.id == app.user.id %}
+                    <li><a href="{{ path('project_task_change_state', {'id': task.project.id, 'taskId': task.id, 'state': 5}) }}"><i class="fa fa-fw fa-thumbs-up text-success m-r-1"></i> {{ 'Ready to work' | trans() }}</a></li>
+                {% endif %}
+            {% elseif task.status == 4 %}
+                {% if task.responsibleUser.team.leader.id == app.user.id or task.responsibleUser.team.deputyLeader.id is defined and task.responsibleUser.team.deputyLeader.id == app.user.id %}
+                    <li><a href="{{ path('project_task_change_state', {'id': task.project.id, 'taskId': task.id, 'state': 5}) }}"><i class="fa fa-fw fa-thumbs-up text-success m-r-1"></i> {{ 'Ready to work' | trans() }}</a></li>
+                {% endif %}
+            {% elseif (task.status == 5 or task.status == 6) and task.responsibleUser.id == app.user.id %}
+                <li>
+                    <a href=""
+                       class="start-progress"
+                       data-toggle="modal"
+                       data-href="{{ path('project_task_change_state', {'id': task.project.id, 'taskId': task.id, 'state': 1}) }}"
+                       data-target=".startProgressModal"
+                       data-original-estimate="{{ task.originalEstimate ? task.originalEstimate ~ 'h' : '' }}">
+                        <i class="fa fa-fw fa-play text-primary m-r-1"></i> {{ 'Start progress' | trans() }}
+                    </a>
+                </li>
+            {% endif %}
+        {% else %}
+            {% if task.status == 0 or task.status == 6 %}
+                {% if task.responsibleUser.id == app.user.id %}
+                    <li>
+                        <a href=""
+                           class="start-progress"
+                           data-toggle="modal"
+                           data-href="{{ path('project_task_change_state', {'id': task.project.id, 'taskId': task.id, 'state': 1}) }}"
+                           data-target=".startProgressModal"
+                           data-original-estimate="{{ task.originalEstimate ? task.originalEstimate ~ 'h' : '' }}">
+                            <i class="fa fa-fw fa-play text-primary m-r-1"></i> {{ 'Start progress' | trans() }}
+                        </a>
+                    </li>
+                {% endif %}
+            {% endif %}
+        {% endif %}
+        {% if task.status == 1 %}
+            {% if task.responsibleUser.id == app.user.id %}
+                {% if task.responsibleUser.team.needsResultApprove() %}
+                    <li>
+                        <a href=""
+                           class="result-approve-task"
+                           data-toggle="modal"
+                           data-href="{{ path('project_task_change_state', {'id': task.project.id, 'taskId': task.id, 'state': 7}) }}"
+                           data-target=".resultApproveTaskModal">
+                            <i class="fa fa-fw fa-thumbs-o-up text-primary m-r-1"></i> {{ 'Request result approve' | trans() }}
+                        </a>
+                    </li>
+                {% else %}
+                    <li>
+                        <a href=""
+                           class="finish-task"
+                           data-toggle="modal"
+                           data-href="{{ path('project_task_change_state', {'id': task.project.id, 'taskId': task.id, 'state': 2}) }}"
+                           data-target=".finishTaskModal">
+                            <i class="fa fa-fw fa-check-square-o text-success m-r-1"></i> {{ 'Done' | trans() }}
+                        </a>
+                    </li>
+                {% endif %}
+                <li><a href="{{ path('project_task_change_state', {'id': task.project.id, 'taskId': task.id, 'state': 6}) }}"><i class="fa fa-fw fa-pause text-warning m-r-1"></i> {{ 'Stop progress' | trans() }}</a></li>
+            {% endif %}
+        {% elseif (task.status == 2 or task.status == 3) and (app.user.id == task.reporter.id or app.user.id == task.controllingUser.id )%}
+            <li><a href="{{ path('project_task_change_state', {'id': task.project.id, 'taskId': task.id, 'state': task.isScheduler() ? 10 : 0 }) }}"><i class="fa fa-fw fa-hand-o-left text-gray-lighter m-r-1"></i> {{ 'Reopen' | trans() }}</a></li>
+        {% endif %}
+
+        {% if task.canCancelTask(app.user) %}
+            <li><a href=""
+                   class="cancel-task"
+                   data-toggle="modal"
+                   data-href="{{ path('project_task_change_state', {'id': task.project.id, 'taskId': task.id, 'state': 3}) }}"
+                   data-target=".cancelTaskModal">
+                    <i class="fa fa-fw fa-minus-square-o text-danger m-r-1"></i> {{ 'Cancel' | trans() }}
+                </a>
+            </li>
+        {% endif %}
+        {% if task.status == 7 %}
+            {% if task.responsibleUser.team.isTeamLeader(app.user) or app.user.canCloseOwnTasks(task) %}
+                <li>
+                    <a href="{{ path('project_task_change_state', {'id': task.project.id, 'taskId': task.id, 'state': 2}) }}">
+                        <i class="fa fa-fw fa-check-square-o text-success m-r-1"></i> {{ 'Done' | trans() }}
+                    </a>
+                </li>
+                <li>
+                    <a href=""
+                       class="return-to-work-task"
+                       data-toggle="modal"
+                       data-href="{{ path('project_task_change_state', {'id': task.project.id, 'taskId': task.id, 'state': 1}) }}"
+                       data-target=".returnTaskModal">
+                        <i class="fa fa-fw fa-undo text-primary m-r-1"></i> {{ 'Return to work' | trans() }}
+                    </a>
+                </li>
+            {% endif %}
+        {% endif %}
+    </ul>
+</div>

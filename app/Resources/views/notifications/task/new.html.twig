@@ -1,0 +1,54 @@
+{% extends 'notifications/base_notification_template.html.twig' %}
+
+{% block template_title %}
+    <tr>
+        <td>
+        <a href="{{ path('project_task_details', {'id': task.project.id, 'taskId': task.id}) }}"> {{ '#' ~ task.id }}: {{ task.title }}</a>
+        </td>
+    </tr>
+{% endblock %}
+{% block template_description %}
+    {% if task.description %}
+        <tr class="hide slide-row">
+            <td>
+                <p>
+                    {{ task.description | raw }}
+                </p>
+            </td>
+        </tr>
+    {% endif %}
+{% endblock %}
+{% block template_table %}
+    <tr class="hide slide-row">
+        <td>
+            <table id="notification-template-table">
+                <tbody>
+                <tr>
+                    <th> {{ 'Project' | trans() }}: </th>
+                    <td>
+                        <a href="{{ path('project_tasks', {'id': task.project.id}) }}">{{ task.project.name }}</a>
+                    </td>
+                </tr>
+                <tr>
+                    <th>{{ 'Responsible' | trans() }}:</th>
+                    <td>
+                        <a>{{ task.responsibleUser.fullName }}</a>
+                    </td>
+                </tr>
+                <tr>
+                    <th>{{ 'Start At' | trans() }}:</th>
+                    <td>
+                        <a>{{ task.startAt | date('d.m.Y H:i') }}</a>
+                    </td>
+                </tr>
+                <tr>
+                    <th>{{ 'End At' | trans() }}:</th>
+                    <td>
+                        <a>{{ task.endAt | date('d.m.Y H:i') }}</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </td>
+    </tr>
+{% endblock %}

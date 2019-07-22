@@ -1,0 +1,30 @@
+<li>
+    <a href=""
+       data-href="{{ path('printer_edit', {'id': printer.id}) }}"
+       class="edit-printer"
+       data-type="{{ printer.type }}"
+       data-model="{{ printer.model }}"
+       data-cartridge-type="{{ printer.cartridgeType }}"
+       data-quantity="{{ printer.quantity }}"
+       data-ip-address="{{ printer.ipAddress }}"
+       data-ip-type="{{ printer.ipType }}"
+       data-mac-address="{{ printer.macAddress }}"
+       data-inventory-number="{{ printer.inventoryNumber }}"
+       data-room="{{ printer.room }}"
+       data-toggle="modal"
+       data-target=".editPrinterModal">
+        <i class="fa fa-fw fa-pencil"></i> {{ 'Edit' | trans() }}
+    </a>
+</li>
+
+<li>
+    <a href=""
+       class="deleteComputer"
+       data-modal-title="{{ 'Delete printer' | trans() }}"
+       data-form-action="{{ path('delete_computer', {'id': printer.id}) }}"
+       data-target=".deleteComputerModal"
+       data-toggle="modal"
+       data-list-path="printers_list">
+        <i class="fa fa-fw fa-minus-square-o text-danger"></i> {{ 'Delete printer' | trans() }}
+    </a>
+</li>

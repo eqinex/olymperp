@@ -1,0 +1,446 @@
+{% macro inputs(users, types, ipTypes, operationSystems, processors, videoCards, rams, mouses, motherboards, monitors, keyboards, hdds) %}
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ 'Type' | trans() }}</label>
+        <div class="col-lg-3">
+            <select class="form-control select2-modal computer-type" name="computer[type]" required>
+                <option value="">{{ 'Select type' | trans() }}</option>
+                {% for type in types %}
+                    <option {% if computer.type is defined and computer.type == type %}selected{% endif %} value="{{ type }}">
+                        {{ type | trans() }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div id="model">
+            <label class="col-sm-3 control-label">{{ 'Model' | trans() }}</label>
+            <div class="col-lg-3">
+                <input class="computer-model form-control" name="computer[model]" placeholder="{{ 'Model' | trans() }}">
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ 'Name' | trans() }}</label>
+        <div class="col-lg-3">
+            <input class="computer-name form-control" name="computer[name]" placeholder="{{ 'Name' | trans() }}" required>
+        </div>
+
+        <label class="col-sm-3 control-label">{{ 'IP Address' | trans() }}</label>
+        <div class="col-lg-3">
+            <input class='computer-ip-address' name="computer[ipAddress]" value="" placeholder="{{ 'IP Address' | trans() }}"/>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label" style="margin-top: -20px;">{{ 'Way to get the ip-address' | trans() }}</label>
+        <div class="col-lg-3">
+            <select class="form-control select2-modal computer-ip-type" name="computer[ipType]">
+                <option value="">{{ 'Select type' | trans() }}</option>
+                {% for type in ipTypes %}
+                    <option {% if computer.ipType is defined and computer.ipType == type %}selected{% endif %} value="{{ type }}">
+                        {{ type | trans() }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <label class="col-sm-3 control-label">{{ 'MAC Address' | trans() }}</label>
+        <div class="col-lg-3">
+            <input type="text" class='computer-mac-address' name="computer[macAddress]" value="" placeholder="{{ 'MAC Address' | trans() }}"/>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ 'Domain' | trans() }}</label>
+        <div class="col-lg-3">
+            <input class="computer-domain form-control" name="computer[domain]" placeholder="{{ 'Domain' | trans() }}">
+        </div>
+
+        <label class="col-sm-3 control-label">{{ 'Employee' | trans() }}</label>
+        <div class="col-sm-3">
+            <select class="form-control select2-modal computer-employee" name="computer[employee]">
+                <option value="">{{ 'Select employee' | trans() }}</option>
+                {% for team, members in users %}
+                    <optgroup label="{{ team | trans() }}">
+                        {% for member in members %}
+                            <option value="{{ member.id }}"
+                                    {% if activity.responsibleUser is defined and activity.responsibleUser.id is defined and activity.responsibleUser.id == member.id %}
+                                        {{ "selected" }}
+                                    {% endif %}>{{ member.fullName }}</option>
+                        {% endfor %}
+                    </optgroup>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label" style="margin-top: -10px;">{{ 'Key OS in system' | trans() }}</label>
+        <div class="col-lg-3">
+            <input class="computer-key-in-system form-control" name="computer[keyInSystem]" placeholder="{{ 'Key OS in system' | trans() }}">
+        </div>
+
+        <label class="col-sm-3 control-label">{{ 'Key OS on sticker' | trans() }}</label>
+        <div class="col-lg-3">
+            <input class="computer-key-on-sticker form-control" name="computer[keyOnSticker]" placeholder="{{ 'Key OS on sticker' | trans() }}">
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label" style="margin-top: -10px;">{{ 'Operation system' | trans() }}</label>
+        <div class="col-sm-3" id="select-operation-system">
+            <select class="form-control select2-modal computer-operation-system" name="computer[operationSystem]">
+                <option value="">{{ 'Select OS' | trans() }}</option>
+                {% for system in operationSystems %}
+                    <option value="{{ system.id }}"
+                            {% if computer.operationSystem is defined and computer.operationSystem.id == system.id %}
+                                {{ "selected" }}
+                            {% endif %}>{{ system.name }}</option>
+                {% endfor %}
+            </select>
+            <a class="btn btn-gray-light btn-sm add-part-plus" id="add-operation-system-plus">
+                <i class="fa fa-plus"></i>
+            </a>
+        </div>
+        <div class="col-sm-3" id="add-operation-system">
+            <input class="form-control" name="computerPart[operationSystem]" placeholder="{{ 'Add OS' | trans() }}" id="operation-system-add">
+            <a class="btn btn-gray-light btn-sm add-part-plus" id="add-operation-system-minus">
+                <i class="fa fa-minus"></i>
+            </a>
+        </div>
+
+        <label class="col-sm-3 control-label">{{ 'Legal' | trans() }}</label>
+        <div class="col-sm-3">
+            <select class="form-control select2-modal computer-legal" name="computer[legal]">
+                <option value="{{ 0 }}"> {{ 'No' | trans() }} </option>
+                <option value="{{ 1 }}"> {{ 'Yes' | trans() }} </option>
+            </select>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label" style="margin-top: -10px;">{{ 'Inventory number' | trans() }}</label>
+        <div class="col-lg-3">
+            <input class="computer-inventory form-control" name="computer[inventoryNumber]" placeholder="{{ 'Inventory number' | trans() }}">
+        </div>
+
+        <label class="col-sm-3 control-label">{{ 'Processor' | trans() }}</label>
+        <div class="col-sm-3" id="select-processor">
+            <select class="form-control select2-modal computer-processor" name="computer[processor]">
+                <option value="">{{ 'Select processor' | trans() }}</option>
+                {% for processor in processors %}
+                    <option value="{{ processor.id }}"
+                            {% if computer.processor is defined and computer.processor.id == processor.id %}
+                                {{ "selected" }}
+                            {% endif %}>{{ processor.name }}</option>
+                {% endfor %}
+            </select>
+            <a class="btn btn-gray-light btn-sm add-part-plus" id="add-processor-plus">
+                <i class="fa fa-plus"></i>
+            </a>
+        </div>
+        <div class="col-sm-3" id="add-processor">
+            <input class="form-control" name="computerPart[processor]" placeholder="{{ 'Add processor' | trans() }}" id="processor-add">
+            <a class="btn btn-gray-light btn-sm add-part-plus" id="add-processor-minus">
+                <i class="fa fa-minus"></i>
+            </a>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ 'Video card' | trans() }}</label>
+        <div class="col-sm-3" id="select-video-card">
+            <select class="form-control select2-modal computer-video-card" name="computer[videoCard]">
+                <option value="">{{ 'Select video card' | trans() }}</option>
+                {% for card in videoCards %}
+                    <option value="{{ card.id }}"
+                            {% if computer.videoCard is defined and computer.videoCard.id == card.id %}
+                                {{ "selected" }}
+                            {% endif %}>{{ card.name }}</option>
+                {% endfor %}
+            </select>
+            <a class="btn btn-gray-light btn-sm add-part-plus" id="add-video-card-plus">
+                <i class="fa fa-plus"></i>
+            </a>
+        </div>
+
+        <div class="col-sm-3" id="add-video-card">
+            <input class="form-control" name="computerPart[videoCard]" placeholder="{{ 'Add videocard' | trans() }}" id="video-card-add">
+            <a class="btn btn-gray-light btn-sm add-part-plus" id="add-video-card-minus">
+                <i class="fa fa-minus"></i>
+            </a>
+        </div>
+
+        <label class="col-sm-3 control-label">{{ 'RAM' | trans() }}</label>
+        <div class="col-sm-3" id="select-ram">
+            <select class="form-control select2-modal computer-ram" name="computer[ram]">
+                <option value="">{{ 'Select RAM' | trans() }}</option>
+                {% for ram in rams %}
+                    <option value="{{ ram.id }}"
+                            {% if computer.ram is defined and computer.ram.id == ram.id %}
+                                {{ "selected" }}
+                            {% endif %}>{{ ram.name }}</option>
+                {% endfor %}
+            </select>
+            <a class="btn btn-gray-light btn-sm add-part-plus" id="add-ram-plus">
+                <i class="fa fa-plus"></i>
+            </a>
+        </div>
+        <div class="col-sm-3" id="add-ram">
+            <input class="form-control" name="computerPart[ram]" placeholder="{{ 'Add RAM' | trans() }}" id="ram-add">
+            <a class="btn btn-gray-light btn-sm add-part-plus" id="add-ram-minus">
+                <i class="fa fa-minus"></i>
+            </a>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label" style="margin-top: -10px;">{{ 'First HDD' | trans() }}</label>
+        <div class="col-sm-3"  id="select-first-hdd">
+            <select class="form-control select2-modal computer-first-hdd" name="computer[firstHdd]">
+                <option value="">{{ 'Select HDD' | trans() }}</option>
+                {% for hdd in hdds %}
+                    <option value="{{ hdd.id }}"
+                            {% if computer.firstHdd is defined and computer.firstHdd.id == hdd.id %}
+                                {{ "selected" }}
+                            {% endif %}>{{ hdd.name }}</option>
+                {% endfor %}
+            </select>
+            <a class="btn btn-gray-light btn-sm add-part-plus" id="add-first-hdd-plus">
+                <i class="fa fa-plus"></i>
+            </a>
+        </div>
+        <div class="col-sm-3" id="add-first-hdd">
+            <input class="form-control" name="computerPart[firstHdd]" placeholder="{{ 'Add HDD' | trans() }}" id="first-hdd-add">
+            <a class="btn btn-gray-light btn-sm add-part-plus" id="add-first-hdd-minus">
+                <i class="fa fa-minus"></i>
+            </a>
+        </div>
+        <label class="col-sm-3 control-label">{{ 'Second HDD' | trans() }}</label>
+        <div class="col-sm-3" id="select-second-hdd">
+            <select class="form-control select2-modal computer-second-hdd" name="computer[secondHdd]">
+                <option value="">{{ 'Select HDD' | trans() }}</option>
+                {% for hdd in hdds %}
+                    <option value="{{ hdd.id }}"
+                            {% if computer.secondHdd is defined and computer.secondHdd.id == hdd.id %}
+                                {{ "selected" }}
+                            {% endif %}>{{ hdd.name }}</option>
+                {% endfor %}
+            </select>
+            <a class="btn btn-gray-light btn-sm add-part-plus" id="add-second-hdd-plus">
+                <i class="fa fa-plus"></i>
+            </a>
+        </div>
+        <div class="col-sm-3" id="add-second-hdd">
+            <input class="form-control" name="computerPart[secondHdd]" placeholder="{{ 'Add HDD' | trans() }}" id="second-hdd-add">
+            <a class="btn btn-gray-light btn-sm add-part-plus" id="add-second-hdd-minus">
+                <i class="fa fa-minus"></i>
+            </a>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label" style="margin-top: -10px;">{{ 'Motherboard' | trans() }}</label>
+        <div class="col-sm-3" id="select-motherboard">
+            <select class="form-control select2-modal computer-motherboard" name="computer[motherboard]">
+                <option value="">{{ 'Select motherboard' | trans() }}</option>
+                {% for motherboard in motherboards %}
+                    <option value="{{ motherboard.id }}"
+                            {% if computer.motherboard is defined and computer.motherboard.id == motherboard.id %}
+                                {{ "selected" }}
+                            {% endif %}>{{ motherboard.name }}</option>
+                {% endfor %}
+            </select>
+            <a class="btn btn-gray-light btn-sm add-part-plus" id="add-motherboard-plus">
+                <i class="fa fa-plus"></i>
+            </a>
+        </div>
+        <div class="col-sm-3" id="add-motherboard">
+            <input class="form-control" name="computerPart[motherboard]" placeholder="{{ 'Add motherboard' | trans() }}" id="motherboard-add">
+            <a class="btn btn-gray-light btn-sm add-part-plus" id="add-motherboard-minus">
+                <i class="fa fa-minus"></i>
+            </a>
+        </div>
+        <label class="col-sm-3 control-label">{{ 'monitor' | trans() }}</label>
+        <div class="col-sm-3" id="select-monitor">
+            <select class="form-control select2-modal computer-monitor" name="computer[monitors][]" multiple>
+                {% for monitor in monitors %}
+                    <option value="{{ monitor.id }}"
+                            {% if computer.monitor is defined and computer.monitor == monitor.id %}
+                                {{ "selected" }}
+                            {% endif %}>{{ monitor.name ~ '; ' ~ (monitor.inventoryNumber ? monitor.inventoryNumber : ' - ') }}</option>
+                {% endfor %}
+            </select>
+            <a class="btn btn-gray-light btn-sm add-part-plus" id="add-monitor-plus">
+                <i class="fa fa-plus"></i>
+            </a>
+        </div>
+        <div class="col-sm-3" id="add-monitor">
+            <input class="form-control" name="computerPart[monitor]" placeholder="{{ 'Add monitor' | trans() }}" id="monitor-add">
+            <a class="btn btn-gray-light btn-sm add-part-plus" id="add-monitor-minus">
+                <i class="fa fa-minus"></i>
+            </a>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ 'keyboard' | trans() }}</label>
+        <div class="col-sm-3" id="select-keyboard">
+            <select class="form-control select2-modal computer-keyboard" name="computer[keyboard]">
+                <option value="">{{ 'Select keyboard' | trans() }}</option>
+                {% for keyboard in keyboards %}
+                    <option value="{{ keyboard.id }}"
+                            {% if computer.keyboard is defined and computer.keyboard.id == keyboard.id %}
+                                {{ "selected" }}
+                            {% endif %}>{{ keyboard.name ~ '; ' ~ (keyboard.inventoryNumber ? keyboard.inventoryNumber : ' - ') }}</option>
+                {% endfor %}
+            </select>
+            <a class="btn btn-gray-light btn-sm add-part-plus" id="add-keyboard-plus">
+                <i class="fa fa-plus"></i>
+            </a>
+        </div>
+        <div class="col-sm-3" id="add-keyboard">
+            <input class="form-control" name="computerPart[keyboard]" placeholder="{{ 'Add keyboard' | trans() }}" id="keyboard-add">
+            <a class="btn btn-gray-light btn-sm add-part-plus" id="add-keyboard-minus">
+                <i class="fa fa-minus"></i>
+            </a>
+        </div>
+        <label class="col-sm-3 control-label">{{ 'mouse' | trans() }}</label>
+        <div class="col-sm-3" id="select-mouse">
+            <select class="form-control select2-modal computer-mouse" name="computer[mouse]">
+                <option value="">{{ 'Select mouse' | trans() }}</option>
+                {% for mouse in mouses %}
+                    <option value="{{ mouse.id }}"
+                            {% if computer.mouse is defined and computer.mouse.id == mouse.id %}
+                                {{ "selected" }}
+                            {% endif %}>{{ mouse.name ~ '; ' ~ (mouse.inventoryNumber ? mouse.inventoryNumber : ' - ') }}</option>
+                {% endfor %}
+            </select>
+            <a class="btn btn-gray-light btn-sm add-part-plus" id="add-mouse-plus">
+                <i class="fa fa-plus"></i>
+            </a>
+        </div>
+        <div class="col-sm-3" id="add-mouse">
+            <input class="form-control" name="computerPart[mouse]" placeholder="{{ 'Add mouse' | trans() }}" id="mouse-add">
+            <a class="btn btn-gray-light btn-sm add-part-plus" id="add-mouse-minus">
+                <i class="fa fa-minus"></i>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function(){
+            moment.locale('ru');
+            
+            $('#model').attr('hidden', true)
+
+            $('.computer-type').on('change', function() {
+                if ($(this).val() != 'desktop_computer') {
+                    $('#model').attr('hidden', false)
+                } else {
+                    $('#model').attr('hidden', true);
+                }
+            });
+            $('.add-computer').bind('click', function() {
+                $('.computer-ip-address').tokenfield({
+                    createTokensOnBlur: true
+                });
+                $('.computer-mac-address').tokenfield({
+                    createTokensOnBlur: true
+                });
+            });
+            $('.computer-ip-address').on('blur', function () {
+                console.log($('.token-input').val());
+            });
+
+            var parts = [
+                "video-card",
+                "processor",
+                "ram",
+                "operation-system",
+                "motherboard",
+                "first-hdd",
+                "second-hdd",
+                "monitor",
+                "keyboard",
+                "mouse"
+            ];
+
+            parts.forEach(function(item) {
+                $('#add-' + item).hide();
+
+                $('#add-' + item + '-plus').bind('click', function() {
+                    $('#add-' + item).show();
+                    $('#select-' + item + '').hide();
+                    $('#' + item + '-add').val('');
+                });
+
+                $('#add-' + item + '-minus').bind('click', function() {
+                    $('#add-' + item).hide();
+                    $('#select-' + item).show();
+                    $('#' + item + '-add').val('');
+                });
+            });
+
+            $('.edit-computer').bind('click', function(){
+
+                var editComputerForm = $('#editComputerForm');
+
+                editComputerForm.find('.computer-ip-address').tokenfield({
+                    createTokens: editComputerForm.find('.computer-ip-address').val($(this).data('ip-address')),
+                    beautify: true,
+                    createTokensOnBlur: true
+                });
+
+                editComputerForm.find('.computer-mac-address').tokenfield({
+                    createTokens: editComputerForm.find('.computer-mac-address').val($(this).data('mac-address')),
+                    beautify: true,
+                    createTokensOnBlur: true
+                });
+
+                editComputerForm.attr('action', $(this).data('href'));
+                editComputerForm.find('.computer-name').val($(this).data('name'));
+                editComputerForm.find('.computer-type').val($(this).data('type'));
+                editComputerForm.find('.computer-model').val($(this).data('model'));
+                editComputerForm.find('.computer-ip-type').val($(this).data('ip-type'));
+                editComputerForm.find('.computer-domain').val($(this).data('domain'));
+                editComputerForm.find('.computer-employee').val($(this).data('employee'));
+                editComputerForm.find('.computer-inventory').val($(this).data('inventory'));
+                editComputerForm.find('.computer-key-in-system').val($(this).data('key-in-system'));
+                editComputerForm.find('.computer-key-on-sticker').val($(this).data('key-on-sticker'));
+                editComputerForm.find('.computer-operation-system').val($(this).data('operation-system'));
+                editComputerForm.find('.computer-legal').val($(this).data('legal'));
+                editComputerForm.find('.computer-processor').val($(this).data('processor'));
+                editComputerForm.find('.computer-ram').val($(this).data('ram'));
+                editComputerForm.find('.computer-motherboard').val($(this).data('motherboard'));
+                editComputerForm.find('.computer-video-card').val($(this).data('video-card'));
+                editComputerForm.find('.computer-first-hdd').val($(this).data('first-hdd'));
+                editComputerForm.find('.computer-second-hdd').val($(this).data('second-hdd'));
+                editComputerForm.find('.computer-monitor').val($(this).data('monitor'));
+                editComputerForm.find('.computer-keyboard').val($(this).data('keyboard'));
+                editComputerForm.find('.computer-mouse').val($(this).data('mouse'));
+
+                $('.select2-modal').select2({ width: '100%' });
+
+                parts.forEach(function(item) {
+                    $('#editComputerForm').find('#add-' + item).hide();
+
+                    editComputerForm.find('#add-' + item + '-plus').click(function() {
+                        editComputerForm.find('#add-' + item).show();
+                        editComputerForm.find('#select-' + item + '').hide();
+                        editComputerForm.find('#' + item + '-add').val('');
+                    });
+
+                    editComputerForm.find('#add-' + item + '-minus').click(function() {
+                        editComputerForm.find('#add-' + item).hide();
+                        editComputerForm.find('#select-' + item).show();
+                        editComputerForm.find('#' + item + '-add').val('');
+                    });
+                });
+            });
+
+        });
+    </script>
+
+{% endmacro %}

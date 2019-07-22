@@ -1,0 +1,24 @@
+{% macro inputs(months) %}
+    <div class="panel-footer">
+        <!-- START Send Message Input -->
+        <div class="form-group">
+            <label class="col-lg-2 control-label">{{ 'Month' | trans()}}</label>
+            <div  class="col-lg-3" >
+                <select  class="form-control select2-modal responsible" name="date[month]">
+                    {% for month, num in months %}
+                        <option value="{{ num }}" {{ 'now' | date('m') == num ? 'selected' }}>{{ month | trans() }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <label class="col-lg-3 control-label">{{ 'Year' | trans()}}</label>
+            <div  class="col-lg-3" >
+                <select  class="form-control select2-modal responsible" name="date[year]">
+                    {% for year in "now" | date('Y') - 10 .. "now" | date('Y') + 10 %}
+                        <option value="{{ year }}" {{ 'now' | date('Y') == year ? 'selected' }}>{{ year }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <!-- END Send Message Input -->
+    </div>
+{% endmacro %}

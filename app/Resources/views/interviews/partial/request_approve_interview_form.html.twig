@@ -1,0 +1,33 @@
+{% macro inputs() %}
+    <div class="form-group">
+        <label class="col-sm-2 control-label">{{ "Start At" | trans() }}</label>
+        <div class="col-sm-4">
+            <input type="text" required class="form-control interview-start-at daterange-single-date-picker"
+                   name="interview[startAt]" value="">
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function(){
+            moment.locale('ru');
+            $('.daterange-single-date-picker').daterangepicker({
+                singleDatePicker: true,
+                showDropdowns: true,
+                timePicker: true,
+                timePicker24Hour: true,
+                timePickerIncrement: 30,
+                opens: "left",
+                drops: "down",
+                locale: {
+                    format: 'DD.MM.YYYY HH:mm', applyLabel: "Выбрать", cancelLabel: "Отменить"
+                }
+            });
+
+            $('.request-approve-interview').click(function(){
+
+                var requestApproveInterviewForm = $('#requestApproveInterviewForm');
+                requestApproveInterviewForm.attr('action', $(this).data('href'));
+            });
+        });
+    </script>
+{% endmacro %}

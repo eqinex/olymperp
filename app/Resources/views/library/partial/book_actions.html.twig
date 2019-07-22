@@ -1,0 +1,33 @@
+{% if app.user.canEditLibrary %}
+<li>
+    <a href=""
+       data-href="{{ path('book_edit', {'id': book.id}) }}"
+       class="editBook"
+       data-title="{{ book.title }}"
+       data-author="{{ book.author }}"
+       data-editor="{{ book.editor }}"
+       data-description="{{ book.description }}"
+       data-year-of-issue="{{ book.yearOfIssue }}"
+       data-publishing-house="{{ book.publishingHouse }}"
+       data-paper-version="{{ book.paperVersion }}"
+       data-toggle="modal"
+       data-target=".editBookModal">
+        <i class="fa fa-fw fa-pencil"></i> {{ 'Edit' | trans() }}</a>
+</li>
+    {% if book.paperVersion %}
+        {% if book in issuedBooks %}
+            <li>
+                <a href="{{ path('book_return', {'bookId': book.id }) }}"><i class="fa fa-fw fa-book text-danger"></i> {{ 'Return a book' | trans() }}</a>
+            </li>
+        {% else %}
+            <li>
+                <a href=""
+                   data-href="{{ path('book_issue', {'bookId': book.id }) }}"
+                   class="issueBook"
+                   data-toggle="modal"
+                   data-target=".issueBookModal">
+                    <i class="fa fa-fw fa-book text-success"></i> {{ 'Issue book' | trans() }}</a>
+            </li>
+        {% endif %}
+    {% endif %}
+{% endif %}

@@ -1,0 +1,154 @@
+# To get started with security, check out the documentation:
+# http://symfony.com/doc/current/security.html
+security:
+    role_hierarchy:
+        ROLE_ADMIN:       [ROLE_USER, ROLE_SONATA_ADMIN, ROLE_DELETE_PROJECT_FILES]
+        ROLE_SUPER_ADMIN: [ROLE_ADMIN, ROLE_ALLOWED_TO_SWITCH]
+        ROLE_TECHNICAL_LEADER: [ROLE_TECHNICAL_LEADER]
+        ROLE_PROJECT_OFFICE_LEADER: [ROLE_PROJECT_LEADER]
+        ROLE_IT_REQUEST_MANAGER: [ROLE_USER]
+        ROLE_PROJECT_LEADER: [ROLE_USER]
+        ROLE_PURCHASE_REQUEST_APPROVING_LEADER: [ROLE_USER]
+        ROLE_PURCHASING_LEADER: [ROLE_PURCHASING_MANAGER]
+        ROLE_PURCHASING_MANAGER: [ROLE_USER]
+        ROLE_PROJECT_ADD_TEAM_MEMBER: [ROLE_USER]
+        ROLE_VIEW_FINANCIAL_INFO: [ROLE_USER]
+        ROLE_FINANCIAL_MANAGER: [ROLE_USER]
+        ROLE_FINANCIAL_LEADER: [ROLE_USER]
+        ROLE_HAS_FULL_REQUEST_PRIVILEGES: [ROLE_USER]
+        ROLE_PURCHASE_REQUEST_PRODUCTION_LEADER: [ROLE_USER]
+        ROLE_DELETE_PROJECT_FILES: [ROLE_USER]
+        ROLE_ACCESS_TO_PROJECT_COSTS: [ROLE_USER]
+        ROLE_CAN_VIEW_REQUESTS_DASHBOARD: [ROLE_USER]
+        ROLE_CAN_MARK_ON_STOCK: [ROLE_USER]
+        ROLE_CAN_VIEW_SUPPLIER: [ROLE_USER]
+        ROLE_CAN_VIEW_TOOL_WORK_LOG: [ROLE_USER]
+        ROLE_CAN_VIEW_CLIENT: [ROLE_USER]
+        ROLE_CAN_EDIT_CLIENT: [ROLE_USER]
+        ROLE_CAN_VIEW_SERIAL_PRODUCTION: [ROLE_USER]
+        ROLE_CAN_EDIT_SERIAL_PRODUCTION: [ROLE_USER]
+        ROLE_CAN_VIEW_ALL_DOCUMENTS: [ROLE_USER]
+        ROLE_CAN_CANCEL_ALL_TASKS: [ROLE_USER]
+        ROLE_CAN_ADD_USER_ACHIEVEMENTS: [ROLE_USER]
+        ROLE_CAN_APPROVE_RESULT: [ROLE_USER]
+        ROLE_CAN_VIEW_ALL_PROTOCOLS: [ROLE_USER]
+        ROLE_CAN_EDIT_ENGINEERING_DOCUMENT: [ROLE_USER]
+        ROLE_CAN_EDIT_PROGRAMMING_DOCUMENT: [ROLE_USER]
+        ROLE_CAN_VIEW_ALL_INVENTORY_ITEMS: [ROLE_USER]
+        ROLE_CAN_EDIT_SUPPLIER: [ROLE_USER]
+        ROLE_CAN_VIEW_ACTIVITY: [ROLE_USER]
+        ROLE_CAN_VIEW_ALL_ACTIVITY: [ROLE_USER]
+        ROLE_CAN_DELETE_SUPPLIER_PERSON: [ROLE_USER]
+        ROLE_CAN_EXPORT_VACATION_CALENDAR: [ROLE_USER]
+        ROLE_CAN_VIEW_INFRASTRUCTURE: [ROLE_USER]
+        ROLE_CAN_DOWNLOAD_OVERDUE_INVOICES: [ROLE_USER]
+        ROLE_CAN_CHANGE_PAYMENT_STATUS_PURCHASE: [ROLE_USER]
+        ROLE_CAN_EDIT_EMPLOYEES: [ROLE_USER]
+        ROLE_CAN_PROCESS_PRODUCTION_PURCHASES: [ROLE_USER]
+        ROLE_CAN_VIEW_NOMENCLATURE: [ROLE_USER]
+        ROLE_CAN_EDIT_NOMENCLATURE: [ROLE_USER]
+        ROLE_CAN_VIEW_APPLICANT: [ROLE_USER]
+        ROLE_CAN_EDIT_APPLICANT: [ROLE_USER]
+        ROLE_CAN_VIEW_VACANCY: [ROLE_USER]
+        ROLE_CAN_EDIT_VACANCY: [ROLE_USER]
+        ROLE_CAN_VIEW_INTERVIEW: [ROLE_USER]
+        ROLE_CAN_EDIT_INTERVIEW: [ROLE_USER]
+        ROLE_CAN_EDIT_LIBRARY: [ROLE_USER]
+        ROLE_CAN_VIEW_ENGINEERING_DOCUMENT_CLASSIFIER: [ROLE_USER]
+        ROLE_CAN_EDIT_ENGINEERING_DOCUMENT_CLASSIFIER: [ROLE_USER]
+        ROLE_CAN_EXPORT_JOB_REPORT: [ROLE_USER]
+        ROLE_CAN_VIEW_PROJECT_CODE: [ROLE_USER]
+        ROLE_CAN_DELETE_PROJECT_CODE: [ROLE_USER]
+        ROLE_CAN_EDIT_PROJECT_CODE: [ROLE_USER]
+        ROLE_CAN_CHANGE_REQUEST_OWNER: [ROLE_USER]
+        ROLE_CAN_VIEW_REGISTRY: [ROLE_USER]
+        ROLE_CAN_EDIT_REGISTRY: [ROLE_USER]
+        ROLE_HAS_ACCESS_FILES: [ROLE_USER]
+        ROLE_CAN_REGISTER_DOCUMENTS: [ROLE_USER]
+        ROLE_CAN_VIEW_RENT: [ROLE_USER]
+        ROLE_CAN_ADD_RENT: [ROLE_USER]
+        ROLE_CAN_IMPORT_RENT: [ROLE_USER]
+        ROLE_CAN_VIEW_TENEMENT: [ROLE_USER]
+        ROLE_CAN_EDIT_TENEMENT: [ROLE_USER]
+        ROLE_CAN_SEND_PURCHASE_TO_SUPPLY_AREA: [ROLE_USER]
+        ROLE_ACCESS_TO_BLACKLIST: [ROLE_USER]
+        ROLE_CAN_VIEW_MEDICAL_INSTITUTIONS: [ROLE_USER]
+        ROLE_CAN_EDIT_MEDICAL_INSTITUTIONS: [ROLE_USER]
+        ROLE_CAN_VIEW_PROJECT_PRICE: [ROLE_USER]
+        ROLE_CAN_EDIT_PROJECT_PRICE: [ROLE_USER]
+        SONATA:
+            - ROLE_SONATA_PAGE_ADMIN_PAGE_EDIT  # if you are using acl then this line must be commented
+
+    providers:
+        fos_userbundle:
+            id: fos_user.user_provider.username
+
+    firewalls:
+        # Disabling the security for the web debug toolbar, the profiler and Assetic.
+        dev:
+            pattern:  ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+
+        # -> custom firewall for the admin area of the URL
+        admin:
+            pattern:            /admin(.*)
+            context:            user
+            form_login:
+                provider:       fos_userbundle
+                login_path:     /admin/login
+                use_forward:    false
+                check_path:     /admin/login_check
+                failure_path:   null
+            logout:
+                path:           /admin/logout
+                target:         /admin/login
+            anonymous:          true
+
+        # -> end custom configuration
+
+        # default login area for standard users
+
+        # This firewall is used to handle the public login area
+        # This part is handled by the FOS User Bundle
+        main:
+            pattern:             .*
+            context:             user
+            form_login:
+                provider:       fos_userbundle
+                login_path:     /login
+                use_forward:    false
+                check_path:     /login_check
+                failure_path:   null
+            logout:             true
+            anonymous:          true
+            remember_me:
+              secret: 'olymp'
+              lifetime: 604800
+              path: /
+              domain: ~
+
+    encoders:
+        FOS\UserBundle\Model\UserInterface: sha512
+    acl:
+        connection: default
+
+    access_control:
+        # URL of FOSUserBundle which need to be available to anonymous users
+        - { path: ^/login$, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/monitoring, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/, role: IS_AUTHENTICATED_REMEMBERED }
+        - { path: ^/register, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/resetting, role: IS_AUTHENTICATED_ANONYMOUSLY }
+
+        # Admin login page needs to be accessed without credential
+        - { path: ^/admin/login$, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/admin/logout$, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/admin/login_check$, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/admin/resetting, role: IS_AUTHENTICATED_ANONYMOUSLY }
+
+        # Secured part of the site
+        # This config requires being logged for the whole site and having the admin role for the admin part.
+        # Change these rules to adapt them to your needs
+        - { path: ^/admin/, role: [ROLE_ADMIN, ROLE_SONATA_ADMIN] }
+        - { path: ^/.*, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/requests/dashboard$, role: ROLE_CAN_VIEW_REQUESTS_DASHBOARD }

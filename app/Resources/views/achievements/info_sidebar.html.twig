@@ -1,0 +1,28 @@
+<div class="col-lg-3">
+    <div class="hr-text hr-text-left m-t-0 m-b-1">
+        <h6 class="text-inverse"><strong>{{ "Details" | trans() }}</strong></h6>
+    </div>
+    <div class="text-center" style="margin-bottom: 25px;">
+        <img src="/images/achievements/{{ achievement.id }}.png" alt="Achievement">
+    </div>
+    <table class="table table-condensed">
+        <tbody>
+        <tr>
+            <td class="v-a-m">
+                {{ 'Achievement' | trans() }}
+            </td>
+            <td class="v-a-m text-right">
+                {{ achievement.title }}
+            </td>
+        </tr>
+        <tr>
+            <td class="v-a-m">
+                {{ "Description" | trans() }}
+            </td>
+            <td class="v-a-m text-right text-inverse">
+                {{ achievement.description }}
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>

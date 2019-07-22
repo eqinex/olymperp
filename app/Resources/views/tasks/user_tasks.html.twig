@@ -1,0 +1,339 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ "Tasks" | trans() }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ breadcrumb('Tasks' | trans(), path('user_created_tasks')) }}
+{% endblock %}
+
+{% block body %}
+    <form class="form-inline filter-form" method="get" action="{{ path('user_created_tasks') }}">
+        <input type="hidden" name="order" value="{{ order }}"/>
+        <input type="hidden" name="orderBy" value="{{ orderBy }}"/>
+        <div class="panel panel-default no-bg  b-gray-dark">
+            <div class="panel-body">
+                <div class="form-group">
+                    <select class="form-control filter" name="filters[type]">
+                        {% set defined = filters.type is defined %}
+                        <option {% if defined and filters.type == 'in' %}selected{% endif %} value="in">Входящие</option>
+                        <option {% if defined and filters.type == 'out' %}selected{% endif %} value="out">Исходящие</option>
+                        <option {% if defined and filters.type == 'control' %}selected{% endif %} value="control">На контроле</option>
+                    </select>
+                </div>
+                <div class="form-group filter">
+                    <select class="form-control" name="filters[project]">
+                        <option value="">{{ 'Select project' | trans() }}</option>
+                        {% for project in projects %}
+                            <option {% if filters.project is defined and filters.project == project.id %}selected{% endif %} value="{{ project.id }}">
+                                {{ project.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group checkselect">
+                        {% for key, status in statuses %}
+                            <label>
+                                <input type="checkbox" name="filters[status][]" value="{{ key }}"
+                                    {% if filters.status is defined and key in filters.status %}
+                                        checked
+                                    {% endif %}>{{ ('status_' ~ status) | trans() }}
+                            </label>
+                        {% endfor %}
+                    <label><input id='all-statuses' type="checkbox">{{ 'select_all' | trans() }}</label>
+                </div>
+                <div class="form-group filter">
+                    <select class="form-control" name="filters[priority]">
+                        <option value="">{{ 'Select priority' | trans() }}</option>
+                        {% for key, priority in priorities %}
+                            <option {% if filters.priority is defined and filters.priority is not same as('') and filters.priority == key %}selected{% endif %} value="{{ key }}">
+                                {{ ('priority_' ~ priority) | trans() }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% if teamMembers | length %}
+                    <select class="form-control filter" id="filter-leader" name="filters[responsible]">
+                        <option selected value>{{ 'Select responsible' | trans() }}</option>
+                        {% for team, members in teamMembers %}
+                            <optgroup label="{{ team | trans() }}">
+                                {% for member in members %}
+                                    {% if filters.responsible is defined and filters.responsible == member.id %}
+                                        {% set selected = "selected" %}
+                                    {% else %}
+                                        {% set selected = "" %}
+                                    {% endif %}
+                                    <option {{ selected }} value="{{ member.id }}">{{ member.fullName }} ({{ member.employeeRole }})</option>
+                                {% endfor %}
+                            </optgroup>
+                        {% endfor %}
+                    </select>
+                {% endif %}
+                <div class="form-group filter">
+                    <select class="form-control" name="filters[team]">
+                        <option value="">{{ 'Select team' | trans() }}</option>
+                        {% for team in teams %}
+                            <option {% if filters.team is defined and filters.team == team.id %}selected{% endif %} value="{{ team.id }}">
+                                {{ team.title }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group filter">
+                    <span class="col-align col-align--center">{{ 'Show overdue' | trans() }}</span>
+                    <input style="margin-left: 5px;" class="col-align col-align--center" type="checkbox" name="filters[overdueTask]" {{ filters.overdueTask is defined and filters.overdueTask is not null ? 'checked' : '' }}>
+                </div>
+                <div class="form-group filter pull-right">
+                    <select class="form-control" id="perPage" name="perPage">
+                        <option value="25" {{ perPage == 25 ? 'selected' }}>25</option>
+                        <option value="50" {{ perPage == 50 ? 'selected' }}>50</option>
+                        <option value="100" {{ perPage == 100 ? 'selected' }}>100</option>
+                    </select>
+                </div>
+                <div class="btn-group pull-right m-r-2">
+                    <a class="btn btn-success" target="_blank" title="{{ 'download' | trans() }}" href="{{ path('report_tasks_stats', {'filters': filters}) }}">
+                        <i class="fa fa-fw fa-file-excel-o text-inverse"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-default no-bg  b-gray-dark">
+            <div class="panel-body">
+                <div class="form-group filter">
+                    <input class="form-control" name="filters[title]" placeholder="{{ 'Search by title' | trans() }}"
+                           value="{% if filters.title is defined %}{{ filters.title }}{% endif %}" />
+                </div>
+            </div>
+        </div>
+    </form>
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                {% set orderType = order == 'desc' ? 'asc' : 'desc' %}
+                {% set routeParams = { 'currentPage': currentPage, 'perPage': perPage, 'filters': filters } %}
+
+                <th></th>
+                <th></th>
+                <th class="small text-muted text-uppercase">
+                    {% set routeParams = routeParams | merge({'orderBy': 'status', 'order': orderBy == 'status' ? orderType : 'asc'}) %}
+                    <a href="{{ path('user_created_tasks', routeParams) }}">
+                        <strong>{{ "Status" | trans() ~ ' '}}</strong>
+                        <i class="fa fa-sort{{ orderBy == 'status' ? '-' ~ order : '' }}"></i>
+                    </a>
+                </th>
+                <th class="small text-muted text-uppercase">
+                    {% set routeParams = routeParams | merge({'orderBy': 'title', 'order': orderBy == 'title' ? orderType : 'asc'}) %}
+                    <a href="{{ path('user_created_tasks', routeParams) }}">
+                        <strong>{{ "Title" | trans() ~ ' '}}</strong>
+                        <i class="fa fa-sort{{ orderBy == 'title' ? '-' ~ order : '' }}"></i>
+                    </a>
+                </th>
+                <th class="small text-muted text-uppercase visible-lg visible-xl"><strong>{{ "Files" | trans() }}</strong></th>
+                <th class="small text-muted text-uppercase visible-lg visible-xl"><strong>{{ "Controlling user" | trans() }}</strong></th>
+                <th class="small text-muted text-uppercase"><strong>{{ "Responsible" | trans() }}</strong></th>
+                <th class="small text-muted text-uppercase">
+                    {% set routeParams = routeParams | merge({'orderBy': 'project', 'order': orderBy == 'project' ? orderType : 'asc'}) %}
+                    <a href="{{ path('user_created_tasks', routeParams) }}">
+                        <strong>{{ "Project" | trans() ~ ' '}}</strong>
+                        <i class="fa fa-sort{{ orderBy == 'project' ? '-' ~ order : '' }}"></i>
+                    </a>
+                </th>
+                <th class="small text-muted text-uppercase no-wrap visible-lg visible-xl"><strong>{{ "Task Result" | trans() }}</strong></th>
+                <th class="small text-muted text-uppercase">
+                    {% set routeParams = routeParams | merge({'orderBy': 'endAt', 'order': orderBy == 'endAt' ? orderType : 'asc'}) %}
+                    <a href="{{ path('user_created_tasks', routeParams) }}">
+                        <strong>{{ "Deadline" | trans() ~ ' '}}</strong>
+                        <i class="fa fa-sort{{ orderBy == 'endAt' ? '-' ~ order : '' }}"></i>
+                    </a >
+                </th>
+                <th class="small text-muted text-uppercase visible-lg visible-xl"><strong>{{ "Time" | trans() }}</strong></th>
+                <th class="small text-right text-muted text-uppercase"><strong>{{ "Actions" | trans() }}</strong></th>
+            </tr>
+        </thead>
+        <tbody>
+        {% import 'tasks/partial/form.html.twig' as form %}
+        {% for task in tasks %}
+            <!-- START ROW Task -->
+            <tr>
+                <td class="v-a-m">{{ ((currentPage - 1) * perPage) + loop.index }}</td>
+                <td class="v-a-m">
+                    {% if task.type == 'epic' %}
+                        <i class="fa fa-fw fa fa-object-group text-{{ task.priorityLabels[task.priority] }}"></i>
+                    {% else %}
+                        <i class="fa fa-fw fa fa-circle text-{{ task.priorityLabels[task.priority] }}"></i>
+                    {% endif %}
+                </td>
+                <td class="v-a-m">
+                    {% if task.status is not null %}
+                        <span class="text-{{ task.priorityLabels[task.status] }}">{{
+                            ("status_" ~ task.statusList[task.status]) | trans() }}</span>
+                    {% endif %}
+                </td>
+                <td class="v-a-m">
+                    {% if task.epic is not null %}
+                        {#{{ task.epic.id }}#}
+                        <a class="label m-r-1 label-{{ task_service.getEpicLabel(task.epic) }}" href="{{ path('project_task_details', {'id': task.project.id, 'taskId': task.epic.id}) }}">
+                            <span>{{ task.epic.title | upper }}</span>
+                        </a>
+                    {% endif %}
+                    <a  href="{{ path('project_edit_task', {'id': task.project.id, 'taskId': task.id}) }}">
+                        <span>{{ task.title }}</span>
+                    </a>
+                </td>
+                <td class="v-a-m visible-lg visible-xl">
+                    {% if task.attachments | length %}
+                        <a class="text-inverse" href="{{ path('project_edit_task', {'id': task.project.id, 'taskId': task.id}) }}#attachmentstab">
+                            <i class="fa fa-fw fa-paperclip"></i></a>
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+                <td class="v-a-m no-wrap visible-lg visible-xl">
+                    {% if task.controllingUser is not null %}
+                        <a class="link-comment" href="{{ path('employee_details', {'userName': task.controllingUser.username}) }}">{{ task.controllingUser.lastNameWithInitials }}</a>
+                    {% endif %}
+                </td>
+                <td class="v-a-m">
+                    {% if task.responsibleUser is not null %}
+                        <a class="link-comment" href="{{ path('employee_details', {'userName': task.responsibleUser.username}) }}">{{ task.responsibleUser.lastNameWithInitials }}</a>
+                    {% endif %}
+                </td>
+
+
+                <td class="v-a-m">
+                    <a  href="{{ path('project_tasks', {'id': task.project.id}) }}">{{ task.project.name }}</a>
+                </td>
+                <td class="v-a-m visible-lg visible-xl">
+                    <span>{{ task.result ? task.result.name : '-' }}</span>
+                </td>
+                <td class="v-a-m">
+                    <span {% if task.Active and task.expired %}style="color:orangered;"{% endif %}>
+                        {{ task.endAt | date('d.m.Y') }}</span>
+                </td>
+                <td class="v-a-m visible-lg visible-xl">
+                    <span {% if task.timeSpent > task.originalEstimate %}class="text-warning"{% endif %}>
+                        {{ task.getFormattedTime(task.timeSpent) ~ '/' ~ task.getFormattedTime(task.originalEstimate) }}
+                    </span>
+                </td>
+
+                <td class="text-right v-a-m">
+                    {% set vars = {'form': form, 'task': task, 'class': ''} %}
+                    {% include 'tasks/partial/task_actions.html.twig' with vars %}
+                </td>
+            </tr>
+        {% endfor %}
+        <!-- END ROW Task -->
+        </tbody>
+    </table>
+    {% set vars = {
+            'route': 'user_created_tasks',
+            'currentPage': currentPage,
+            'perPage': perPage,
+            'maxPages': maxPages,
+            'filters': filters,
+            'routeParams': {
+                'order': order,
+                'orderBy': orderBy
+            }
+        }
+    %}
+
+    {% include 'partial/paginator.html.twig' with vars %}
+
+    {% import 'tasks/partial/start_progress_form.html.twig' as startProgressForm %}
+    {% import 'tasks/partial/finish_task_form.html.twig' as finishTaskForm %}
+    {% import 'tasks/partial/cancel_task_form.html.twig' as cancelTaskForm %}
+    {% import 'tasks/partial/return_to_work_task_form.html.twig' as returnTaskForm %}
+    {% import 'tasks/partial/request_approve_task_form.html.twig' as requestApproveTaskForm %}
+
+    {% set editTaskVars = {
+            'class': 'editTaskModal',
+            'formId': 'editTaskForm',
+            'title': 'Edit task',
+            'size': 'large',
+            'content': form.inputs(project, newTask, taskResults),
+            'submitTitle': 'Save'
+        }
+    %}
+    {% set requestApproveTaskVars = {
+        'class': 'requestApproveTaskModal',
+        'formId': 'requestApproveTaskForm',
+        'title': 'Request approve',
+        'content': requestApproveTaskForm.inputs(),
+        'submitTitle': 'Send'
+    }
+    %}
+    {% set startProgressVars = {
+            'class': 'startProgressModal',
+            'formId': 'startProgressForm',
+            'title': 'Start progress',
+            'content': startProgressForm.inputs(),
+            'submitTitle': 'Start'
+        }
+    %}
+    {% set finishTaskVars = {
+            'class': 'finishTaskModal',
+            'formId': 'finishTaskForm',
+            'title': 'Done',
+            'size': 'large',
+            'content': finishTaskForm.inputs(),
+            'submitTitle': 'Done'
+        }
+    %}
+    {% set resultApproveTaskVars = {
+        'class': 'resultApproveTaskModal',
+        'formId': 'resultApproveTaskForm',
+        'title': 'Request result approve',
+        'size': 'large',
+        'content': finishTaskForm.inputs(),
+        'submitTitle': 'Send'
+    }
+    %}
+    {% set cancelTaskVars = {
+        'class': 'cancelTaskModal',
+        'formId': 'cancelTaskForm',
+        'title': 'Cancel',
+        'content': cancelTaskForm.inputs(),
+        'submitTitle': 'Cancel'
+    }
+    %}
+    {% set returnTaskVars = {
+        'class': 'returnTaskModal',
+        'formId': 'returnTaskForm',
+        'title': 'Return to work',
+        'content': returnTaskForm.inputs(),
+        'submitTitle': 'Return to work'
+    }
+    %}
+
+    {% include 'partial/modal.html.twig' with editTaskVars %}
+    {% include 'partial/modal.html.twig' with startProgressVars %}
+    {% include 'partial/modal.html.twig' with finishTaskVars %}
+    {% include 'partial/modal.html.twig' with resultApproveTaskVars %}
+    {% include 'partial/modal.html.twig' with cancelTaskVars %}
+    {% include 'partial/modal.html.twig' with returnTaskVars %}
+    {% include 'partial/modal.html.twig' with requestApproveTaskVars %}
+
+    <script>
+        $(document).ready(function () {
+            $('.checkselect').on('change', function() {
+                $(document).on('click', function(e){
+                    if ($(e.target).closest('.checkselect').length == 0){
+                        $('.filter-form').submit();
+                    }
+                });
+            });
+
+            $('#all-statuses').click(function(){
+                if ($('#all-statuses').prop('checked')) {
+                    $('.checkselect input:checkbox').prop('checked', true);
+                } else {
+                    $('.checkselect input:checkbox').prop('checked', false);
+                }
+            });
+
+            jQuery(function(){
+                $('#perPage').select2({ width: '55px' });
+            });
+        });
+    </script>
+{% endblock %}

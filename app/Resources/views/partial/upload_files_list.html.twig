@@ -1,0 +1,111 @@
+<tr>
+    <td class="v-a-m b-t-0">
+        <div class="media media-auto">
+            {% set icon = '' %}
+            {% set color = 'gray-lighter' %}
+            {% if file.format == 'doc' or file.format == 'docx' %}
+                {% set icon = '-word' %}
+                {% set color = 'primary' %}
+            {% elseif file.format == 'mp4' or file.format == 'avi' %}
+                {% set icon = '-video' %}
+                {% set color = 'primary' %}
+            {% elseif file.format == 'xls' or file.format == 'xlsx' %}
+                {% set icon = '-excel' %}
+                {% set color = 'success' %}
+            {% elseif file.format == 'ppt' or file.format == 'pptx' %}
+                {% set icon = '-powerpoint' %}
+                {% set color = 'danger' %}
+            {% elseif file.format == 'zip' or file.format == 'rar' or file.format == '7z' %}
+                {% set icon = '-archive' %}
+                {% set color = 'warning' %}
+            {% elseif file.format == 'pdf' %}
+                {% set icon = '-pdf' %}
+                {% set color = 'info' %}
+            {% endif %}
+            <div class="media-left">
+                {% if file.format == 'jpg' or file.format == 'jpeg' or file.format == 'png' %}
+                    <a href="#"
+                       class="preview-image"
+                       data-toggle="modal"
+                       data-target=".previewModal"
+                       data-original-attachment-class=".original-attachment-{{ file.id }}"
+                       data-original-image="{{ downloadFilePath }}">
+                        <img class="attachment-preview" src="{{ previewImage }}"  />
+                    </a>
+                    <div style="display:none;">
+                        <img class="original-attachment-{{ file.id }}" src="" style="width: 100%">
+                    </div>
+                {% else %}
+                    <span class="fa-stack fa-lg">
+                        <i class="fa fa-square fa-stack-2x text-{{ color }}"></i>
+                        <i class="fa fa-file{{ icon }}-o fa-stack-1x fa-inverse text-inverse"></i>
+                    </span>
+                {% endif %}
+            </div>
+            <div class="media-body">
+                <span class="media-heading text-inverse">{{ file.fileName }}</span>
+                <br> от <span>{{ file.owner.fullname }}</span> <span class="text-muted">·</span> <span class="media-heading"><span>{{ (file.fileSize/1024) | number_format }} Kb</span></span>
+            </div>
+        </div>
+    </td>
+    {% if type is defined and type == 'financial' %}
+        <td class="v-a-m b-t-0 text-right {{ file.isFileOutdated() ? 'text-danger' }} "> <span>{{ file.uploadedAt | date('d.m.Y') }}</span>
+            <br><span>{{ file.uploadedAt | date('H:i') }}</span>
+        </td>
+    {% else %}
+        {% if category is defined and category == 'task' %}
+            <td class="v-a-m b-t-0 text-right">
+                <a href="{{ path('history_download_file', {'fileId': file.id, 'category': category}) }}">
+                    <h5>{{ 'File was downloaded %s times' | trans() | format(task_service.getCountDownloadsFile(file) | length()) }}</h5>
+                </a>
+            </td>
+        {% endif %}
+        <td class="v-a-m b-t-0 text-right"> <span>{{ file.uploadedAt | date('d.m.Y') }}</span>
+            <br><span>{{ file.uploadedAt | date('H:i') }}</span>
+        </td>
+    {% endif %}
+
+    <td class="text-right v-a-m b-t-0 w-5" style="width: 150px !important;">
+        {% if file.canDeleteFile(app.user) %}
+            <div class="btn-group">
+                <a
+                title="{{ 'Delete file' | trans() }}"
+                class="btn btn-danger delete-file"
+                data-form-action="{{ deleteFilePath }}"
+                data-target=".deleteFileModal"
+                data-toggle="modal"
+                href=""><i class="fa fa-minus"></i></a>
+            </div>
+        {% endif %}
+        {% if type is defined and type == 'financial' %}
+            {% if not file.isFileOutdated() or app.user.canDownloadOverdueInvoices() %}
+                <a class="btn btn-default" target="_blank" title="{{ 'download' | trans() }}" href="{{ downloadFilePath }}">
+                    <i class="fa fa-download "></i>
+                </a>
+            {% endif %}
+        {% elseif category is defined and category == 'task' %}
+            {% if file.hasAccess(app.user) %}
+                <a class="btn btn-default" target="_blank" title="{{ 'download' | trans() }}" href="{{ downloadFilePath }}">
+                    <i class="fa fa-download "></i>
+                </a>
+            {% endif %}
+            {% if file.isOwner(app.user) %}
+                <a href=""
+                   class="btn btn-default access-rights"
+                   title="{{ 'Access rights' | trans() }}"
+                   data-form-action="{{ accessRightsFilePath }}"
+                   data-id="{{ file.id }}"
+                   data-access="{{ file.fullAccess }}"
+                   data-users="{{ file.getAccessUsersIds() | json_encode }}"
+                   data-target=".accessRightsFileModal"
+                   data-toggle="modal"
+                ><i class="fa fa-group"></i>
+                </a>
+            {% endif %}
+        {% else %}
+            <a class="btn btn-default" target="_blank" title="{{ 'download' | trans() }}" href="{{ downloadFilePath }}">
+                <i class="fa fa-download "></i>
+            </a>
+        {% endif %}
+    </td>
+ </tr>

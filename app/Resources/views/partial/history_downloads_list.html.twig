@@ -1,0 +1,38 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'Download history' | trans() }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ breadcrumb( 'Download history' | trans()) }}
+{% endblock %}
+
+{% block body %}
+
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th class="small text-muted text-uppercase" style="width: 40px;"><strong>#</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ 'Fullname' | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ 'Download date' | trans() }}</strong></th>
+        </tr>
+        </thead>
+        <tbody>
+        {% set id = 1 %}
+        {% for download in downloads %}
+            <tr>
+                <td class="v-a-m">
+                    <span>{{ id }}</span>
+                </td>
+                <td class="v-a-m">
+                    <a href="{{ path('employee_details', {'userName': download.user.username}) }}"><span>{{ download.user.lastNameWithInitials() }}</span></a>
+                </td>
+                <td class="v-a-m">
+                   {{ download.downloadDate | date('d.m.Y H:i') }}
+                </td>
+            </tr>
+            {% set id = id + 1 %}
+        {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock %}

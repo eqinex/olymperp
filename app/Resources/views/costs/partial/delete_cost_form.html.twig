@@ -1,0 +1,12 @@
+{% macro inputs() %}
+    <div class="text-center">{{ "Are you sure you want to delete cost?" | trans() }}</div>
+
+    <script>
+        $(document).ready(function(){
+            $('.delete-cost').bind('click', function() {
+                var deleteCostNoticeForm = $('#deleteCostForm');
+                deleteCostNoticeForm.attr('action', $(this).data('form-action'));
+            });
+        });
+    </script>
+{% endmacro %}

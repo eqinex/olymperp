@@ -1,0 +1,50 @@
+{% macro list(replies, step = 0) %}
+    {% import _self as treeComments %}
+
+    {% for reply in replies %}
+        <div class="media m-t-3">
+            <div class="media-left">
+                <div class="avatar avatar-image avatar-inline">
+                    <div class="avatar-circle">
+                        {% if reply.owner.imageUrl is not null %}
+                            <img src="{{ reply.owner.imageUrl }}" />
+                        {% else %}
+                            <img class="img-circle avatar" src="/images/noavatar.png" alt="Avatar">
+                        {% endif %}
+                    </div>
+                    <i class="avatar-status avatar-status-bottom bg-{{ employee_service.getOnlineStatus(reply.owner).colorBadge }} b-brand-gray-darker"></i>
+                </div>
+            </div>
+            <div class="media-body">
+                <h5 class="m-t-0">
+                    <a class="link-comment" href="{{ path('employee_details', {'userName': reply.owner.username}) }}">
+                        <span>{{ reply.owner.fullName }}</span>
+                    </a>
+                    <small>
+                        <span>{{ reply.createdAt | date('d/m/Y H:i:s') }}</span>
+                    </small>
+                </h5>
+                <span>{{ reply.commentText | raw }}</span>
+                <br>
+                <div class="m-t-1">
+                    {% if step < 3 %}
+                        <a href="javascript: void(0)"
+                           data-reply-comment-id="{{ reply.id }}"
+                           class="reply-comment">{{ 'Reply' | trans() }}</a>
+                        <span class="text-muted">·</span>
+                    {% endif %}
+                    {% if app.user.id == reply.owner.id %}
+                        <a href="javascript: void(0)"
+                           data-comment-id="{{ reply.id }}"
+                           data-comment-text="{{ reply.commentText }}"
+                           class="edit-comment">{{ 'Edit' | trans()}}</a>
+                    {% endif %}
+                </div>
+                {% if reply.replies %}
+                    {{ treeComments.list(reply.replies, step + 1) }}
+                {% endif %}
+            </div>
+        </div>
+    {% endfor %}
+
+{% endmacro %}

@@ -1,0 +1,68 @@
+{% macro inputs() %}
+    <input type="hidden" class="form-control file-id" value="" name="file[id]">
+    <input type="hidden" class="form-control file-access" value="" name="file[access]">
+
+    <div class="form-group">
+        <div class="col-lg-1"></div>
+        <div class="col-lg-5">
+            <input type="radio" class="access-to-all-employees" id="limited-acl1" name="fullAccess" value="all">
+            <label for="limited-acl1" class="control-label m-l-1">{{ 'Unlimited access' | trans() }}</label>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-lg-1"></div>
+        <div class="col-lg-5">
+            <input type="radio" class="access-to-some-employees" id="limited-acl2" name="fullAccess" value="some">
+            <label for="limited-acl2" class="control-label m-l-1">{{ 'Limited access' | trans() }}</label>
+        </div>
+    </div>
+    <div class="form-group select-employees-access-rights">
+        <div class="col-lg-1"></div>
+        <div class="col-lg-10">
+            <select class="form-control select2-modal access-rights-employees" name="usersIds[]" multiple>
+                {% for team, members in employee_service.getUsersGroupedByTeams() %}
+                    <optgroup label="{{ team | trans() }}">
+                        {% for member in members %}
+                            <option value="{{ member.id }}"
+                                    {% if accessEmployees[member.id] is defined %}
+                                        {{ "selected" }}
+                                    {% endif %}
+                            >{{ member.fullName }} ({{ member.employeeRole }})</option>
+                        {% endfor %}
+                    </optgroup>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $('.access-rights').bind('click', function () {
+                var accessRightsFileForm = $('#accessRightsFileForm');
+                accessRightsFileForm.attr('action', $(this).data('form-action'));
+                accessRightsFileForm.find('.file-id').val($(this).data('id'));
+                accessRightsFileForm.find('.file-access').val($(this).data('access'));
+                accessRightsFileForm.find('.access-rights-employees').val($(this).data('users'));
+
+                $('input[name=fullAccess]').removeAttr('checked');
+                $('.select-employees-access-rights').hide();
+
+                if (accessRightsFileForm.find('.file-access').val()) {
+                    $('.access-to-all-employees').prop('checked', true);
+                } else {
+                    $('.access-to-some-employees').prop('checked', true);
+                    $('.select-employees-access-rights').show();
+                }
+
+                $('.select2-modal').select2({ width: '100%' });
+            });
+
+            $('.access-to-some-employees').bind('click', function () {
+                $('.select-employees-access-rights').show();
+            });
+            $('.access-to-all-employees').bind('click', function () {
+                $('.select-employees-access-rights').hide();
+            });
+        });
+    </script>
+{% endmacro %}

@@ -1,0 +1,139 @@
+# Learn more about services, parameters and containers at
+# http://symfony.com/doc/current/service_container.html
+parameters:
+    security.acl.permission.map:
+          class: Sonata\AdminBundle\Security\Acl\Permission\AdminPermissionMap
+
+services:
+    twig.breadcrumb_extension:
+            class: AppBundle\Twig\Extension\BreadcrumbExtension
+            arguments: ["@white_october_breadcrumbs", "@router"]
+            tags:
+                - { name: twig.extension }
+
+    notification_consumer:
+            class: AppBundle\Consumer\NotificationConsumer
+    admin.project:
+            class: AppBundle\Admin\ProjectAdmin
+            arguments: [~, AppBundle\Entity\Project, ~]
+            tags:
+                - { name: sonata.admin, manager_type: orm, group: Projects, label: Projects, on_top: true }
+    admin.product:
+            class: AppBundle\Admin\ProductAdmin
+            arguments: [~, AppBundle\Entity\Product, ~]
+            tags:
+                - { name: sonata.admin, manager_type: orm, group: Products, label: Products, on_top: true }
+    admin.project.category:
+            class: AppBundle\Admin\ProjectCategoryAdmin
+            arguments: [~, AppBundle\Entity\ProjectCategory, ~]
+            tags:
+                - { name: sonata.admin, manager_type: orm, group: Settings, label: Project Categories }
+    admin.project.role:
+            class: AppBundle\Admin\ProjectRoleAdmin
+            arguments: [~, AppBundle\Entity\ProjectRole, ~]
+            tags:
+                - { name: sonata.admin, manager_type: orm, group: Settings, label: Project Roles }
+    admin.project.member:
+            class: AppBundle\Admin\ProjectMemberAdmin
+            arguments: [~, AppBundle\Entity\ProjectMember, ~]
+            tags:
+                - { name: sonata.admin, manager_type: orm, group: Settings, label: Project Members }
+    admin.project.status:
+            class: AppBundle\Admin\ProjectStatusAdmin
+            arguments: [~, AppBundle\Entity\ProjectStatus, ~]
+            tags:
+                - { name: sonata.admin, manager_type: orm, group: Settings, label: Project Status }
+    admin.project.flow:
+            class: AppBundle\Admin\ProjectFlowAdmin
+            arguments: [~, AppBundle\Entity\ProjectFlow, ~]
+            tags:
+                - { name: sonata.admin, manager_type: orm, group: Settings, label: Project Flow }
+    admin.project.stage:
+            class: AppBundle\Admin\ProjectStageAdmin
+            arguments: [~, AppBundle\Entity\ProjectStage, ~]
+            tags:
+                - { name: sonata.admin, manager_type: orm, group: Settings, label: Project Stages }
+    admin.team:
+            class: AppBundle\Admin\TeamAdmin
+            arguments: [~, AppBundle\Entity\Team, ~]
+            tags:
+                - { name: sonata.admin, manager_type: orm, group: Team, label: Teams }
+    app.admin.day_off:
+        class: AppBundle\Admin\DayOffAdmin
+        arguments: [~, AppBundle\Entity\DayOff, SonataAdminBundle:CRUD]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: Team, label: DayOff }
+    app.admin.production_calendar:
+            class: AppBundle\Admin\ProductionCalendarAdmin
+            arguments: [~, AppBundle\Entity\ProductionCalendar, SonataAdminBundle:CRUD]
+            tags:
+            - { name: sonata.admin, manager_type: orm, group: Team, label: Production Calendar }
+    admin.team.space:
+            class: AppBundle\Admin\TeamSpaceAdmin
+            arguments: [~, AppBundle\Entity\TeamSpace, ~]
+            tags:
+                - { name: sonata.admin, manager_type: orm, group: Team, label: Team Space }
+
+    admin.tool:
+            class: ProductionBundle\Admin\ToolAdmin
+            arguments: [~, ProductionBundle\Entity\Tool, SonataAdminBundle:CRUD]
+            tags:
+                - { name: sonata.admin, manager_type: orm, group: Production, label: Tool }
+
+    app.admin.achievement:
+        class: AppBundle\Admin\AchievementAdmin
+        arguments: [~, AppBundle\Entity\Achievement, SonataAdminBundle:CRUD]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: Achievments, label: Achievement }
+
+    app.admin.user_achievement:
+        class: AppBundle\Admin\UserAchievementAdmin
+        arguments: [~, AppBundle\Entity\UserAchievement, SonataAdminBundle:CRUD]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: Achievments, label: User Achievement }
+
+    admin.project.task_result:
+        class: AppBundle\Admin\TaskResultAdmin
+        arguments: [~, AppBundle\Entity\TaskResult, SonataAdminBundle:CRUD]
+        tags:
+        - { name: sonata.admin, manager_type: orm, group: Tasks, label: Result }
+
+    app.admin.country:
+        class: AppBundle\Admin\CountryAdmin
+        arguments: [~, AppBundle\Entity\Country, SonataAdminBundle:CRUD]
+        tags:
+        - { name: sonata.admin, manager_type: orm, group: Countries, label: Country }
+
+    app.admin.city:
+        class: AppBundle\Admin\CityAdmin
+        arguments: [~, AppBundle\Entity\City, SonataAdminBundle:CRUD]
+        tags:
+        - { name: sonata.admin, manager_type: orm, group: Countries, label: City }
+
+    service.project:
+        class: AppBundle\Service\ProjectService
+        arguments: ["@doctrine"]
+    service.employee:
+        class: AppBundle\Service\EmployeeService
+        arguments: ["@doctrine"]
+    service.task:
+        class: AppBundle\Service\TaskService
+        arguments: ["@doctrine"]
+    service.notification:
+        class: AppBundle\Service\NotificationService
+        arguments: ["@doctrine", "@templating", "@mailer"]
+    service.monitoring:
+        class: AppBundle\Service\MonitoringService
+        arguments: ["@doctrine"]
+    service.request:
+        class: PurchaseBundle\Service\RequestService
+        arguments: ["@doctrine", "@translator"]
+    service.supplier:
+        class: PurchaseBundle\Service\SupplierService
+        arguments: ["@doctrine"]
+    service.documents:
+        class: DocumentBundle\Service\DocumentService
+        arguments: ["@doctrine"]
+    service.activity:
+        class: DocumentBundle\Service\ActivityService
+        arguments: ["@doctrine"]

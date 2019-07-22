@@ -1,0 +1,25 @@
+<li>
+    <a href=""
+       data-href="{{ path('computer_parts_edit', {'id': part.id}) }}"
+       class="edit-computer-part"
+       data-type="{{ part.type }}"
+       data-name="{{ part.name }}"
+       data-description="{{ part.description }}"
+       data-inventory="{{ part.inventoryNumber }}"
+       data-serial="{{ part.serialNumber }}"
+       data-toggle="modal"
+       data-target=".editComputerPartModal">
+        <i class="fa fa-fw fa-pencil"></i> {{ 'Edit' | trans() }}
+    </a>
+</li>
+<li>
+    <a href=""
+       class="deleteComputer"
+       data-modal-title="{{ 'Delete computer part' | trans() }}"
+       data-form-action="{{ path('delete_computer_part', {'id': part.id}) }}"
+       data-type="{{ part.type }}"
+       data-target=".deleteComputerModal"
+       data-toggle="modal">
+        <i class="fa fa-fw fa-minus-square-o text-danger"></i> {{ 'Delete' | trans() }}
+    </a>
+</li>

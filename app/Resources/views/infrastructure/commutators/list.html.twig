@@ -1,0 +1,125 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'Commutators' | trans() }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ breadcrumb( 'Commutators' | trans(), path('commutators_list') ) }}
+{% endblock %}
+
+{% block body %}
+    <div class="panel panel-default no-bg  b-gray-dark">
+        <div class="panel-body">
+            <form class="form-inline filter-form" method="get" action="{{ path('commutators_list') }}">
+                <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target=".addCommutatorModal"><i class="fa fa-plus"></i> {{ 'Add commutator' | trans() }}</button>
+                <div class="btn-group pull-right m-r-1">
+                    <a class="btn btn-success" target="_blank" title="{{ 'Export' | trans() }}" href="{{ path('export_infrastructure', {'filters': filters, 'exportType' : 'commutators'}) }}">
+                        <i class="fa fa-fw fa-file-excel-o text-inverse"></i>{{ 'Export' | trans() }}
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <table class="table table-hover">
+    <thead>
+    <tr>
+        <th class="small text-muted text-uppercase">#<strong></strong></th>
+        <th class="small text-muted text-uppercase"><strong>{{ 'Model' | trans() }}</strong></th>
+        <th class="small text-muted text-uppercase"><strong>{{ 'IP Address' | trans() }}</strong></th>
+        <th class="small text-muted text-uppercase"><strong>{{ 'Way to get the ip-address' | trans() }}</strong></th>
+        <th class="small text-muted text-uppercase"><strong>{{ 'MAC Address' | trans() }}</strong></th>
+        <th class="small text-muted text-uppercase"><strong>{{ 'Inventory number' | trans() }}</strong></th>
+        <th class="small text-muted text-uppercase"><strong>{{ 'Room' | trans() }}</strong></th>
+        <th class="small text-muted text-uppercase text-right"><strong>{{ 'Actions' | trans() }}</strong></th>
+    </tr>
+    </thead>
+    <tbody>
+        {% for commutator in commutators %}
+            <tr>
+                <td class="v-a-m" style="width: 35px;">{{ ((currentPage - 1) * perPage) + loop.index }}</td>
+                <td class="v-a-m">
+                    <a href="{{ path('commutator_details', {'id': commutator.id}) }}">
+                        <span>{{ commutator.model }}</span>
+                    </a>
+                </td>
+                <td class="v-a-m">
+                    <span>{{ commutator.ipAddress }}</span>
+                </td>
+                <td class="v-a-m">
+                    <span>{{ commutator.ipType }}</span>
+                </td>
+                <td class="v-a-m">
+                    <span>{{ commutator.macAddress }}</span>
+                </td>
+                <td class="v-a-m">
+                    <span>{{ commutator.inventoryNumber }}</span>
+                </td>
+                <td class="v-a-m">
+                    <span>{{ commutator.room }}</span>
+                </td>
+
+                <td class="text-right v-a-m">
+                    <div class="dropdown">
+                        <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                            <i class="fa fa-fw fa-gear"></i> <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-right">
+                            {% include 'infrastructure/commutators/partial/commutators_actions.html.twig' %}
+                        </ul>
+                    </div>
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+    </table>
+
+    {% set vars = {
+        'route': 'commutators_list',
+        'currentPage': currentPage,
+        'maxPages': maxPages,
+        'filters': filters,
+        'perPage': perPage,
+        'routeParams': {
+            'orderBy': orderBy,
+            'order': order
+        }
+    }
+    %}
+    {% include 'partial/paginator.html.twig' with vars %}
+
+    {% import 'infrastructure/commutators/partial/form.html.twig' as form %}
+    {% import 'infrastructure/partial/delete_computer_form.html.twig' as deleteComputerForm %}
+
+
+    {% set addCommutatorFormVars = {
+        'class': 'addCommutatorModal',
+        'formId': 'addCommutatorForm',
+        'title': 'Add commutator',
+        'size': 'large',
+        'content': form.inputs(ipTypes),
+        'formAction': path('commutator_add'),
+        'submitTitle': 'Add'
+    } %}
+
+    {% set editCommutatorFormVars = {
+        'class': 'editCommutatorModal',
+        'formId': 'editCommutatorForm',
+        'title': 'Edit commutator',
+        'size': 'large',
+        'content': form.inputs(ipTypes),
+        'submitTitle': 'Save'
+    } %}
+
+    {% set deleteComputerFormVars = {
+        'class': 'deleteComputerModal',
+        'formId': 'deleteComputerForm',
+        'title': 'Delete commutator',
+        'content': deleteComputerForm.inputs('Are you sure you want to delete commutator?'),
+        'submitTitle': 'Delete'
+    } %}
+
+    {% include 'partial/modal.html.twig' with addCommutatorFormVars %}
+    {% include 'partial/modal.html.twig' with editCommutatorFormVars %}
+    {% include 'partial/modal.html.twig' with deleteComputerFormVars %}
+
+{% endblock %}

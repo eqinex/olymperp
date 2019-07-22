@@ -1,0 +1,159 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'Servers' | trans() }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ breadcrumb( 'Servers' | trans(), path('servers_list') ) }}
+{% endblock %}
+
+{% block body %}
+    <div class="panel panel-default no-bg  b-gray-dark">
+        <div class="panel-body">
+            <form class="form-inline filter-form" method="get" action="{{ path('servers_list') }}">
+                <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target=".addServerModal"><i class="fa fa-plus"></i> {{ 'Add server' | trans() }}</button>
+                <div class="btn-group pull-right m-r-1">
+                    <a class="btn btn-success" target="_blank" title="{{ 'Export' | trans() }}" href="{{ path('export_infrastructure', {'filters': filters, 'exportType' : 'servers'}) }}">
+                        <i class="fa fa-fw fa-file-excel-o text-inverse"></i>{{ 'Export' | trans() }}
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <table class="table table-hover">
+    <thead>
+    <tr>
+        {% set orderType = order == 'desc' ? 'asc' : 'desc' %}
+        {% set routeParams = { 'filters': filters } %}
+
+        <th class="small text-muted text-uppercase">#<strong></strong></th>
+        <th class="small text-muted text-uppercase">
+            {% set routeParams = routeParams | merge({'orderBy': 'type', 'order': orderBy == 'type' ? orderType : 'asc'}) %}
+            <a href="{{ path('servers_list', routeParams) }}">
+                <strong>{{ "Server type" | trans() ~ ' '}}</strong>
+                <i class="fa fa-sort{{ orderBy == 'type' ? '-' ~ order : '' }}"></i>
+            </a>
+        </th>
+        <th class="small text-muted text-uppercase">
+            {% set routeParams = routeParams | merge({'orderBy': 'ipAddress', 'order': orderBy == 'ipAddress' ? orderType : 'asc'}) %}
+            <a href="{{ path('servers_list', routeParams) }}">
+                <strong>{{ "IP Address" | trans() ~ ' '}}</strong>
+                <i class="fa fa-sort{{ orderBy == 'ipAddress' ? '-' ~ order : '' }}"></i>
+            </a>
+        </th>
+        <th class="small text-muted text-uppercase"><strong>{{ 'Way to get the ip-address' | trans() }}</strong></th>
+        <th class="small text-muted text-uppercase"><strong>{{ 'MAC Address' | trans() }}</strong></th>
+        <th class="small text-muted text-uppercase"><strong>{{ 'Domain' | trans() }}</strong></th>
+        <th class="small text-muted text-uppercase"><strong>{{ 'Installed service' | trans() }}</strong></th>
+        <th class="small text-muted text-uppercase"><strong>{{ 'Inventory number' | trans() }}</strong></th>
+        <th class="small text-muted text-uppercase"><strong>{{ 'Serial number' | trans() }}</strong></th>
+        <th class="small text-muted text-uppercase"><strong>{{ 'Operation system' | trans() }}</strong></th>
+        <th class="small text-muted text-uppercase"><strong>{{ 'Legal' | trans() }}</strong></th>
+        <th class="small text-muted text-uppercase"><strong>{{ 'Room' | trans() }}</strong></th>
+        <th class="small text-muted text-uppercase text-right"><strong>{{ 'Actions' | trans() }}</strong></th>
+    </tr>
+    </thead>
+    <tbody>
+        {% for server in servers %}
+            <tr>
+                <td class="v-a-m" style="width: 35px;">{{ ((currentPage - 1) * perPage) + loop.index }}</td>
+                <td class="v-a-m">
+                    <span>{{ server.type | trans() }}</span>
+                </td>
+                <td class="v-a-m">
+                    <a href="{{ path('server_details', {'id': server.id}) }}">
+                        <span>{{ server.ipAddress }}</span>
+                    </a>
+                </td>
+                <td class="v-a-m">
+                    <span>{{ server.ipType }}</span>
+                </td>
+                <td class="v-a-m">
+                    <span>{{ server.macAddress }}</span>
+                </td>
+                <td class="v-a-m">
+                    <span>{{ server.domain }}</span>
+                </td>
+                <td class="v-a-m">
+                    <span>{{ server.installedService is not null ? server.installedService : '-' }}</span>
+                </td>
+                <td class="v-a-m">
+                    <span>{{ server.inventoryNumber }}</span>
+                </td>
+                <td class="v-a-m">
+                    <span>{{ server.serialNumber }}</span>
+                </td>
+                <td class="v-a-m">
+                    <span>{{ server.operationSystem is not null ? server.operationSystem.name }}</span>
+                </td>
+                <td class="v-a-m">
+                    <span>{{ server.legal == 1 ? 'Yes' | trans() : 'No' | trans() }}</span>
+                </td>
+                <td class="v-a-m">
+                    <span>{{ server.room }}</span>
+                </td>
+
+                <td class="text-right v-a-m">
+                    <div class="dropdown">
+                        <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                            <i class="fa fa-fw fa-gear"></i> <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-right">
+                            {% include 'infrastructure/servers/partial/server_actions.html.twig' %}
+                        </ul>
+                    </div>
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+    </table>
+
+    {% set vars = {
+        'route': 'servers_list',
+        'currentPage': currentPage,
+        'maxPages': maxPages,
+        'filters': filters,
+        'perPage': perPage,
+        'routeParams': {
+            'orderBy': orderBy,
+            'order': order
+        }
+    }
+    %}
+    {% include 'partial/paginator.html.twig' with vars %}
+
+    {% import 'infrastructure/servers/partial/form.html.twig' as form %}
+    {% import 'infrastructure/partial/delete_computer_form.html.twig' as deleteComputerForm %}
+
+    {% set addServerFormVars = {
+        'class': 'addServerModal',
+        'formId': 'addServerForm',
+        'title': 'Add server',
+        'size': 'large',
+        'content': form.inputs(serverTypes, ipTypes, operationSystems, hosts),
+        'formAction': path('server_add'),
+        'submitTitle': 'Add'
+    } %}
+
+    {% set editServerFormVars = {
+        'class': 'editServerModal',
+        'formId': 'editServerForm',
+        'title': 'Edit server',
+        'size': 'large',
+        'content': form.inputs(serverTypes, ipTypes, operationSystems, hosts),
+        'submitTitle': 'Save'
+    } %}
+
+    {% set deleteComputerFormVars = {
+        'class': 'deleteComputerModal',
+        'formId': 'deleteComputerForm',
+        'title': 'Delete server',
+        'content': deleteComputerForm.inputs('Are you sure you want to delete server?'),
+        'submitTitle': 'Delete'
+    } %}
+
+    {% include 'partial/modal.html.twig' with addServerFormVars %}
+    {% include 'partial/modal.html.twig' with editServerFormVars %}
+    {% include 'partial/modal.html.twig' with deleteComputerFormVars %}
+
+{% endblock %}

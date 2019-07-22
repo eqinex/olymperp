@@ -1,0 +1,100 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'Interviews' | trans() }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ breadcrumb( 'Interviews' | trans(), path('interviews_list') ) }}
+{% endblock %}
+
+{% block body %}
+    <div class="panel panel-default no-bg  b-gray-dark">
+        <div class="panel-body">
+            {% if app.user.canEditInterview() %}
+                <form class="form-inline filter-form" method="get" action="">
+                        <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target=".addInterviewModal"><i class="fa fa-plus"></i> {{ 'Add interview' | trans() }}</button>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th class="small text-muted text-uppercase"><strong>{{ "Vacancy" | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ "Applicant" | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ "Notice" | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ "Time" | trans() }}</strong></th>
+            {% if app.user.canEditInterview() %}
+            <th class="small text-muted text-uppercase text-right"><strong>{{ "Actions" | trans() }}</strong></th>
+            {% endif %}
+        </tr>
+        </thead>
+        <tbody>
+        {% for interview in interviews %}
+            <tr>
+                <td class="v-a-m">
+                    {{ interview.vacancy.description }}
+                </td>
+                <td class="v-a-m">
+                    {{ interview.applicant.lastName ~ " " ~ interview.applicant.firstName ~ " " ~ interview.applicant.middleName }}
+                </td>
+                <td class="v-a-m">
+                    {{ interview.notice }}
+                </td>
+                <td class="v-a-m">
+                    {% if interview.startAt is not null %}
+                        {{ interview.startAt | date('d.m.Y H:i') }}
+                    {% else %}
+                        {{ "-" }}
+                    {% endif %}
+                </td>
+                {% if app.user.canEditInterview() %}
+                    <td class="text-right v-a-m">
+                        <div class="dropdown">
+                            <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                <i class="fa fa-fw fa-gear"></i> <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-right">
+                                {% include 'interviews/partial/interviews_actions.html.twig' %}
+                            </ul>
+                        </div>
+                    </td>
+                {% endif %}
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% import 'interviews/partial/form.html.twig' as form %}
+    {% import 'interviews/partial/request_approve_interview_form.html.twig' as requestApproveInterviewForm %}
+
+    {% set addInterviewFormVars = {
+        'class': 'addInterviewModal',
+        'formId': 'addInterviewForm',
+        'title': 'Add interview',
+        'size': 'large',
+        'content': form.inputs(applicants, vacancies),
+        'formAction': path('interviews_add'),
+        'submitTitle': 'Add'
+    } %}
+
+    {% set editInterviewFormVars = {
+        'class': 'editInterviewModal',
+        'formId': 'editInterviewForm',
+        'title': 'Edit interview',
+        'size': 'large',
+        'content': form.inputs(applicants, vacancies),
+        'submitTitle': 'Save'
+    } %}
+
+    {% set requestApproveInterviewVars = {
+        'class': 'requestApproveInterviewModal',
+        'formId': 'requestApproveInterviewForm',
+        'title': 'Request approve',
+        'content': requestApproveInterviewForm.inputs(),
+        'submitTitle': 'Send'
+    } %}
+
+    {% include 'partial/modal.html.twig' with addInterviewFormVars %}
+    {% include 'partial/modal.html.twig' with editInterviewFormVars %}
+    {% include 'partial/modal.html.twig' with requestApproveInterviewVars %}
+
+{% endblock %}

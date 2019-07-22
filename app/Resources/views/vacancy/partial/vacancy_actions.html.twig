@@ -1,0 +1,11 @@
+<li>
+    <a href=""
+       data-href="{{ path('vacancies_edit', {'id': vacancy.id}) }}"
+       class="editVacancy"
+       data-employee-role="{{ vacancy.employeeRole is not null ? vacancy.employeeRole.id : '' }}"
+       data-team="{{ vacancy.team is not null ? vacancy.team.id : '' }}"
+       data-description="{{ vacancy.description }}"
+       data-toggle="modal"
+       data-target=".editVacancyModal">
+        <i class="fa fa-fw fa-pencil"></i> {{ 'Edit' | trans() }}</a>
+</li>

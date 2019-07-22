@@ -1,0 +1,27 @@
+<ul class="dropdown-menu dropdown-menu-right">
+    {% if activity.canEditActivity(app.user) %}
+        <li>
+            <a href=""
+               class="edit-activity"
+               data-href="{{ path('edit_activity', {'id': activity.id}) }}"
+               data-project="{{ activity.project.id }}"
+               data-responsible-user="{{ activity.responsibleUser.id }}"
+               data-activity="{{ activity.activity }}"
+               data-category="{{ activity.category }}"
+               data-profitability="{{ activity.profitability }}"
+               data-plan="{{ activity.plan }}"
+               data-fact="{{ activity.fact }}"
+               data-received="{{ activity.received }}"
+               data-end-at="{{ activity.endAt | date('d.m.Y H:i') }}"
+               data-toggle="modal"
+               data-target=".editActivityModal"
+            ><i class="fa fa-fw fa-pencil m-r-1"></i> {{ 'Edit' | trans() }}</a>
+        </li>
+    {% endif %}
+    {% if activity.notPerformed() %}
+        <li>
+            <a href="{{ path('activity_change_result', {'id':activity.id, 'result': 2}) }}"
+            ><i class="fa fa-fw fa-thumbs-up text-success m-r-1"></i> {{ 'Done' | trans() }}</a>
+        </li>
+    {% endif %}
+</ul>

@@ -1,0 +1,70 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'Engineering document classifier' | trans() }}{% endblock %}
+
+{% block breadcrumbs %}
+    {{ breadcrumb( 'Engineering document classifier' | trans(), path('engineering_document_classifier_list') ) }}
+{% endblock %}
+
+{% block body %}
+    <div class="panel panel-default no-bg  b-gray-dark">
+        <div class="panel-body">
+            <form class="form-inline filter-form" method="get" action="{{ path('engineering_document_classifier_list') }}">
+            </form>
+            {% if app.user.canEditEngineeringDocumentClassifier %}
+                <button type="button" class="btn btn-success pull-right m-r-1" data-toggle="modal" data-target=".importClassifierModal"><i class="fa fa-fw fa-upload"></i> {{ 'Import' | trans() }}</button>
+            {% endif %}
+        </div>
+    </div>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            {% set routeParams = { 'filters': filters} %}
+            <th class="small text-muted text-uppercase"><strong>{{ "Engineering document classifier" | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ "Subgroup" | trans() }}</strong></th>
+            <th class="small text-muted text-uppercase"><strong>{{ "All russian classifier of products and design documents" | trans() }}</strong></th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for classifierEngineeringDocument in classifierEngineeringDocuments %}
+        <!-- START ROW Task -->
+        <tr>
+            <td class="v-a-m">{{ classifierEngineeringDocument.class }}</td>
+            <td class="v-a-m">{{ classifierEngineeringDocument.subgroup }}</td>
+            <td class="v-a-m">
+                <a class="link-comment" href="{{ path('engineering_document_classifier_list', { 'filters': {'class': classifierEngineeringDocument.class, 'subgroup': classifierEngineeringDocument.subgroup }} )}}">
+                    {{ classifierEngineeringDocument.description }}
+                </a>
+            </td>
+            {% endfor %}
+            <!-- END ROW Task -->
+        </tbody>
+    </table>
+
+
+    {% set vars = {
+        'route': 'engineering_document_classifier_list',
+        'currentPage': currentPage,
+        'maxPages': maxPages,
+        'filters': filters
+    } %}
+
+    {% include 'partial/paginator.html.twig' with vars %}
+
+    {% import 'development/engineering_document/partial/import_form.html.twig' as importClassifierVarsForm %}
+
+    {% set importClassifierVars = {
+        'class': 'importClassifierModal',
+        'formId': 'importClassifierForm',
+        'title': 'Import engineering document classifier',
+        'content': importClassifierVarsForm.inputs(),
+        'submitTitle': 'Import',
+        'formAction': path('engineering_document_classifier_import')
+    }
+    %}
+
+    {% include 'partial/modal.html.twig' with importClassifierVars %}
+
+
+{% endblock %}
+
